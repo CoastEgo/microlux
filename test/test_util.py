@@ -87,8 +87,9 @@ def VBBL_light_curve(
     tau = (times - t_0) / t_E
     y1 = -u_0 * np.sin(alpha_VBBL) + tau * np.cos(alpha_VBBL)
     y2 = u_0 * np.cos(alpha_VBBL) + tau * np.sin(alpha_VBBL)
-    params = [np.log(s), np.log(q), u_0, alpha_VBBL, np.log(rho), np.log(t_E), t_0]
-    VBBL_mag = VBBL.BinaryLightCurve(params, times, y1, y2)
+    VBBL_mag = []
+    for i in range(len(times)):
+        VBBL_mag.append(VBBL.BinaryMag2(tau[i], y1[i], y2[i], rho, q, s))
     VBBL_mag = np.array(VBBL_mag)
     return VBBL_mag
 
