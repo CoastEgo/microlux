@@ -2,22 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://coastego.github.io/microlux/</loc>
-         <lastmod>2025-01-15</lastmod>
+         <lastmod>2025-03-20</lastmod>
     </url>
     <url>
          <loc>https://coastego.github.io/microlux/api/model/</loc>
-         <lastmod>2025-01-15</lastmod>
+         <lastmod>2025-03-20</lastmod>
     </url>
     <url>
          <loc>https://coastego.github.io/microlux/api/solver/</loc>
-         <lastmod>2025-01-15</lastmod>
+         <lastmod>2025-03-20</lastmod>
     </url>
     <url>
          <loc>https://coastego.github.io/microlux/api/utils/</loc>
-         <lastmod>2025-01-15</lastmod>
+         <lastmod>2025-03-20</lastmod>
     </url>
     <url>
          <loc>https://coastego.github.io/microlux/example/KB0371/</loc>
-         <lastmod>2025-01-15</lastmod>
+         <lastmod>2025-03-20</lastmod>
     </url>
 </urlset>
