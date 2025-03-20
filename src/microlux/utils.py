@@ -29,9 +29,7 @@ class Iterative_State(NamedTuple):
     parity: jax.Array
     ghost_roots_distant: jax.Array
     sort_flag: Union[bool, jax.Array]
-    Is_create: jax.Array = jax.tree_util.Partial(
-        jnp.zeros, [4, MAX_CAUSTIC_INTERSECT_NUM], dtype=int
-    )
+    Is_create: jax.Array = jnp.zeros((4, MAX_CAUSTIC_INTERSECT_NUM), dtype=int)
 
 
 class Error_State(NamedTuple):

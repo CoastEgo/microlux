@@ -3,6 +3,7 @@ from typing import Tuple
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 from jax import lax
 
 from .basic_function import (
@@ -238,9 +239,7 @@ def extended_light_curve(
         )
 
     if return_info:
-        default_roots_state, default_error_state = get_default_state(
-            jnp.sum(default_strategy)
-        )
+        default_roots_state, default_error_state = get_default_state(np.sum(default_strategy))
 
         result = lax.map(
             lambda x: lax.cond(
