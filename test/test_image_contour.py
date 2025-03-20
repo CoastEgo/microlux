@@ -3,7 +3,7 @@ import numpy as np
 
 # from microlux import model_numpy
 from microlux import binary_mag, to_centroid, to_lowmass
-from MulensModel import caustics
+from MulensModel import CausticsBinary
 
 
 # deprecated function
@@ -62,7 +62,7 @@ def contour_plot(t_0, b, t_E, rho, q, s, alphadeg, times, retol=1e-3, tol=1e-3):
 
     plt.figure(figsize=(6, 6))
     plt.scatter(source_c.real, source_c.imag, color="r", s=0.5)
-    caustic_1 = caustics.Caustics(q, s)
+    caustic_1 = CausticsBinary(q, s)
     caustic_1.plot(5000, s=0.5)
     x, y = caustic_1.get_caustics()
     x = caustic_1.critical_curve.x
