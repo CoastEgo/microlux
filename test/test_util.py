@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import VBBinaryLensing
-from MulensModel import caustics
+from MulensModel import CausticsBinary
 
 
 def timeit(f, iters=10, verbose=True):
@@ -88,8 +88,10 @@ def VBBL_light_curve(
     y1 = -u_0 * np.sin(alpha_VBBL) + tau * np.cos(alpha_VBBL)
     y2 = u_0 * np.cos(alpha_VBBL) + tau * np.sin(alpha_VBBL)
     VBBL_mag = []
-    for i in range(len(times)):
-        VBBL_mag.append(VBBL.BinaryMag2(tau[i], y1[i], y2[i], rho, q, s))
+    # for i in range(len(times)):
+    #     VBBL_mag.append(VBBL.BinaryMag2(s,q, y1[i], y2[i], rho))
+    params = [np.log(s), np.log(q), u_0, alpha_VBBL, np.log(rho), np.log(t_E), t_0]
+    VBBL_mag = VBBL.BinaryLightCurve(params, times, y1, y2)
     VBBL_mag = np.array(VBBL_mag)
     return VBBL_mag
 
@@ -111,7 +113,7 @@ def get_caustic_permutation(rho, q, s, n_points=1000):
 
     - return the permutation of the caustic in the central of mass coordinate system
     """
-    caustic = caustics.Caustics(q, s)
+    caustic = CausticsBinary(q, s)
     x, y = caustic.get_caustics(n_points)
     z_centeral = jnp.array(jnp.array(x) + 1j * jnp.array(y))
     ## random change the position of the source
