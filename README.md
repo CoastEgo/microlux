@@ -11,7 +11,10 @@ With the access to the gradient, we can use more advanced algorithms for microle
 
 ## Installation
 
-The PyPI version is coming soon. Currently, You can install this package from the source code in the editable mode.
+``` bash
+pip install microlux
+```
+or you can install this package from source for development. 
 ``` bash 
 git clone https://github.com/CoastEgo/microlux.git
 cd microlux
