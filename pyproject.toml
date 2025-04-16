@@ -5,7 +5,7 @@ description = "A JAX-based package for microlensing binary lens"
 authors = [
     {name = "Haibin Ren", email = "rhb23@mails.tsinghua.edu.cn"},
 ]
-requires-python = "~=3.9"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 readme = "README.md"
 urls = {repository = "https://github.com/CoastEgo/microlux"}
