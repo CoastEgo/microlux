@@ -38,9 +38,9 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
-
       
       - name: Publish to Test PyPI
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_mode == 'test-only'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
