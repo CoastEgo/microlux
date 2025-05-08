@@ -1,5 +1,5 @@
 VBBinaryLensing==3.6.2
-MulensModel==2.24.0
+MulensModel==3.1.0
 pytest==8.2.2
 pytest-xdist==3.6.1
 scipy
