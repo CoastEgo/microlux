@@ -239,7 +239,9 @@ def extended_light_curve(
         )
 
     if return_info:
-        default_roots_state, default_error_state = get_default_state(np.sum(default_strategy))
+        default_roots_state, default_error_state = get_default_state(
+            np.sum(default_strategy)
+        )
 
         result = lax.map(
             lambda x: lax.cond(
