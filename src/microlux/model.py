@@ -129,14 +129,14 @@ def binary_mag(
     - `retol`: The relative tolerance for the adaptive contour integration. Defaults to 0.001.
     - `default_strategy`: The default strategy for the contour integration. Defaults to (30, 30, 60, 120, 240). more details can be found in the [`microlux.contour_integral`][].
     - `analytic`: Whether to use the analytic chain rule to simplify the computation graph. Set this to True will accelerate the computation of the gradient and will support the reverse mode differentiation containing the while loop. But set this to True will slow down if only calculate the model without differentiation. Defaults to True.
-    - `return_info`: Whether to return additional information about the computation. Defaults to False.
+    - `return_info`: Whether to return additional information about the computation. Defaults to False. when set to True, the function will return a tuple containing (magnification, info), where info is a tuple containing additional information about the computation used for debugging.
     - `limb_darkening_coeff`: The limb darkening coefficient for the source star. Defaults to None. currently only support linear limb darkening.
 
 
     **Returns**
 
     - `magnification`: The magnification of the source at the given times.
-    - `info`: Additional information about the computation used for debugging if return_info is True.
+    - `info`: Additional information about the computation used for debugging if return_info is True. The structure of info is (trajectory, rho, s, q, default_roots_state, default_error_state), where trajectory, rho, s, q are the input parameters, default_roots_state and default_error_state are the states used for the contour integration. see [`microlux.utils.Iterative_State`][] and [`microlux.utils.Error_State`][]for more details.
     """
     # Here the parameterization is consistent with Mulensmodel and VBBinaryLensing
     ### initialize parameters
