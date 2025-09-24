@@ -43,3 +43,8 @@ combine-as-imports = true
 extra-standard-library = ["typing_extensions"]
 lines-after-imports = 2
 order-by-type = false
+
+[tool.pytest.ini_options]
+markers = [
+    "fast: marks tests as fast (deselect with '-m \"not fast\"')",
+]
