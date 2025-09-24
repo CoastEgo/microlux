@@ -99,28 +99,51 @@ def Quadrupole_test(rho, s, q, zeta, z, cond, tol=1e-2):
 
 def get_poly_coff(zeta_l, s, m2):
     """
-    get the polynomial cofficients of the polynomial equation of the lens equation. The low mass object is at the origin and the primary is at s.
+    get the polynomial cofficients of the polynomial equation of the lens equation.
+    The low mass object is at the origin and the primary is at s.
     The input zeta_l should have the shape of (n,1) for broadcasting.
+    This calculation is based on the Wang et al. 2025 paper. (https://arxiv.org/pdf/2501.03322) to avoid the cancellation error, but the coordinates convention is different (z1 = (-s,0) in Wang et al. 2025 and z1 = (s,0) here).
+    So we need to change the sign of s in the calculation.
     """
     zeta_conj = jnp.conj(zeta_l)
-    c0 = s**2 * zeta_l * m2**2
-    c1 = -s * m2 * (2 * zeta_l + s * (-1 + s * zeta_l - 2 * zeta_l * zeta_conj + m2))
-    c2 = (
-        zeta_l
-        - s**3 * zeta_l * zeta_conj
-        + s * (-1 + m2 - 2 * zeta_conj * zeta_l * (1 + m2))
-        + s**2 * (zeta_conj - 2 * zeta_conj * m2 + zeta_l * (1 + zeta_conj**2 + m2))
-    )
-    c3 = (
-        s**3 * zeta_conj
-        + 2 * zeta_l * zeta_conj
-        + s**2 * (-1 + 2 * zeta_conj * zeta_l - zeta_conj**2 + m2)
-        - s * (zeta_l + 2 * zeta_l * zeta_conj**2 - 2 * zeta_conj * m2)
-    )
-    c4 = zeta_conj * (-1 + 2 * s * zeta_conj + zeta_conj * zeta_l) - s * (
-        -1 + 2 * s * zeta_conj + zeta_conj * zeta_l + m2
-    )
-    c5 = (s - zeta_conj) * zeta_conj
+    y = zeta_l
+    s = -s
+    y_bar = zeta_conj
+
+    # 定义中间变量
+    v_c = y_bar + s  # v_c ≡ \bar{y} + s
+    v_p = 1 + s * y_bar  # v_p ≡ 1 + s\bar{y}
+
+    # 计算实部和虚部
+    Im_y = jnp.imag(y)
+    Re_v_p = jnp.real(v_p)
+    Re_v_c = jnp.real(v_c)
+
+    # 计算各个系数
+    c5 = -y_bar * v_c  # c5 = -\bar{y}v_c
+
+    c4 = (
+        y_bar * y - 1 - 2 * s * y_bar
+    ) * v_c + m2 * s  # c4 = (\bar{y}y - 1 - 2s\bar{y})v_c + m_2s
+
+    # c3 = (2y - s)[v_p*v_c + 2Im(y)i - m_2s] + 4(m_2s - y)Im(y)i
+    c3 = (2 * y - s) * (v_p * v_c + 2 * Im_y * 1j - m2 * s) + 4 * (
+        m2 * s - y
+    ) * Im_y * 1j
+
+    # c2 = Re(v_p)^2 Re(v_c) + Im(y)Re(v_p)Re(1 - sy)i + sIm(y)^2(2 + sv_c) + m_2s[2\bar{y}(y - s) - (1 - sy)]
+    term1 = Re_v_p**2 * Re_v_c
+    term2 = Im_y * Re_v_p * jnp.real(1 - s * y) * 1j
+    term3 = s * Im_y**2 * (2 + s * v_c)
+    term4 = m2 * s * (2 * y_bar * (y - s) - (1 - s * y))
+    c2 = term1 + term2 + term3 + term4
+
+    # c1 = m_2s[(s + 2y)(v_p) + s(2sIm(y)i - m_2)]
+    c1 = m2 * s * ((s + 2 * y) * v_p + s * (2 * s * Im_y * 1j - m2))
+
+    c0 = s**2 * m2**2 * y  # c0 = s^2 m_2^2 y
+
+    # 将系数组合成数组
     coff = jnp.concatenate((c5, c4, c3, c2, c1, c0), axis=1)
     return coff
 
