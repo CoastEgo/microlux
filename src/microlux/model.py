@@ -224,13 +224,15 @@ def extended_light_curve(
             mag_contour_rho_fun = lambda rho: contour_integral(
                 trajectory_l, tol, retol, rho, s, q, default_strategy, analytic
             )
-            mag_concentric, mag_con_res = lax.map(
+            mag_concentric, info = lax.map(
                 mag_contour_rho_fun, rho_array
             )  # exclude the first element which is zero
 
             mag_annuli = jnp.diff(mag_concentric * rho_frac2, prepend=0)
             total_mag = jnp.sum(mag_annuli * surface_brightness)
-            return total_mag, mag_con_res[-1]
+            # return the info of the last annulus
+            info_last = jax.tree_map(lambda x: x[-1], info)
+            return total_mag, info_last
 
         mag_contour = mag_limbdarkening
     else:
