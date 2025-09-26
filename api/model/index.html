@@ -595,13 +595,13 @@ which is <strong>not</strong> in an adaptive scheme. So the tolerance of the lim
 <li><code>retol</code>: The relative tolerance for the adaptive contour integration. Defaults to 0.001.</li>
 <li><code>default_strategy</code>: The default strategy for the contour integration. Defaults to (30, 30, 60, 120, 240). more details can be found in the <a class="autorefs autorefs-internal" href="#microlux.contour_integral"><code>microlux.contour_integral</code></a>.</li>
 <li><code>analytic</code>: Whether to use the analytic chain rule to simplify the computation graph. Set this to True will accelerate the computation of the gradient and will support the reverse mode differentiation containing the while loop. But set this to True will slow down if only calculate the model without differentiation. Defaults to True.</li>
-<li><code>return_info</code>: Whether to return additional information about the computation. Defaults to False.</li>
+<li><code>return_info</code>: Whether to return additional information about the computation. Defaults to False. when set to True, the function will return a tuple containing (magnification, info), where info is a tuple containing additional information about the computation used for debugging.</li>
 <li><code>limb_darkening_coeff</code>: The limb darkening coefficient for the source star. Defaults to None. currently only support linear limb darkening.</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
 <li><code>magnification</code>: The magnification of the source at the given times.</li>
-<li><code>info</code>: Additional information about the computation used for debugging if return_info is True.</li>
+<li><code>info</code>: Additional information about the computation used for debugging if return_info is True. The structure of info is (trajectory, rho, s, q, default_roots_state, default_error_state), where trajectory, rho, s, q are the input parameters, default_roots_state and default_error_state are the states used for the contour integration. see <a class="autorefs autorefs-internal" href="../utils/#microlux.Iterative_State"><code>microlux.utils.Iterative_State</code></a> and <a class="autorefs autorefs-internal" href="../utils/#microlux.Error_State"><code>microlux.utils.Error_State</code></a>for more details.</li>
 </ul>
 
     </div>
