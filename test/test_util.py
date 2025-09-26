@@ -28,7 +28,7 @@ def timeit(f, iters=10, verbose=True):
         result = f(*args, **kw)
         te = time.perf_counter()
         if verbose:
-            print(f"{f.__name__} compile time={te-ts}")
+            print(f"{f.__name__} compile time={te - ts}")
         alltime = []
         for i in range(iters):
             ts = time.perf_counter()
