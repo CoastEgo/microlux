@@ -231,7 +231,7 @@ def extended_light_curve(
             mag_annuli = jnp.diff(mag_concentric * rho_frac2, prepend=0)
             total_mag = jnp.sum(mag_annuli * surface_brightness)
             # return the info of the last annulus
-            info_last = jax.tree_map(lambda x: x[-1], info)
+            info_last = jax.tree.map(lambda x: x[-1], info)
             return total_mag, info_last
 
         mag_contour = mag_limbdarkening
