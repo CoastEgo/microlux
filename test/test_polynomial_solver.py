@@ -87,9 +87,9 @@ def get_poly_coff_old(zeta_l, s, m2):
     return coff
 
 
-# Define parameter ranges for pytest
-s_values_coeff = np.random.uniform(0.5, 1.5, 3)
-m2_values = np.random.uniform(0.001, 0.1, 3)
+# Define parameter ranges for pytest use list type. See : Known limitations in pytest-xdist https://pytest-xdist.readthedocs.io/en/stable/known-limitations.html
+s_values_coeff = [0.5, 1.0, 1.5]
+m2_values = [0.01, 0.1, 0.5]
 
 
 @pytest.mark.fast
@@ -117,6 +117,6 @@ def test_poly_coefficients_consistency(s, m2):
 
 
 if __name__ == "__main__":
-    test_polynomial_caustic(1e-2, 0.2, 0.9)
-    test_polynomial_uniform(0.2, 0.9)
+    # test_polynomial_caustic(1e-2, 0.2, 0.9)
+    # test_polynomial_uniform(0.2, 0.9)
     test_poly_coefficients_consistency(s=1.0, m2=0.01)  # Example call for quick check
