@@ -142,9 +142,8 @@ def binary_mag(
     ### initialize parameters
     alpha_rad = alpha_deg * 2 * jnp.pi / 360
     tau = (times - t_0) / t_E
-    ## switch the coordinate system to the lowmass
+    # Trajectory in center-of-mass coordinate system
     trajectory = tau * jnp.exp(1j * alpha_rad) + 1j * u_0 * jnp.exp(1j * alpha_rad)
-    trajectory_l = to_lowmass(s, q, trajectory)
 
     limb_darkening_instance = (
         LinearLimbDarkening(limb_darkening_coeff)
@@ -152,7 +151,7 @@ def binary_mag(
         else None
     )
     mag = extended_light_curve(
-        trajectory_l,
+        trajectory,
         s,
         q,
         rho,
@@ -177,7 +176,7 @@ def binary_mag(
     ],
 )
 def extended_light_curve(
-    trajectory_l,
+    trajectory,
     s,
     q,
     rho,
@@ -190,15 +189,27 @@ def extended_light_curve(
     n_annuli: int = 10,
 ):
     """
-    compute the light curve of a binary lens system with finite source effects.
+    Compute the light curve of a binary lens system with finite source effects.
+
+    !!! note
+        The trajectory parameter should be in the center-of-mass coordinate system
+        (consistent with MulensModel). The function internally transforms to
+        low-mass coordinates for the calculation.
 
     **Parameters**
 
-    - `trajectory_l`: The trajectory in the low mass coordinate system.
+    - `trajectory`: The trajectory in the center-of-mass coordinate system.
     - `n_annuli`: The number of annuli for the limb darkening calculation.
-    - for the definition of the other parameters, please see [`microlux.binary_mag`][].
+    - For the definition of the other parameters, please see [`microlux.binary_mag`][].
 
+    **Returns**
+
+    - `magnification`: The magnification of the source at the given trajectory points.
+    - `info`: Additional information about the computation used for debugging if return_info is True.
     """
+
+    # Transform from center-of-mass to low-mass coordinate system
+    trajectory_l = to_lowmass(s, q, trajectory)
 
     mag, cond = point_light_curve(trajectory_l, s, q, rho, tol)
 
