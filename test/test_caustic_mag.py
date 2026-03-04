@@ -73,8 +73,6 @@ def test_limb_darkening(limb_a, rho=1e-2, q=0.2, s=0.9, retol=1e-3):
 
     z_centeral = get_caustic_permutation(rho, q, s, n_points=1000)
 
-    ### change the coordinate system
-    z_lowmass = to_lowmass(s, q, z_centeral)
     trajectory_n = z_centeral.shape[0]
 
     ### change the coordinate system
@@ -91,7 +89,7 @@ def test_limb_darkening(limb_a, rho=1e-2, q=0.2, s=0.9, retol=1e-3):
     limb_darkening_instance = LinearLimbDarkening(limb_a)
     ## real time
     Jaxmag = extended_light_curve(
-        z_lowmass,
+        z_centeral,  # Pass center-of-mass coordinates, extended_light_curve will handle to_lowmass transform
         s,
         q,
         rho,
