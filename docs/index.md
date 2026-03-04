@@ -32,11 +32,26 @@ times = jnp.linspace(t_0 - 1.0 * t_E, t_0 + 1.0 * t_E, trajectory_n)
 mag = binary_mag(t_0, b, t_E, rho, q, s, alphadeg, times, tol=1e-3, retol=1e-3)
 ```
 
-More examples can be found in the [`test`](https://github.com/CoastEgo/microlux/tree/master/test) folder.
+Detailed example usages are documented in the [Quick Start Guide](quick-start.md).
+Additional examples can be found in the [`test`](https://github.com/CoastEgo/microlux/tree/master/test) folder.
 
 ## Citation
-If you use this package for your research, please cite our paper:
 
-- A differentiable binary microlensing model using adaptive contour integration method: <a href='https://arxiv.org/abs/2501.07268'>in arXiv</a>
+`microlux` is open-source software licensed under the MIT license. If you use this package for your research, please cite our paper:
 
-and consider starrring this repository on <a href='https://github.com/CoastEgo/microlux'>Github</a>:
+- A differentiable binary microlensing model using adaptive contour integration method: <a href='https://arxiv.org/abs/2501.07268'>in arXiv</a> and <a href= 'https://iopscience.iop.org/article/10.3847/1538-3881/adb1b2'>in AJ </a>.
+
+``` bibtex
+@article{ren2025microlux,
+       author = {{Ren}, Haibin and {Zhu}, Wei},
+        title = "{A Differentiable Binary Microlensing Model Using Adaptive Contour Integration Method}",
+      journal = {The Astronomical Journal},
+         year = 2025,
+       volume = {169},
+       number = {3},
+          eid = {170},
+        pages = {170},
+          doi = {10.3847/1538-3881/adb1b2},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2025AJ....169..170R},
+}
+```
