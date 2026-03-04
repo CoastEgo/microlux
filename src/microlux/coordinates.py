@@ -1,8 +1,16 @@
+"""
+Coordinate utilities used by microlux trajectory models.
+
+!!! note
+    Parts of this module are inspired by MulensModel's coordinate/parallax
+    implementation:
+    https://github.com/rpoleski/MulensModel
+"""
+
 from typing import NamedTuple
 
 import astropy.units as u
 import erfa
-import jax.numpy as jnp
 import numpy as np
 from astropy.coordinates import get_body_barycentric
 from astropy.coordinates.builtin_frames.utils import get_jd12
@@ -11,19 +19,15 @@ from astropy.time import Time
 
 def velocity_of_Earth(full_BJD):
     """
-    Calculate 3D velocity of Earth for given epoch.
+    Calculate Earth's barycentric velocity at a given epoch.
 
-    If you need velocity projected on the plane of the sky, then use
-    :py:func:`~MulensModel.coordinates.Coordinates.v_Earth_projected`
+    **Parameters**
 
-    Parameters :
-        full_BJD: *float*
-            Barycentric Julian Data. Full means it should begin
-            with 245... or 246...
+    - `full_BJD`: Barycentric Julian Date in full-JD form (e.g., `245xxxx` or `246xxxx`).
 
-    Returns :
-        velocity: *np.ndarray* (*float*, size of (3,))
-            3D velocity in km/s. The frame follows *Astropy* conventions.
+    **Returns**
+
+    - `velocity`: Earth barycentric velocity vector in `AU/day`, shape `(3,)`.
     """
     # The 4 lines below, that calculate velocity for given epoch,
     # are based on astropy 1.3 code:
@@ -33,13 +37,41 @@ def velocity_of_Earth(full_BJD):
     (jd1, jd2) = get_jd12(time, "tdb")
     (earth_pv_helio, earth_pv_bary) = erfa.epv00(jd1, jd2)
     # factor = 1731.45683  # This scales AU/day to km/s.
-    velocity = jnp.asarray(earth_pv_bary[1])  # AU/day
+    velocity = np.asarray(earth_pv_bary[1])  # AU/day
     return velocity
+
+
+def normalize_jd_for_ephemeris(
+    times,
+    time_ref,
+    reduced_jd_cutoff: float = 2450000.0,
+):
+    """
+    Normalize reduced Julian dates for ephemeris calls.
+
+    **Parameters**
+
+    - `times`: Observation epochs as a 1D array.
+    - `time_ref`: Reference epoch.
+    - `reduced_jd_cutoff`: Threshold used to detect reduced-JD input. Defaults to `2450000.0`.
+
+    **Returns**
+
+    - `times_jd`: Full-JD epochs for ephemeris lookup.
+    - `time_ref_jd`: Full-JD reference epoch.
+
+    If `times[0] < reduced_jd_cutoff`, both outputs are shifted by `reduced_jd_cutoff`.
+    """
+    times_arr = np.asarray(times, dtype=float)
+    time_ref_val = float(time_ref)
+    if times_arr[0] < reduced_jd_cutoff:
+        return times_arr + reduced_jd_cutoff, time_ref_val + reduced_jd_cutoff
+    return times_arr, time_ref_val
 
 
 class Coordinates(NamedTuple):
     """
-    Class for coordinates of the source and the observer
+    Sky coordinates of the target source.
     """
 
     ra: str
@@ -47,12 +79,12 @@ class Coordinates(NamedTuple):
 
     def get_degrees(self):
         """
-        Convert RA and Dec from sexagesimal (HH:MM:SS, DD:MM:SS) to decimal degrees.
+        Convert RA/Dec from sexagesimal strings to decimal degrees.
 
-        Returns:
-            tuple: (alpha, delta) where:
-                - alpha: Right Ascension in degrees (0 to 360)
-                - delta: Declination in degrees (-90 to 90)
+        **Returns**
+
+        - `alpha`: Right ascension in degrees.
+        - `delta`: Declination in degrees.
         """
         ra_sep = np.array(self.ra.split(":")).astype(float)
         alpha = (ra_sep[0] + ra_sep[1] / 60.0 + ra_sep[2] / 3600.0) * 15.0
@@ -66,12 +98,12 @@ class Coordinates(NamedTuple):
 
     def get_EN_vector(self):
         """
-        Calculate the East-North unit vectors projected on the plane of the sky.
+        Calculate East/North unit vectors on the sky plane.
 
-        Returns:
-            tuple: (north_projected, east_projected) where:
-                - north_projected: Unit vector pointing North in the plane of the sky
-                - east_projected: Unit vector pointing East in the plane of the sky
+        **Returns**
+
+        - `north_projected`: Unit vector toward North on the tangent plane.
+        - `east_projected`: Unit vector toward East on the tangent plane.
         """
         alpha_deg, delta_deg = self.get_degrees()
         alpha_rad = np.deg2rad(alpha_deg)
@@ -97,40 +129,34 @@ class Coordinates(NamedTuple):
 
 def annual_parallax_shift(times, time_ref, coords: Coordinates):
     """
-    Calculate the annual parallax shift projected onto the sky plane.
+    Compute annual parallax displacement projected to North/East.
 
-    This function computes the Earth's position relative to the reference time
-    and projects this displacement onto the plane of the sky in the North and East
-    directions.
+    **Parameters**
 
-    Parameters:
-        times: array_like
-            Times in Julian Date for which to calculate the parallax shift
-        time_ref: float
-            Reference time in Julian Date
-        coords: Coordinates
-            Sky coordinates (RA, Dec) of the target
+    - `times`: Observation epochs in JD.
+    - `time_ref`: Reference epoch in JD (typically `t0_par`).
+    - `coords`: Source sky coordinates.
 
-    Returns:
-        array_like:
-            Projected parallax shift in AU as an array of shape (N, 2),
-            where N is the length of times. Each row contains [North, East] components.
+    **Returns**
+
+    - `delta_s_projected`: Array with shape `(N, 2)` where columns are `[North, East]` in `AU`.
     """
+    times_arr = np.asarray(times, dtype=float)
+    time_ref_val = float(time_ref)
     north_projected, east_projected = coords.get_EN_vector()
 
     earth_pos_ref = get_body_barycentric(
-        body="earth", time=Time(time_ref, format="jd", scale="tdb")
+        body="earth", time=Time(time_ref_val, format="jd", scale="tdb")
     )
     earth_pos = get_body_barycentric(
-        body="earth", time=Time(times, format="jd", scale="tdb")
+        body="earth", time=Time(times_arr, format="jd", scale="tdb")
     )
-    velocity = velocity_of_Earth(time_ref)
+    velocity = velocity_of_Earth(time_ref_val)
 
     delta_s = (earth_pos_ref.xyz.T - earth_pos.xyz.T).to(u.au).value
-    delta_s += np.outer(times - time_ref, velocity)
+    delta_s += np.outer(times_arr - time_ref_val, velocity)
 
     delta_s_projected_n = np.dot(delta_s, north_projected)
     delta_s_projected_e = np.dot(delta_s, east_projected)
     delta_s_projected = np.array([delta_s_projected_n, delta_s_projected_e]).T
-
     return delta_s_projected

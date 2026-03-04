@@ -1,6 +1,7 @@
 """Test parallax magnification against VBMicrolensing."""
 
 import math
+import os
 from itertools import product
 
 import jax
@@ -10,7 +11,7 @@ import pytest
 import VBMicrolensing
 from microlux import extended_light_curve
 from microlux.coordinates import Coordinates
-from microlux.trajectory import get_trajectory_model
+from microlux.trajectory import get_trajectory_model, TrajectoryParameters
 
 
 jax.config.update("jax_enable_x64", True)
@@ -62,8 +63,16 @@ def test_parallax_accuracy(piEN, piEE, plot=False):
     trajectory_model = get_trajectory_model(times=times, coords=coords, t0_par=t0)
 
     alpha_rad = alpha_deg * 2 * np.pi / 360
-    params = jnp.array(
-        [t0, u0, tE, rho, alpha_rad, s, q, piEN, piEE], dtype=jnp.float64
+    params = TrajectoryParameters(
+        t0=jnp.asarray(t0, dtype=jnp.float64),
+        u0=jnp.asarray(u0, dtype=jnp.float64),
+        tE=jnp.asarray(tE, dtype=jnp.float64),
+        rho=jnp.asarray(rho, dtype=jnp.float64),
+        alpha_rad=jnp.asarray(alpha_rad, dtype=jnp.float64),
+        s=jnp.asarray(s, dtype=jnp.float64),
+        q=jnp.asarray(q, dtype=jnp.float64),
+        pi_E_N=jnp.asarray(piEN, dtype=jnp.float64),
+        pi_E_E=jnp.asarray(piEE, dtype=jnp.float64),
     )
 
     # Calculate trajectory in center-of-mass coordinates
@@ -137,7 +146,8 @@ def test_parallax_accuracy(piEN, piEE, plot=False):
         ax2.grid(True, which="both", alpha=0.3)
 
         # Save plot
-        filename = f"parallax_piEN{piEN}_piEE{piEE}.png"
+        os.makedirs("picture", exist_ok=True)
+        filename = f"picture/parallax_piEN{piEN}_piEE{piEE}.png"
         plt.savefig(filename, dpi=150, bbox_inches="tight")
         print(f"Plot saved to {filename}")
         plt.close()

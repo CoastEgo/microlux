@@ -17,6 +17,7 @@ from .solution import (
     get_poly_coff,
     get_roots,
 )
+from .trajectory import TrajectoryModel, TrajectoryParameters
 from .utils import (
     get_default_state,
 )
@@ -141,9 +142,17 @@ def binary_mag(
     # Here the parameterization is consistent with Mulensmodel and VBBinaryLensing
     ### initialize parameters
     alpha_rad = alpha_deg * 2 * jnp.pi / 360
-    tau = (times - t_0) / t_E
-    # Trajectory in center-of-mass coordinate system
-    trajectory = tau * jnp.exp(1j * alpha_rad) + 1j * u_0 * jnp.exp(1j * alpha_rad)
+    traj_model = TrajectoryModel(times=times, delta_s=None)
+    traj_params = TrajectoryParameters(
+        t0=t_0,
+        u0=u_0,
+        tE=t_E,
+        rho=rho,
+        alpha_rad=alpha_rad,
+        s=s,
+        q=q,
+    )
+    trajectory = traj_model.calculate_trajectory(traj_params)
 
     limb_darkening_instance = (
         LinearLimbDarkening(limb_darkening_coeff)
