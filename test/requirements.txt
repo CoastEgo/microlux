@@ -1,4 +1,4 @@
-VBBinaryLensing==3.6.2
+VBMicrolensing==5.3.5
 matplotlib
 pytest==8.2.2
 pytest-xdist==3.6.1

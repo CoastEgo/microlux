@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import cm, colors
 from matplotlib.patches import Patch
 from microlux import point_light_curve, to_lowmass
-from test_util import VBBL_light_curve
+from test_util import VBM_light_curve
 
 
 np.seterr(divide="ignore", invalid="ignore")
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     # vbbl time
     start = time.perf_counter()
-    mag_gen_vbbl = lambda i: VBBL_light_curve(
+    mag_gen_vbbl = lambda i: VBM_light_curve(
         t_0, b_map[i], t_E, rho, q, s, alphadeg, times, retol, tol
     )
     for i in range(sample_n):
