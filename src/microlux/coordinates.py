@@ -71,7 +71,11 @@ def normalize_jd_for_ephemeris(
 
 class Coordinates(NamedTuple):
     """
-    Sky coordinates of the target source.
+    A NamedTuple storing sky coordinates of the target source.
+
+    Attributes:
+        ra (str): Right ascension string in sexagesimal format (`HH:MM:SS`).
+        dec (str): Declination string in sexagesimal format (`DD:MM:SS`).
     """
 
     ra: str

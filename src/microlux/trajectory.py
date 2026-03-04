@@ -10,12 +10,20 @@ from .coordinates import annual_parallax_shift, Coordinates, normalize_jd_for_ep
 
 class TrajectoryParameters(NamedTuple):
     """
-    Microlensing trajectory parameters.
+    A NamedTuple containing microlensing trajectory parameters.
 
-    **Notes**
-
-    - The first 7 fields are base geometric parameters.
-    - `pi_E_N` and `pi_E_E` are only used when annual parallax is enabled.
+    Attributes:
+        t0 (jnp.ndarray): Time of closest approach.
+        u0 (jnp.ndarray): Impact parameter at `t0`.
+        tE (jnp.ndarray): Einstein timescale.
+        rho (jnp.ndarray): Source radius in units of Einstein radius.
+        alpha_rad (jnp.ndarray): Trajectory angle in radians.
+        s (jnp.ndarray): Projected lens separation in Einstein-radius units.
+        q (jnp.ndarray): Lens mass ratio.
+        pi_E_N (jnp.ndarray): North component of microlensing parallax vector.
+            Only used when annual parallax is enabled.
+        pi_E_E (jnp.ndarray): East component of microlensing parallax vector.
+            Only used when annual parallax is enabled.
     """
 
     t0: jnp.ndarray
@@ -31,14 +39,15 @@ class TrajectoryParameters(NamedTuple):
 
 class TrajectoryModel(NamedTuple):
     """
-    Trajectory model in center-of-mass/magnification coordinates, depends on the photo_center flag.
+    A NamedTuple representing a trajectory model with optional annual parallax.
 
-    **Attributes**
-
-    - `times`: Observation epochs in JD.
-    - `delta_s`: Projected annual-parallax displacement in `(North, East)` with shape `(N, 2)`.
-      Set to `None` to disable parallax.
-    - `photo_center`: If `True`, apply photocenter correction for `s > 1`.
+    Attributes:
+        times (jnp.ndarray): Observation times in Julian Date.
+        delta_s (jnp.ndarray | None): Annual parallax displacement projected on
+            the sky plane in (North, East), shape `(N, 2)`. If `None`, parallax
+            correction is disabled.
+        photo_center (bool): Whether to convert trajectory from center-of-mass
+            coordinates to magnification-center coordinates for the `s > 1` case.
     """
 
     times: jnp.ndarray
