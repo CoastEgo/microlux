@@ -43,6 +43,9 @@ extra_javascript:
     - _static/mathjax.js
     - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
+extra_css:
+    - _static/custom.css
+
     
 markdown_extensions:
     - pymdownx.arithmatex:  # Render LaTeX via MathJax

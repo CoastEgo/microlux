@@ -1,0 +1,158 @@
+/* ---------- Color Tokens ---------- */
+:root {
+  --mx-brand: #1f6feb;
+  --mx-brand-2: #0ea5e9;
+  --mx-bg-soft: #f7fafc;
+  --mx-border: #e5e7eb;
+  --mx-text-dim: #475569;
+  --mx-code-bg: #f8fafc;
+}
+
+[data-md-color-scheme="slate"] {
+  --mx-brand: #60a5fa;
+  --mx-brand-2: #22d3ee;
+  --mx-bg-soft: #0f172a;
+  --mx-border: #334155;
+  --mx-text-dim: #94a3b8;
+  --mx-code-bg: #111827;
+}
+
+/* Prevent anchor targets from being hidden behind sticky header */
+html {
+  scroll-padding-top: 56px;
+}
+
+/* ---------- Typography & Layout ---------- */
+.md-typeset {
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+
+.md-main__inner {
+  max-width: 1220px;
+}
+
+.md-content__inner {
+  padding-bottom: 3rem;
+}
+
+.md-typeset h1 {
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6em;
+}
+
+.md-typeset h2 {
+  font-weight: 700;
+  border-bottom: 1px solid var(--mx-border);
+  padding-bottom: 0.28em;
+}
+
+/* mkdocstrings headings (e.g. function signatures) can be visually heavy.
+   Make them smaller and easier to scan. */
+.md-typeset h2.doc-heading {
+  font-size: 1.05rem;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.md-typeset h3.doc-heading {
+  font-size: 0.96rem;
+}
+
+.md-typeset .doc-heading code {
+  font-size: 0.78rem;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ---------- Links ---------- */
+.md-typeset a {
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+.md-typeset a:hover {
+  color: var(--mx-brand);
+}
+
+/* ---------- Code Blocks ---------- */
+.md-typeset pre > code {
+  border-radius: 12px;
+  border: 1px solid var(--mx-border);
+}
+
+.md-typeset code {
+  background: var(--mx-code-bg);
+  border: 1px solid var(--mx-border);
+  border-radius: 6px;
+  padding: 0.15em 0.35em;
+}
+
+/* ---------- Tables ---------- */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--mx-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  background: var(--mx-bg-soft);
+}
+
+/* Improve readability of mkdocstrings generated nested content */
+.md-typeset .doc-contents {
+  padding-left: 20px;
+  border-left: 3px solid var(--mx-border);
+}
+
+/* ---------- Admonitions ---------- */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 12px;
+  border: 1px solid var(--mx-border);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* ---------- Buttons ---------- */
+.md-typeset .md-button {
+  border-radius: 999px;
+  font-weight: 600;
+  border-width: 1.5px;
+}
+
+.md-typeset .md-button--primary {
+  background: linear-gradient(90deg, var(--mx-brand), var(--mx-brand-2));
+  border: none;
+}
+
+/* ---------- Optional Home Utilities ---------- */
+.md-typeset .mx-hero {
+  background: linear-gradient(
+    135deg,
+    rgba(31, 111, 235, 0.08),
+    rgba(14, 165, 233, 0.08)
+  );
+  border: 1px solid var(--mx-border);
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+  margin: 0 0 1.2rem 0;
+}
+
+.md-typeset .mx-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.md-typeset .mx-card {
+  border: 1px solid var(--mx-border);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  background: var(--mx-bg-soft);
+}
+
+/* Notebook cell errors can be long; keep page layout stable */
+.output_error > pre {
+  overflow: auto;
+}
