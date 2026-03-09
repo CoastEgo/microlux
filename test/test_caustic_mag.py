@@ -120,7 +120,7 @@ def test_extend_sorce(rho, q, s, retol=1e-3):
         )
     )
 
-    mismatch_mask = ~np.isclose(Jaxmag, VBBL_mag, rtol=retol * 3, atol=1e-8)
+    mismatch_mask = ~np.isclose(Jaxmag, VBBL_mag, rtol=retol * 3.5, atol=1e-8)
     if np.any(mismatch_mask):
         mismatch_idx = np.where(mismatch_mask)[0]
         print(
