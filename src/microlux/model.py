@@ -27,13 +27,18 @@ jax.config.update("jax_enable_x64", True)
 
 
 # @partial(jax.jit,static_argnames=['return_num'])
-def point_light_curve(trajectory_l, s, q, rho, tol, return_num: bool = False):
+def point_light_curve(trajectory, s, q, rho, tol, return_num: bool = False):
     """
     Calculate the point source light curve.
 
+    !!! note
+        The trajectory parameter should be in the center-of-mass coordinate system
+        (consistent with MulensModel). The function internally transforms to
+        low-mass coordinates for the calculation.
+
     **Parameters**
 
-    - `trajectory_l`: The trajectory of the lensing event.
+    - `trajectory`: The trajectory of the lensing event in center-of-mass coordinates.
     - `s`: The projected separation between the lens and the source.
     - `q` : The mass ratio between the lens and the source.
     - `rho`: The source radius in units of the Einstein radius.
@@ -49,6 +54,9 @@ def point_light_curve(trajectory_l, s, q, rho, tol, return_num: bool = False):
     - `cond`: A boolean array indicating whether the quadrupole test is passed. `True` means the quadrupole test is passed.
     - `mask`: An integer array indicating the number of real roots.
     """
+
+    # Transform from center-of-mass to low-mass coordinate system
+    trajectory_l = to_lowmass(s, q, trajectory)
 
     m1 = 1 / (1 + q)
     m2 = q / (1 + q)
@@ -220,7 +228,7 @@ def extended_light_curve(
     # Transform from center-of-mass to low-mass coordinate system
     trajectory_l = to_lowmass(s, q, trajectory)
 
-    mag, cond = point_light_curve(trajectory_l, s, q, rho, tol)
+    mag, cond = point_light_curve(trajectory, s, q, rho, tol)
 
     if limb_darkening is not None:
         # uniform in radius
