@@ -3,7 +3,7 @@ import time
 import jax
 import jax.numpy as jnp
 import numpy as np
-import VBBinaryLensing
+import VBMicrolensing
 
 
 def timeit(f, iters=10, verbose=True):
@@ -43,7 +43,7 @@ def timeit(f, iters=10, verbose=True):
     return timed
 
 
-def VBBL_light_curve(
+def VBM_light_curve(
     t_0,
     u_0,
     t_E,
@@ -57,7 +57,8 @@ def VBBL_light_curve(
     limb_darkening: None | float = None,
 ):
     """
-    Calculate the light curve of a binary lensing event using the VBBL model. Modified to the same coordinate system as the JAX model.
+    Calculate the light curve of a binary lensing event using VBMicrolensing.
+    Modified to the same coordinate system as the JAX model.
 
     Args:
         t_0 (float): The closest approach time.
@@ -75,7 +76,7 @@ def VBBL_light_curve(
     Returns:
         array: The magnification of this parameter set.
     """
-    VBBL = VBBinaryLensing.VBBinaryLensing()
+    VBBL = VBMicrolensing.VBMicrolensing()
     if limb_darkening is not None:
         VBBL.a1 = limb_darkening
     alpha_VBBL = np.pi + alpha_deg / 180 * np.pi
@@ -93,6 +94,13 @@ def VBBL_light_curve(
     VBBL_mag = VBBL.BinaryLightCurve(params, times, y1, y2)
     VBBL_mag = np.array(VBBL_mag)
     return VBBL_mag
+
+
+def VBBL_light_curve(*args, **kwargs):
+    """
+    Backward-compatible alias for historical test scripts.
+    """
+    return VBM_light_curve(*args, **kwargs)
 
 
 def get_trajectory(tau, u_0, alpha_deg):

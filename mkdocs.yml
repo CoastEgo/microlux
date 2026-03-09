@@ -4,6 +4,11 @@ theme:
         - navigation.sections  # Sections are included in the navigation on the left.
         - toc.integrate  # Table of contents is integrated on the left; does not appear separately on the right.
         - header.autohide  # header disappears as you scroll
+        - navigation.expand
+        - navigation.top
+        - navigation.instant
+        - content.code.copy
+        - content.tabs.link
     palette:
         # Light mode / dark mode
         # We deliberately don't automatically use `media` to check a user's preferences. We default to light mode as
@@ -37,6 +42,9 @@ extra_javascript:
     # The below two make MathJax work, see https://squidfunk.github.io/mkdocs-material/reference/mathjax/
     - _static/mathjax.js
     - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+    - _static/custom.css
 
     
 markdown_extensions:
@@ -83,8 +91,11 @@ plugins:
 
 nav:
     - 'index.md'
+    - 'quick-start.md'
     - Basic API:
         - 'api/model.md'
+        - 'api/trajectory.md'
+        - 'api/coordinates.md'
         - 'api/solver.md'
         - 'api/utils.md'
     - Real event modeling: 

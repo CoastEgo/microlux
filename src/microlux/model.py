@@ -17,6 +17,7 @@ from .solution import (
     get_poly_coff,
     get_roots,
 )
+from .trajectory import TrajectoryModel, TrajectoryParameters
 from .utils import (
     get_default_state,
 )
@@ -26,13 +27,18 @@ jax.config.update("jax_enable_x64", True)
 
 
 # @partial(jax.jit,static_argnames=['return_num'])
-def point_light_curve(trajectory_l, s, q, rho, tol, return_num: bool = False):
+def point_light_curve(trajectory, s, q, rho, tol, return_num: bool = False):
     """
     Calculate the point source light curve.
 
+    !!! note
+        The trajectory parameter should be in the center-of-mass coordinate system
+        (consistent with MulensModel). The function internally transforms to
+        low-mass coordinates for the calculation.
+
     **Parameters**
 
-    - `trajectory_l`: The trajectory of the lensing event.
+    - `trajectory`: The trajectory of the lensing event in center-of-mass coordinates.
     - `s`: The projected separation between the lens and the source.
     - `q` : The mass ratio between the lens and the source.
     - `rho`: The source radius in units of the Einstein radius.
@@ -48,6 +54,9 @@ def point_light_curve(trajectory_l, s, q, rho, tol, return_num: bool = False):
     - `cond`: A boolean array indicating whether the quadrupole test is passed. `True` means the quadrupole test is passed.
     - `mask`: An integer array indicating the number of real roots.
     """
+
+    # Transform from center-of-mass to low-mass coordinate system
+    trajectory_l = to_lowmass(s, q, trajectory)
 
     m1 = 1 / (1 + q)
     m2 = q / (1 + q)
@@ -141,10 +150,17 @@ def binary_mag(
     # Here the parameterization is consistent with Mulensmodel and VBBinaryLensing
     ### initialize parameters
     alpha_rad = alpha_deg * 2 * jnp.pi / 360
-    tau = (times - t_0) / t_E
-    ## switch the coordinate system to the lowmass
-    trajectory = tau * jnp.exp(1j * alpha_rad) + 1j * u_0 * jnp.exp(1j * alpha_rad)
-    trajectory_l = to_lowmass(s, q, trajectory)
+    traj_model = TrajectoryModel(times=times, delta_s=None)
+    traj_params = TrajectoryParameters(
+        t0=t_0,
+        u0=u_0,
+        tE=t_E,
+        rho=rho,
+        alpha_rad=alpha_rad,
+        s=s,
+        q=q,
+    )
+    trajectory = traj_model.calculate_trajectory(traj_params)
 
     limb_darkening_instance = (
         LinearLimbDarkening(limb_darkening_coeff)
@@ -152,7 +168,7 @@ def binary_mag(
         else None
     )
     mag = extended_light_curve(
-        trajectory_l,
+        trajectory,
         s,
         q,
         rho,
@@ -177,7 +193,7 @@ def binary_mag(
     ],
 )
 def extended_light_curve(
-    trajectory_l,
+    trajectory,
     s,
     q,
     rho,
@@ -190,17 +206,29 @@ def extended_light_curve(
     n_annuli: int = 10,
 ):
     """
-    compute the light curve of a binary lens system with finite source effects.
+    Compute the light curve of a binary lens system with finite source effects.
+
+    !!! note
+        The trajectory parameter should be in the center-of-mass coordinate system
+        (consistent with MulensModel). The function internally transforms to
+        low-mass coordinates for the calculation.
 
     **Parameters**
 
-    - `trajectory_l`: The trajectory in the low mass coordinate system.
+    - `trajectory`: The trajectory in the center-of-mass coordinate system.
     - `n_annuli`: The number of annuli for the limb darkening calculation.
-    - for the definition of the other parameters, please see [`microlux.binary_mag`][].
+    - For the definition of the other parameters, please see [`microlux.binary_mag`][].
 
+    **Returns**
+
+    - `magnification`: The magnification of the source at the given trajectory points.
+    - `info`: Additional information about the computation used for debugging if return_info is True.
     """
 
-    mag, cond = point_light_curve(trajectory_l, s, q, rho, tol)
+    # Transform from center-of-mass to low-mass coordinate system
+    trajectory_l = to_lowmass(s, q, trajectory)
+
+    mag, cond = point_light_curve(trajectory, s, q, rho, tol)
 
     if limb_darkening is not None:
         # uniform in radius

@@ -6,11 +6,11 @@ from matplotlib import gridspec
 from microlux import binary_mag
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from scipy.optimize import approx_fprime
-from test_util import VBBL_light_curve
+from test_util import VBM_light_curve
 
 
 def grad_test(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol, tol):
-    vbbl_fun = lambda x: VBBL_light_curve(
+    vbbl_fun = lambda x: VBM_light_curve(
         x[0], x[1], x[2], x[3], x[4], x[5], x[6], times, retol, tol
     )
     grad_scipy = approx_fprime(
@@ -33,7 +33,7 @@ def grad_test(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol, tol):
     # gc = gridspec.GridSpec(2, 1,height_ratios=[1,1])
     mag = binary_mag(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol, retol)
     mag_vbl = np.array(
-        VBBL_light_curve(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol)
+        VBM_light_curve(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol)
     )
     # mag_caustic = caustic_fun([t_0,u_0,t_E,rho,q,s,alpha_deg],times)
 

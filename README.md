@@ -3,6 +3,7 @@
 [![Test Status](https://github.com/coastego/microlux/actions/workflows/run_test.yml/badge.svg)](https://github.com/CoastEgo/microlux/actions/workflows/run_test.yml)
 [![Documentation Status](https://github.com/coastego/microlux/actions/workflows/build_docs.yml/badge.svg)](https://coastego.github.io/microlux/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/CoastEgo/microlux)
 ---
 
 `microlux` is a <a href='https://github.com/jax-ml/jax'>Jax</a>-based package that can calculate the binary lensing light curve and its derivatives both efficiently and accurately.  We use the modified adaptive contour integratoin in <a href='https://github.com/valboz/VBBinaryLensing'>`VBBinaryLensing`</a> to maximize the performance. 

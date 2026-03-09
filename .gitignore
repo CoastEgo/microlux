@@ -13,3 +13,6 @@ test/test_result
 *.egg-info/
 build/
 dist/
+
+# AI prompts
+CLAUDE.md

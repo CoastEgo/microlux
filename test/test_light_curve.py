@@ -3,7 +3,7 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 from microlux import binary_mag
-from test_util import timeit, VBBL_light_curve
+from test_util import timeit, VBM_light_curve
 
 
 jax.config.update("jax_enable_x64", True)
@@ -20,7 +20,7 @@ def time_test(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol, tol):
     # with jax.disable_jit():
     # binary_mag(**parm).block_until_ready()
     # jax.profiler.stop_trace()
-    VBBL_mag, _ = timeit(VBBL_light_curve)(
+    VBBL_mag, _ = timeit(VBM_light_curve)(
         t_0, b, t_E, rho, q, s, alpha_deg, times, retol=1e-3, tol=1e-3
     )
 

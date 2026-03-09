@@ -18,6 +18,7 @@ dependencies = [
     "jax >=0.4.28",
     "numpy",
     "scipy",
+    "astropy",
 ]
 
 [build-system]
