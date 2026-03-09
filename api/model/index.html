@@ -15,10 +15,10 @@
         <link rel="canonical" href="https://coastego.github.io/microlux/api/model/">
       
       
-        <link rel="prev" href="../..">
+        <link rel="prev" href="../../quick-start/">
       
       
-        <link rel="next" href="../solver/">
+        <link rel="next" href="../trajectory/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -53,6 +53,8 @@
     
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../_static/custom.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -279,6 +281,27 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -296,10 +319,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -311,8 +334,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_2">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Basic API
           </label>
@@ -424,6 +447,50 @@
   
   
     <li class="md-nav__item">
+      <a href="../trajectory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Trajectory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coordinates/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coordinates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../solver/" class="md-nav__link">
         
   
@@ -487,10 +554,12 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -502,8 +571,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Real event modeling
           </label>
@@ -558,7 +627,7 @@
 
 
 <h1 id="magnification-model">Magnification Model<a class="headerlink" href="#magnification-model" title="Permanent link">¤</a></h1>
-<p>Light curve for the binary lens with adaptive contour integration and point sorce approximation.
+<p>Light curve for the binary lens with adaptive contour integration and point source approximation.
 </p>
 
 
@@ -619,7 +688,7 @@ which is <strong>not</strong> in an adaptive scheme. So the tolerance of the lim
 
 
 <h2 id="microlux.point_light_curve" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">point_light_curve</span><span class="p">(</span><span class="n">trajectory_l</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">return_num</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">point_light_curve</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">return_num</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#microlux.point_light_curve" class="headerlink" title="Permanent link">¤</a></h2>
 
@@ -627,9 +696,15 @@ which is <strong>not</strong> in an adaptive scheme. So the tolerance of the lim
     <div class="doc doc-contents first">
 
         <p>Calculate the point source light curve.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The trajectory parameter should be in the center-of-mass coordinate system
+(consistent with MulensModel). The function internally transforms to
+low-mass coordinates for the calculation.</p>
+</div>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>trajectory_l</code>: The trajectory of the lensing event.</li>
+<li><code>trajectory</code>: The trajectory of the lensing event in center-of-mass coordinates.</li>
 <li><code>s</code>: The projected separation between the lens and the source.</li>
 <li><code>q</code> : The mass ratio between the lens and the source.</li>
 <li><code>rho</code>: The source radius in units of the Einstein radius.</li>
@@ -660,19 +735,30 @@ which is <strong>not</strong> in an adaptive scheme. So the tolerance of the lim
 
 
 <h2 id="microlux.extended_light_curve" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">extended_light_curve</span><span class="p">(</span><span class="n">trajectory_l</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">retol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">default_strategy</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">240</span><span class="p">),</span> <span class="n">analytic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">return_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">limb_darkening</span><span class="p">:</span> <span class="n">AbstractLimbDarkening</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n_annuli</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">extended_light_curve</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">retol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">default_strategy</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">240</span><span class="p">),</span> <span class="n">analytic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">return_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">limb_darkening</span><span class="p">:</span> <span class="n">AbstractLimbDarkening</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n_annuli</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span></code>
 
 <a href="#microlux.extended_light_curve" class="headerlink" title="Permanent link">¤</a></h2>
 
 
     <div class="doc doc-contents first">
 
-        <p>compute the light curve of a binary lens system with finite source effects.</p>
+        <p>Compute the light curve of a binary lens system with finite source effects.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The trajectory parameter should be in the center-of-mass coordinate system
+(consistent with MulensModel). The function internally transforms to
+low-mass coordinates for the calculation.</p>
+</div>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>trajectory_l</code>: The trajectory in the low mass coordinate system.</li>
+<li><code>trajectory</code>: The trajectory in the center-of-mass coordinate system.</li>
 <li><code>n_annuli</code>: The number of annuli for the limb darkening calculation.</li>
-<li>for the definition of the other parameters, please see <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a>.</li>
+<li>For the definition of the other parameters, please see <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a>.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>magnification</code>: The magnification of the source at the given trajectory points.</li>
+<li><code>info</code>: Additional information about the computation used for debugging if return_info is True.</li>
 </ul>
 
 
@@ -734,8 +820,16 @@ will slow down if only calculate the model without differentiation. Defaults to 
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -763,7 +857,7 @@ will slow down if only calculate the model without differentiation. Defaults to 
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "toc.integrate", "header.autohide"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "toc.integrate", "header.autohide", "navigation.expand", "navigation.top", "navigation.instant", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>

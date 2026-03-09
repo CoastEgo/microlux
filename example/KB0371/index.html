@@ -52,6 +52,8 @@
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
+      <link rel="stylesheet" href="../../_static/custom.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -274,6 +276,27 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
     
@@ -287,10 +310,12 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -302,8 +327,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Basic API
           </label>
@@ -321,6 +346,50 @@
   
   <span class="md-ellipsis">
     Magnification Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/trajectory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Trajectory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/coordinates/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Coordinates
     
   </span>
   
@@ -403,10 +472,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -418,8 +487,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Real event modeling
           </label>
@@ -571,7 +640,7 @@
 <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
-<p><img alt="img" src="../_data/6b79b3ea0160499ea2d0e48292ac2563.png" /></p>
+<p><img alt="img" src="../_data/e3553cfcdd454c00a3149224991d7fce.png" /></p>
 <p>There are two degenrate solutions for this event. The wide/close degeneracy light curve is plotted in below. We use the close solution as the example.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mag_to_flux</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">e_mag</span><span class="p">):</span>
     <span class="n">flux</span> <span class="o">=</span> <span class="mf">10.</span><span class="o">**</span><span class="p">(</span><span class="mf">0.4</span><span class="o">*</span><span class="p">(</span><span class="mf">18.</span><span class="o">-</span><span class="n">mag</span><span class="p">))</span>
@@ -631,7 +700,7 @@
 
 <span class="n">display</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 </code></pre></div>
-<p><img alt="img" src="../_data/d2a48c13515f4b7f8c15a20ed7bd6045.png" /></p>
+<p><img alt="img" src="../_data/8fb978cc63954662a3fd08adec7248fa.png" /></p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">objective_func</span><span class="p">(</span><span class="n">parms</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fb</span><span class="p">,</span> <span class="n">return_chi2</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">parm_name</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;t0&#39;</span><span class="p">,</span> <span class="s1">&#39;u0&#39;</span><span class="p">,</span> <span class="s1">&#39;tE&#39;</span><span class="p">,</span> <span class="s1">&#39;logrho&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="s1">&#39;logs&#39;</span><span class="p">,</span> <span class="s1">&#39;logq&#39;</span><span class="p">]</span>
     <span class="n">parm_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">parm_name</span><span class="p">,</span> <span class="n">parms</span><span class="p">))</span>
@@ -697,7 +766,7 @@ Param:0[6]     -1.14      0.01     -1.14     -1.16     -1.13    210.24      1.09
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parm_name</span><span class="p">)):</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">parm_name</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span><span class="n">i</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span><span class="n">i</span><span class="p">]))</span>
 </code></pre></div>
-<p><img alt="img" src="../_data/8312809089414017bfc1c3db35139eb6.png" /></p>
+<p><img alt="img" src="../_data/22db1d9250a3458c8de0eb18608aa7de.png" /></p>
 <div class="highlight"><pre><span></span><code>t0 8592.388418845861 0.0064818587784778794
 u0 0.14286323570770812 0.0009629699096971133
 tE 6.616800447339974 0.033837046463837665
@@ -884,7 +953,7 @@ logq -1.1422378219044174 0.007720610229842566
 <span class="n">fig</span><span class="p">,</span><span class="n">axes</span><span class="o">=</span> <span class="n">plot_covariance</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">,</span><span class="n">parm_name</span><span class="p">,</span><span class="n">fisher_cov</span><span class="p">,</span><span class="n">chain</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
-<p><img alt="img" src="../_data/95b63b5cfa234ddfb404ed79ebba6dff.png" /></p>
+<p><img alt="img" src="../_data/3ad89c540c864e5d95418ccd0b13bfdb.png" /></p>
 <div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="n">HJD_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">HJD</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span><span class="o">-</span><span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">HJD</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">HJD_pad</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -974,7 +1043,7 @@ Number of divergences: 0
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>(1000, 7)
 </code></pre></div>
-<p><img alt="img" src="../_data/d4e61b5022d14b0d8bd20dce0ecc002d.png" /></p>
+<p><img alt="img" src="../_data/9551d44f62414ff3ab1db6123cd71e7e.png" /></p>
 
 
 
@@ -992,8 +1061,16 @@ Number of divergences: 0
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -1021,7 +1098,7 @@ Number of divergences: 0
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "toc.integrate", "header.autohide"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "toc.integrate", "header.autohide", "navigation.expand", "navigation.top", "navigation.instant", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>

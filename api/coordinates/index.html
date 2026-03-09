@@ -12,26 +12,28 @@
         <meta name="author" content="Haibin Ren">
       
       
-        <link rel="canonical" href="https://coastego.github.io/microlux/">
+        <link rel="canonical" href="https://coastego.github.io/microlux/api/coordinates/">
       
       
+        <link rel="prev" href="../trajectory/">
       
-        <link rel="next" href="quick-start/">
+      
+        <link rel="next" href="../solver/">
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
     
     
       
-        <title>microlux</title>
+        <title>Coordinates - microlux</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.8608ea7d.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,11 +52,11 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="_static/custom.css">
+      <link rel="stylesheet" href="../../_static/custom.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-microlux" class="md-skip">
+        <a href="#coordinates" class="md-skip">
           Skip to content
         </a>
       
@@ -96,7 +98,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
+    <a href="../.." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -116,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Welcome to microlux
+              Coordinates
             
           </span>
         </div>
@@ -231,7 +233,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
+    <a href="../.." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -258,31 +260,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Welcome to microlux
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -292,53 +273,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Features
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
-    <span class="md-ellipsis">
-      Quick Start
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#citation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Citation
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -350,7 +284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="quick-start/" class="md-nav__link">
+      <a href="../../quick-start/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -368,8 +302,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -379,13 +315,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -400,7 +334,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Basic API
@@ -414,7 +348,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/model/" class="md-nav__link">
+      <a href="../model/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -436,7 +370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/trajectory/" class="md-nav__link">
+      <a href="../trajectory/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -455,10 +389,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="api/coordinates/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -468,6 +411,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -480,7 +424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/solver/" class="md-nav__link">
+      <a href="../solver/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -502,7 +446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/utils/" class="md-nav__link">
+      <a href="../utils/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -574,7 +518,7 @@
   
   
     <li class="md-nav__item">
-      <a href="example/KB0371/" class="md-nav__link">
+      <a href="../../example/KB0371/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -615,55 +559,225 @@
   
 
 
-<h1 id="welcome-to-microlux">Welcome to microlux<a class="headerlink" href="#welcome-to-microlux" title="Permanent link">¤</a></h1>
-<p><code>microlux</code> is a <a href='https://github.com/jax-ml/jax'>Jax</a>-based package that can calculate the binary lensing light curve and its derivatives both efficiently and accurately.  We use the modified adaptive contour integratoin in <a href='https://github.com/valboz/VBBinaryLensing'><code>VBBinaryLensing</code></a> to maximize the performance. 
-With the access to the gradient, we can use more advanced algorithms for microlensing modeling, such as Hamiltonian Monte Carlo (HMC) in <a href='https://num.pyro.ai/en/latest/mcmc.html#numpyro.infer.hmc.NUTS'><code>numpyro</code></a>.</p>
-<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">¤</a></h2>
-<ul>
-<li>Adaptive contour integration with error control to calculate the binary lens microlensing light curve with finite source effect.</li>
-<li>Robust and accurate calculation: Widely test over the broad parameter space compared with <code>VBBinaryLensing</code>.</li>
-<li>Fast speed: Fully compatible with JIT compilation to speed up calculation. </li>
-<li>Accurate gradient: Automatic differentiation with specially designed error estimator to ensure the convergence of gradient.</li>
-<li><a href='https://en.wikipedia.org/wiki/Aberth_method'>Aberth–Ehrlich</a> method to find the roots of the polynomial and <a href='https://docs.scipy.org/doc/scipy-1.15.0/reference/generated/scipy.optimize.linear_sum_assignment.html'>Liner sum assignment </a> algorithm to match the images.</li>
-<li><a href="example/KB0371/">Application</a> on the real event modeling.</li>
-</ul>
-<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">¤</a></h2>
-<p>Please make sure that you have known the basic usage of <code>Jax</code>. Check the <a href="https://jax.readthedocs.io/en/latest/quickstart.html">Jax documentation</a> for more details.
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">microlux</span><span class="w"> </span><span class="kn">import</span> <span class="n">binary_mag</span>
+<h1 id="coordinates">Coordinates<a class="headerlink" href="#coordinates" title="Permanent link">¤</a></h1>
+<p>Coordinate helpers used by trajectory/parallax calculations.</p>
+<h1 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">¤</a></h1>
 
-<span class="n">b</span> <span class="o">=</span> <span class="mf">0.1</span>
-<span class="n">t_0</span> <span class="o">=</span> <span class="mf">0.</span>
-<span class="n">t_E</span> <span class="o">=</span> <span class="mf">1.</span>
-<span class="n">alphadeg</span> <span class="o">=</span> <span class="mf">270.</span>
-<span class="n">q</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">s</span> <span class="o">=</span> <span class="mf">0.9</span>
-<span class="n">rho</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">trajectory_n</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">t_0</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">trajectory_n</span><span class="p">)</span>
-<span class="c1">#calculate the binary lensing magnification</span>
-<span class="n">mag</span> <span class="o">=</span> <span class="n">binary_mag</span><span class="p">(</span><span class="n">t_0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">alphadeg</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">retol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
-</code></pre></div></p>
-<p>Detailed example usages are documented in the <a href="quick-start/">Quick Start Guide</a>.
-Additional examples can be found in the <a href="https://github.com/CoastEgo/microlux/tree/master/test"><code>test</code></a> folder.</p>
-<h2 id="citation">Citation<a class="headerlink" href="#citation" title="Permanent link">¤</a></h2>
-<p><code>microlux</code> is open-source software licensed under the MIT license. If you use this package for your research, please cite our paper:</p>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="microlux.coordinates.Coordinates" class="doc doc-heading">
+            <code>microlux.coordinates.Coordinates</code>
+
+
+<a href="#microlux.coordinates.Coordinates" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.NamedTuple">NamedTuple</span></code></p>
+
+
+        <p>A NamedTuple storing sky coordinates of the target source.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="microlux.coordinates.Coordinates.ra">ra</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Right ascension string in sexagesimal format (<code>HH:MM:SS</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="microlux.coordinates.Coordinates.dec">dec</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declination string in sexagesimal format (<code>DD:MM:SS</code>).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="microlux.coordinates.Coordinates.get_degrees" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_degrees</span><span class="p">()</span></code>
+
+<a href="#microlux.coordinates.Coordinates.get_degrees" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Convert RA/Dec from sexagesimal strings to decimal degrees.</p>
+<p><strong>Returns</strong></p>
 <ul>
-<li>A differentiable binary microlensing model using adaptive contour integration method: <a href='https://arxiv.org/abs/2501.07268'>in arXiv</a> and <a href= 'https://iopscience.iop.org/article/10.3847/1538-3881/adb1b2'>in AJ </a>.</li>
+<li><code>alpha</code>: Right ascension in degrees.</li>
+<li><code>delta</code>: Declination in degrees.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="nc">@article</span><span class="p">{</span><span class="nl">ren2025microlux</span><span class="p">,</span>
-<span class="w">       </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{{Ren}, Haibin and {Zhu}, Wei}</span><span class="p">,</span>
-<span class="w">        </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;{A Differentiable Binary Microlensing Model Using Adaptive Contour Integration Method}&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="na">journal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{The Astronomical Journal}</span><span class="p">,</span>
-<span class="w">         </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="m">2025</span><span class="p">,</span>
-<span class="w">       </span><span class="na">volume</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{169}</span><span class="p">,</span>
-<span class="w">       </span><span class="na">number</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{3}</span><span class="p">,</span>
-<span class="w">          </span><span class="na">eid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{170}</span><span class="p">,</span>
-<span class="w">        </span><span class="na">pages</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{170}</span><span class="p">,</span>
-<span class="w">          </span><span class="na">doi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{10.3847/1538-3881/adb1b2}</span><span class="p">,</span>
-<span class="w">       </span><span class="na">adsurl</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://ui.adsabs.harvard.edu/abs/2025AJ....169..170R}</span><span class="p">,</span>
-<span class="p">}</span>
-</code></pre></div>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="microlux.coordinates.Coordinates.get_EN_vector" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_EN_vector</span><span class="p">()</span></code>
+
+<a href="#microlux.coordinates.Coordinates.get_EN_vector" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Calculate East/North unit vectors on the sky plane.</p>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>north_projected</code>: Unit vector toward North on the tangent plane.</li>
+<li><code>east_projected</code>: Unit vector toward East on the tangent plane.</li>
+</ul>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h1 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">¤</a></h1>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="microlux.coordinates.normalize_jd_for_ephemeris" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">normalize_jd_for_ephemeris</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">time_ref</span><span class="p">,</span> <span class="n">reduced_jd_cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2450000.0</span><span class="p">)</span></code>
+
+<a href="#microlux.coordinates.normalize_jd_for_ephemeris" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents first">
+
+        <p>Normalize reduced Julian dates for ephemeris calls.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>times</code>: Observation epochs as a 1D array.</li>
+<li><code>time_ref</code>: Reference epoch.</li>
+<li><code>reduced_jd_cutoff</code>: Threshold used to detect reduced-JD input. Defaults to <code>2450000.0</code>.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>times_jd</code>: Full-JD epochs for ephemeris lookup.</li>
+<li><code>time_ref_jd</code>: Full-JD reference epoch.</li>
+</ul>
+<p>If <code>times[0] &lt; reduced_jd_cutoff</code>, both outputs are shifted by <code>reduced_jd_cutoff</code>.</p>
+
+
+    </div>
+
+</div><hr />
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="microlux.coordinates.velocity_of_Earth" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">velocity_of_Earth</span><span class="p">(</span><span class="n">full_BJD</span><span class="p">)</span></code>
+
+<a href="#microlux.coordinates.velocity_of_Earth" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents first">
+
+        <p>Calculate Earth's barycentric velocity at a given epoch.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>full_BJD</code>: Barycentric Julian Date in full-JD form (e.g., <code>245xxxx</code> or <code>246xxxx</code>).</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>velocity</code>: Earth barycentric velocity vector in <code>AU/day</code>, shape <code>(3,)</code>.</li>
+</ul>
+
+
+    </div>
+
+</div><hr />
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="microlux.coordinates.annual_parallax_shift" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">annual_parallax_shift</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">time_ref</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="n">Coordinates</span><span class="p">)</span></code>
+
+<a href="#microlux.coordinates.annual_parallax_shift" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+    <div class="doc doc-contents first">
+
+        <p>Compute annual parallax displacement projected to North/East.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>times</code>: Observation epochs in JD.</li>
+<li><code>time_ref</code>: Reference epoch in JD (typically <code>t0_par</code>).</li>
+<li><code>coords</code>: Source sky coordinates.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>delta_s_projected</code>: Array with shape <code>(N, 2)</code> where columns are <code>[North, East]</code> in <code>AU</code>.</li>
+</ul>
+
+
+    </div>
+
+</div>
 
 
 
@@ -718,12 +832,12 @@ Additional examples can be found in the <a href="https://github.com/CoastEgo/mic
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.sections", "toc.integrate", "header.autohide", "navigation.expand", "navigation.top", "navigation.instant", "content.code.copy", "content.tabs.link"], "search": "assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "toc.integrate", "header.autohide", "navigation.expand", "navigation.top", "navigation.instant", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
       
-        <script src="_static/mathjax.js"></script>
+        <script src="../../_static/mathjax.js"></script>
       
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
