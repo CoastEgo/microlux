@@ -67,6 +67,7 @@ plugins:
         exclude:
             - "_overrides"
             - "_static/README.md"
+            - "example/KB0371.md"
     - ipynb  # Jupyter notebooks
     - mkdocstrings:
         handlers:
@@ -88,6 +89,9 @@ plugins:
                 #     show_source: false  # don't include source code
                 #     members_order: source  # order methods according to their order of definition in the source code, not alphabetical order
                 #     heading_level: 1  # Makes everything top-level be <h4>. Child entries will be <h5> etc., but because of toc_depth, above, (deliberately) won't appear in the TOC.
+
+hooks:
+    - docs/hooks/generate_notebooks.py
 
 nav:
     - 'index.md'
