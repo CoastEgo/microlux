@@ -67,7 +67,6 @@ plugins:
         exclude:
             - "_overrides"
             - "_static/README.md"
-            - "example/KB0371.md"
     - ipynb  # Jupyter notebooks
     - mkdocstrings:
         handlers:
