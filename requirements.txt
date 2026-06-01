@@ -1,10 +1,11 @@
 # Latest versions at time of writing.
 mkdocs==1.6.1            # Main documentation generator.
 mkdocs-material==9.6.7   # Theme
-pymdown-extensions==10.14.3  # Markdown extensions e.g. to handle LaTeX.
+pymdown-extensions==10.21.3  # Markdown extensions e.g. to handle LaTeX.
 mkdocstrings==0.28.3     # Autogenerate documentation from docstrings.
 mkdocstrings[python]
 mkdocs-ipynb==0.1.1      # Turn Jupyter Lab notebooks into webpages. (replaced mknotebooks with mkdocs-ipynb)
+jupytext==1.19.1         # Generate docs notebooks from text-based notebook sources.
 pytkdocs_tweaks==0.0.8   # Tweaks mkdocstrings to improve various aspects
 mkdocs_include_exclude_files==0.1.0  # Allow for customising which files get included (updated package name and version)
 
