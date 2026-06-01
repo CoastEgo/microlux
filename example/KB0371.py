@@ -51,21 +51,24 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import numpyro
+import numpyro.distributions as dist
 import pandas as pd
 from event_utils import (
     align_function,
     flux_to_mag,
     light_curve_Jax,
+    light_curve_Jax_pmap,
     light_curve_VBBL,
     mag_to_flux,
-    model_HMC_reparameterized,
     objective_func,
     PARAMETER_NAMES,
     plot_covariance,
 )
 from IPython.display import display
+from jax.nn import softplus
 from MulensModel import CausticsBinary
 from numpyro.diagnostics import print_summary
+from numpyro.distributions import constraints
 from numpyro.infer import MCMC, NUTS
 
 
@@ -326,6 +329,62 @@ print("physical covariance eigenvalues from inv(Fisher):", jnp.linalg.eigvalsh(f
 print("Cholesky transform:")
 print(cholesky_transform)
 
+# %% [markdown]
+# ### HMC model
+#
+# The model below exposes the full NumPyro target used by NUTS. The sampled
+# variable `param_base` is the unconstrained latent coordinate
+# $\boldsymbol{z}$. The deterministic variable `param` applies the Fisher
+# transformation and records the corresponding physical parameters
+# $\boldsymbol{\theta}$.
+#
+# The likelihood is evaluated after clipping the physical parameters to the
+# valid numerical domain. A soft penalty suppresses samples outside the
+# intended physical boundaries without introducing a Gaussian prior around
+# the initial solution.
+
+# %%
+def model_HMC_reparameterized(
+    data,
+    fs,
+    fb,
+    init_val,
+    transform_matrix,
+    param_lowers,
+    param_uppers,
+    boundary_steepness=100.0,
+    penalty_strength=1000.0,
+    n_pmap=10,
+):
+    times, flux, ferr = data
+    param_base = numpyro.sample(
+        "param_base",
+        dist.ImproperUniform(constraints.real, (), event_shape=(len(init_val),)),
+    )
+    parmsample = jnp.dot(transform_matrix, param_base) + jnp.asarray(init_val)
+    numpyro.deterministic("param", parmsample)
+
+    lower_penalty = jnp.sum(softplus(boundary_steepness * (param_lowers - parmsample)))
+    upper_penalty = jnp.sum(softplus(boundary_steepness * (parmsample - param_uppers)))
+    penalty = lower_penalty + upper_penalty
+    safe_params = jnp.clip(parmsample, param_lowers + 1e-5, param_uppers - 1e-5)
+
+    pmap_light_curve = lambda curve_times, params, index: light_curve_Jax_pmap(
+        curve_times, params, index, n_pmap
+    )
+    mag_mod = jax.pmap(pmap_light_curve, in_axes=(None, None, 0))(
+        times, safe_params, jnp.arange(n_pmap)
+    )
+    mag_mod = jnp.reshape(mag_mod, (flux.shape[0],), order="F")
+    flux_mod = mag_mod * fs + fb
+    numpyro.sample("obs", dist.Normal(flux_mod, ferr), obs=flux)
+    numpyro.factor("boundary_penalty", -penalty_strength * penalty)
+    chi2 = jnp.sum(((flux_mod - flux) / ferr) ** 2)
+    numpyro.deterministic("chi2", chi2)
+    numpyro.deterministic("penalty", penalty)
+
+
+# %%
 if RUN_HMC:
     init_strategy=numpyro.infer.init_to_value(values={'param_base':jnp.zeros(len(initial_param))})
     nuts_kernel = NUTS(
