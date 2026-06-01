@@ -39,10 +39,10 @@ def light_curve_VBBL(times, parms):
     t0 = parms["t0"]
     u0 = parms["u0"]
     tE = parms["tE"]
-    rho = 10.0**parms["logrho"]
+    rho = 10.0 ** parms["logrho"]
     alpha_deg = parms["alpha"]
-    s = 10.0**parms["logs"]
-    q = 10.0**parms["logq"]
+    s = 10.0 ** parms["logs"]
+    q = 10.0 ** parms["logq"]
     tau = (times - t0) / tE
     vbbl = VBBinaryLensing.VBBinaryLensing()
     alpha_vbbl = alpha_deg / 180.0 * np.pi + np.pi
@@ -143,14 +143,21 @@ def plot_covariance(params, labels, cov_mat, chain):
     fig, axes = plt.subplots(K, K, figsize=(10, 10))
     lb = lbdim / dim
     tr = (lbdim + plotdim) / dim
-    fig.subplots_adjust(left=lb, bottom=lb, right=tr, top=tr, wspace=whspace, hspace=whspace)
+    fig.subplots_adjust(
+        left=lb, bottom=lb, right=tr, top=tr, wspace=whspace, hspace=whspace
+    )
     extents = [[x.min(), x.max()] for x in chain.T]
 
     for i in range(K):
         ax = axes[i, i]
         mu_x, sigma_x = params[i], np.sqrt(cov_mat[i, i])
         x = np.linspace(extents[i][0], extents[i][1], 100)
-        p = 1 / np.sqrt(2 * np.pi) / sigma_x * np.exp(-((x - mu_x) ** 2) / 2.0 / sigma_x**2)
+        p = (
+            1
+            / np.sqrt(2 * np.pi)
+            / sigma_x
+            * np.exp(-((x - mu_x) ** 2) / 2.0 / sigma_x**2)
+        )
         ax.plot(x, p, "r", alpha=0.5)
         ax.hist(chain[:, i], histtype="step", density=1)
         ax.set_xlim(extents[i])
@@ -174,8 +181,12 @@ def plot_covariance(params, labels, cov_mat, chain):
 
             mu_y = params[j]
             sigx2, sigy2, sigxy = cov_mat[i, i], cov_mat[j, j], cov_mat[i, j]
-            sig12 = 0.5 * (sigx2 + sigy2) + np.sqrt((sigx2 - sigy2) ** 2 * 0.25 + sigxy**2)
-            sig22 = 0.5 * (sigx2 + sigy2) - np.sqrt((sigx2 - sigy2) ** 2 * 0.25 + sigxy**2)
+            sig12 = 0.5 * (sigx2 + sigy2) + np.sqrt(
+                (sigx2 - sigy2) ** 2 * 0.25 + sigxy**2
+            )
+            sig22 = 0.5 * (sigx2 + sigy2) - np.sqrt(
+                (sigx2 - sigy2) ** 2 * 0.25 + sigxy**2
+            )
             sig1 = np.sqrt(sig12)
             sig2 = np.sqrt(sig22)
             alpha = 0.5 * np.arctan(2 * sigxy / (sigx2 - sigy2))
@@ -183,8 +194,16 @@ def plot_covariance(params, labels, cov_mat, chain):
                 alpha += np.pi / 2.0
 
             t = np.linspace(0, 2 * np.pi, 300)
-            x = mu_x + sig1 * np.cos(t) * np.cos(alpha) - sig2 * np.sin(t) * np.sin(alpha)
-            y = mu_y + sig1 * np.cos(t) * np.sin(alpha) + sig2 * np.sin(t) * np.cos(alpha)
+            x = (
+                mu_x
+                + sig1 * np.cos(t) * np.cos(alpha)
+                - sig2 * np.sin(t) * np.sin(alpha)
+            )
+            y = (
+                mu_y
+                + sig1 * np.cos(t) * np.sin(alpha)
+                + sig2 * np.sin(t) * np.cos(alpha)
+            )
             ax.plot(y, x, "r", alpha=0.5)
 
             hist2d(
@@ -218,10 +237,10 @@ def light_curve_Jax(parms, times):
     t0 = parms[0]
     u0 = parms[1]
     tE = parms[2]
-    rho = 10.0**parms[3]
+    rho = 10.0 ** parms[3]
     alpha_deg = parms[4]
-    s = 10.0**parms[5]
-    q = 10.0**parms[6]
+    s = 10.0 ** parms[5]
+    q = 10.0 ** parms[6]
     return binary_mag(t0, u0, tE, rho, q, s, alpha_deg, times)
 
 

@@ -33,7 +33,9 @@ from pathlib import Path
 
 N_pmap = 10
 numofchains = 1
-os.environ["XLA_FLAGS"] = f"--xla_force_host_platform_device_count={N_pmap * numofchains}"
+os.environ["XLA_FLAGS"] = (
+    f"--xla_force_host_platform_device_count={N_pmap * numofchains}"
+)
 if "__file__" in globals():
     EXAMPLE_DIR = Path(__file__).resolve().parent
 elif Path("event_utils.py").exists():
@@ -96,25 +98,65 @@ PENALTY_STRENGTH = 1000.0
 # %%
 # # %matplotlib ipympl
 if jax.local_device_count() < N_pmap:
-    raise RuntimeError("Restart the Python kernel before running this notebook so XLA_FLAGS can set 10 CPU devices.")
+    raise RuntimeError(
+        "Restart the Python kernel before running this notebook so XLA_FLAGS can set 10 CPU devices."
+    )
 
 print(os.getcwd())
 data = pd.read_csv(EXAMPLE_DIR / "data" / "KB_19_0371.csv")
 
-cond = (data['e_mag'] < 0.4) & (data['HJD'] > 8500)
+cond = (data["e_mag"] < 0.4) & (data["HJD"] > 8500)
 data = data[cond]
 
-error_frac = {'OGLE':1.59, 'KMTC01':1.41, 'KMTC41':1.38, 'KMTA01':1.35, 'KMTA41':1.57, 'KMTS01':1.19, 'KMTS41':1.41}
-data['e_mag'] = data.apply(lambda x: np.sqrt(0.003**2+x['e_mag']**2*error_frac[x['Tel']]**2), axis=1)
+error_frac = {
+    "OGLE": 1.59,
+    "KMTC01": 1.41,
+    "KMTC41": 1.38,
+    "KMTA01": 1.35,
+    "KMTA41": 1.57,
+    "KMTS01": 1.19,
+    "KMTS41": 1.41,
+}
+data["e_mag"] = data.apply(
+    lambda x: np.sqrt(0.003**2 + x["e_mag"] ** 2 * error_frac[x["Tel"]] ** 2), axis=1
+)
 
-fs_dict = {'OGLE':0.1865329, 'KMTC01':0.15551681, 'KMTC41':0.16063666, 'KMTA01':0.1964294, 'KMTA41':0.12068191, 'KMTS01':0.22724801, 'KMTS41':0.16661919}
-fb_dict = {'OGLE':0.07354933, 'KMTC01':0.10144077, 'KMTC41':0.10602545, 'KMTA01':0.04612094, 'KMTA41':0.144712, 'KMTS01':0.00623068, 'KMTS41':0.09311172}
-data['mag_aligned'], data['e_mag_aligned'] = zip(*data.apply(lambda x: align_function(x['mag'], x['e_mag'], fs_dict[x['Tel']], fb_dict[x['Tel']], fs_dict['OGLE'], fb_dict['OGLE']), axis=1))
+fs_dict = {
+    "OGLE": 0.1865329,
+    "KMTC01": 0.15551681,
+    "KMTC41": 0.16063666,
+    "KMTA01": 0.1964294,
+    "KMTA41": 0.12068191,
+    "KMTS01": 0.22724801,
+    "KMTS41": 0.16661919,
+}
+fb_dict = {
+    "OGLE": 0.07354933,
+    "KMTC01": 0.10144077,
+    "KMTC41": 0.10602545,
+    "KMTA01": 0.04612094,
+    "KMTA41": 0.144712,
+    "KMTS01": 0.00623068,
+    "KMTS41": 0.09311172,
+}
+data["mag_aligned"], data["e_mag_aligned"] = zip(
+    *data.apply(
+        lambda x: align_function(
+            x["mag"],
+            x["e_mag"],
+            fs_dict[x["Tel"]],
+            fb_dict[x["Tel"]],
+            fs_dict["OGLE"],
+            fb_dict["OGLE"],
+        ),
+        axis=1,
+    )
+)
 
 data
 
 # %%
-cond = (data['e_mag_aligned'] < 0.4) & (data['HJD'] > 8500)
+cond = (data["e_mag_aligned"] < 0.4) & (data["HJD"] > 8500)
 data = data[cond]
 
 # %% [markdown]
@@ -127,42 +169,58 @@ data = data[cond]
 
 # %%
 
-parms_close = {'t0': 8592.388619, 'u0': 0.140631, 'tE': 6.655161, 'logrho': -2.231148, 'alpha': 271.695690, 'logs': -0.079158, 'logq': -1.141006}
+parms_close = {
+    "t0": 8592.388619,
+    "u0": 0.140631,
+    "tE": 6.655161,
+    "logrho": -2.231148,
+    "alpha": 271.695690,
+    "logs": -0.079158,
+    "logq": -1.141006,
+}
 # parms_wide = {'t0': 8592.391925, 'u0': 0.144696, 'tE': 6.640740, 'logrho': -2.187052, 'alpha': 271.325666, 'logs': 0.188680, 'logq': -0.957499}
 
-flux,ferr = mag_to_flux(data['mag_aligned'].values, data['e_mag_aligned'].values)
-HJD = data['HJD'].values
-fs,fb = 0.18893952,0.07114746
+flux, ferr = mag_to_flux(data["mag_aligned"].values, data["e_mag_aligned"].values)
+HJD = data["HJD"].values
+fs, fb = 0.18893952, 0.07114746
 
 times = np.linspace(8500, 8800, 2000)
 mag_close = light_curve_VBBL(times, parms_close)
-flux_close = mag_close*fs + fb
+flux_close = mag_close * fs + fb
 mag_close = flux_to_mag(flux_close)
 
 fig, ax = plt.subplots(figsize=(10, 6))
-all_tel = data['Tel'].unique()
+all_tel = data["Tel"].unique()
 for i in all_tel:
-    tel_data = data[data['Tel'] == i]
-    ax.errorbar(tel_data['HJD'], tel_data['mag_aligned'], yerr=tel_data['e_mag_aligned'], fmt='o', label=i)
-ax.plot(times, mag_close,label='Close solution')
+    tel_data = data[data["Tel"] == i]
+    ax.errorbar(
+        tel_data["HJD"],
+        tel_data["mag_aligned"],
+        yerr=tel_data["e_mag_aligned"],
+        fmt="o",
+        label=i,
+    )
+ax.plot(times, mag_close, label="Close solution")
 ax.legend()
 ax.set_xlim(8580, 8600)
-ax.set_xlabel('HJD')
-ax.set_ylabel('Magnitude')
+ax.set_xlabel("HJD")
+ax.set_ylabel("Magnitude")
 ax.invert_yaxis()
 
 ax_traj = fig.add_axes([0.2, 0.6, 0.25, 0.25])
-tau = (times-parms_close['t0'])/parms_close['tE']
-alpha = parms_close['alpha']/180*np.pi
-y1 = -parms_close['u0']*np.sin(alpha) + tau*np.cos(alpha)
-y2 = parms_close['u0']*np.cos(alpha) + tau*np.sin(alpha)
-ax_traj.plot(y1, y2,c='black')
-ax_traj.set_aspect('equal')
-ax_traj.set_xlim(-1., 1.)
-ax_traj.set_ylim(-1., 1.)
-caustics_instance = CausticsBinary(s=10**parms_close['logs'], q=10**parms_close['logq'])
+tau = (times - parms_close["t0"]) / parms_close["tE"]
+alpha = parms_close["alpha"] / 180 * np.pi
+y1 = -parms_close["u0"] * np.sin(alpha) + tau * np.cos(alpha)
+y2 = parms_close["u0"] * np.cos(alpha) + tau * np.sin(alpha)
+ax_traj.plot(y1, y2, c="black")
+ax_traj.set_aspect("equal")
+ax_traj.set_xlim(-1.0, 1.0)
+ax_traj.set_ylim(-1.0, 1.0)
+caustics_instance = CausticsBinary(
+    s=10 ** parms_close["logs"], q=10 ** parms_close["logq"]
+)
 caustics_x, caustics_y = caustics_instance.get_caustics()
-ax_traj.scatter(caustics_x, caustics_y, c='r', s=1)
+ax_traj.scatter(caustics_x, caustics_y, c="r", s=1)
 
 save_figure(fig, "KB0371_close_solution.png")
 display(fig)
@@ -179,9 +237,17 @@ display(fig)
 # running only the HMC section.
 
 # %%
-initial_guess = [8.59238794e+03, 1.42915228e-01, 6.61567944e+00, -2.23131913e+00, 2.71714918e+02, -7.73128397e-02, -1.14229367e+00]
-print(objective_func(initial_guess, [HJD,flux,ferr], fs, fb))
-print('tot dof = ', len(HJD)-len(parms_close))
+initial_guess = [
+    8.59238794e03,
+    1.42915228e-01,
+    6.61567944e00,
+    -2.23131913e00,
+    2.71714918e02,
+    -7.73128397e-02,
+    -1.14229367e00,
+]
+print(objective_func(initial_guess, [HJD, flux, ferr], fs, fb))
+print("tot dof = ", len(HJD) - len(parms_close))
 
 # %%
 # import scipy.optimize as op
@@ -193,12 +259,18 @@ print('tot dof = ', len(HJD)-len(parms_close))
 
 n_dim = len(initial_guess)
 nwalkers = 20
-step_size = 0.001*np.ones_like(initial_guess)
+step_size = 0.001 * np.ones_like(initial_guess)
 chain = None
 if RUN_EMCEE:
-    pos = [initial_guess+step_size*np.random.randn(n_dim) for i in range(nwalkers)] 
+    pos = [initial_guess + step_size * np.random.randn(n_dim) for i in range(nwalkers)]
     with ThreadPool(nwalkers) as pool:
-        sampler = emcee.EnsembleSampler(nwalkers, n_dim, objective_func, args=([HJD,flux,ferr], fs, fb, False), pool=pool)
+        sampler = emcee.EnsembleSampler(
+            nwalkers,
+            n_dim,
+            objective_func,
+            args=([HJD, flux, ferr], fs, fb, False),
+            pool=pool,
+        )
         pos, prob, state = sampler.run_mcmc(pos, 500, progress=True)
         sampler.reset()
         sampler.run_mcmc(pos, 1000, progress=True)
@@ -220,11 +292,17 @@ if RUN_EMCEE:
 parm_name = PARAMETER_NAMES
 if RUN_EMCEE:
     chain = sampler.get_chain(flat=True)
-    fig = corner.corner(chain,labels=parm_name,quantiles=[0.16, 0.5, 0.84],show_titles=True,truths=np.median(chain,axis=0))
+    fig = corner.corner(
+        chain,
+        labels=parm_name,
+        quantiles=[0.16, 0.5, 0.84],
+        show_titles=True,
+        truths=np.median(chain, axis=0),
+    )
     save_figure(fig, "KB0371_emcee_corner.png")
     plt.show()
     for i in range(len(parm_name)):
-        print(parm_name[i], np.median(chain[:,i]), np.std(chain[:,i]))
+        print(parm_name[i], np.median(chain[:, i]), np.std(chain[:, i]))
 
 # %% [markdown]
 # ## Local Fisher approximation
@@ -250,15 +328,23 @@ if RUN_EMCEE:
 
 # %%
 
-initial_guess = [8.59238794e+03, 1.42915228e-01, 6.61567944e+00, -2.23131913e+00, 2.71714918e+02, -7.73128397e-02, -1.14229367e+00]
-times,flux,ferr = HJD,flux,ferr
-weight_light_curve = lambda x: (light_curve_Jax(x, times)*fs+fb)/ferr
+initial_guess = [
+    8.59238794e03,
+    1.42915228e-01,
+    6.61567944e00,
+    -2.23131913e00,
+    2.71714918e02,
+    -7.73128397e-02,
+    -1.14229367e00,
+]
+times, flux, ferr = HJD, flux, ferr
+weight_light_curve = lambda x: (light_curve_Jax(x, times) * fs + fb) / ferr
 jacobian_fun = jax.jacfwd(weight_light_curve)
 jacobian = jacobian_fun(jnp.array(initial_guess))
 fisher_matrix = jnp.dot(jacobian.T, jacobian)
 fisher_cov = jnp.linalg.inv(fisher_matrix)
 if chain is not None:
-    fig,axes= plot_covariance(initial_guess,parm_name,fisher_cov,chain)
+    fig, axes = plot_covariance(initial_guess, parm_name, fisher_cov, chain)
     save_figure(fig, "KB0371_fisher_covariance.png")
     plt.show()
 else:
@@ -298,10 +384,14 @@ else:
 
 # %%
 print(HJD.shape)
-HJD_pad = jnp.pad(HJD, (0, 10170-HJD.shape[0]), 'constant', constant_values=HJD[-1])
+HJD_pad = jnp.pad(HJD, (0, 10170 - HJD.shape[0]), "constant", constant_values=HJD[-1])
 print(HJD_pad.shape)
-flux_pad = jnp.pad(flux, (0, 10170-flux.shape[0]), 'constant', constant_values=flux[-1])
-ferr_pad = jnp.pad(ferr, (0, 10170-ferr.shape[0]), 'constant', constant_values=ferr[-1])
+flux_pad = jnp.pad(
+    flux, (0, 10170 - flux.shape[0]), "constant", constant_values=flux[-1]
+)
+ferr_pad = jnp.pad(
+    ferr, (0, 10170 - ferr.shape[0]), "constant", constant_values=ferr[-1]
+)
 
 # %%
 
@@ -320,12 +410,16 @@ param_lowers = jnp.array(parameter_bounds[:, 0])
 param_uppers = jnp.array(parameter_bounds[:, 1])
 
 initial_param = jnp.array(initial_guess)
-if bool(jnp.any(initial_param <= param_lowers)) or bool(jnp.any(initial_param >= param_uppers)):
+if bool(jnp.any(initial_param <= param_lowers)) or bool(
+    jnp.any(initial_param >= param_uppers)
+):
     raise ValueError("Initial parameters must be strictly inside soft boundaries.")
 
 cholesky_transform = jnp.linalg.cholesky(fisher_cov)
 
-print("physical covariance eigenvalues from inv(Fisher):", jnp.linalg.eigvalsh(fisher_cov))
+print(
+    "physical covariance eigenvalues from inv(Fisher):", jnp.linalg.eigvalsh(fisher_cov)
+)
 print("Cholesky transform:")
 print(cholesky_transform)
 
@@ -342,6 +436,7 @@ print(cholesky_transform)
 # valid numerical domain. A soft penalty suppresses samples outside the
 # intended physical boundaries without introducing a Gaussian prior around
 # the initial solution.
+
 
 # %%
 def model_HMC_reparameterized(
@@ -386,7 +481,9 @@ def model_HMC_reparameterized(
 
 # %%
 if RUN_HMC:
-    init_strategy=numpyro.infer.init_to_value(values={'param_base':jnp.zeros(len(initial_param))})
+    init_strategy = numpyro.infer.init_to_value(
+        values={"param_base": jnp.zeros(len(initial_param))}
+    )
     nuts_kernel = NUTS(
         model_HMC_reparameterized,
         step_size=1.0 / 5.0,
@@ -406,7 +503,7 @@ if RUN_HMC:
 
     mcmc.run(
         jax.random.PRNGKey(0),
-        data=[HJD_pad,flux_pad,ferr_pad],
+        data=[HJD_pad, flux_pad, ferr_pad],
         fs=fs,
         fb=fb,
         init_val=initial_param,
@@ -430,9 +527,11 @@ else:
 
 # %%
 if RUN_HMC:
-    hmc_sample = mcmc.get_samples()['param']
+    hmc_sample = mcmc.get_samples()["param"]
     print(hmc_sample.shape)
-    fig = corner.corner(np.array(hmc_sample),quantiles=[0.16, 0.5, 0.84],show_titles=True)
+    fig = corner.corner(
+        np.array(hmc_sample), quantiles=[0.16, 0.5, 0.84], show_titles=True
+    )
     save_figure(fig, "KB0371_hmc_corner.png")
 
 # %% [markdown]
