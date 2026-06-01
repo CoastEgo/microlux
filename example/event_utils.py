@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpyro
 import numpyro.distributions as dist
+from jax.nn import softplus
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import MaxNLocator
 from microlux import binary_mag
+from numpyro.distributions import constraints
 
 
 PARAMETER_NAMES = ["t0", "u0", "tE", "logrho", "alpha", "logs", "logq"]
@@ -234,21 +236,41 @@ def light_curve_Jax_pmap(times, parms, i, n_pmap):
     return light_curve_Jax(parms, times_i)
 
 
-def model_HMC(data, fs, fb, init_val, L, n_pmap=10):
+def model_HMC_reparameterized(
+    data,
+    fs,
+    fb,
+    init_val,
+    transform_matrix,
+    param_lowers,
+    param_uppers,
+    boundary_steepness=100.0,
+    penalty_strength=1000.0,
+    n_pmap=10,
+):
     times, flux, ferr = data
-    parmsample = numpyro.sample(
-        "param_base", dist.Uniform(-1 * jnp.ones(len(init_val)), 1 * jnp.ones(len(init_val)))
+    param_base = numpyro.sample(
+        "param_base",
+        dist.ImproperUniform(constraints.real, (), event_shape=(len(init_val),)),
     )
-    parmsample = jnp.dot(L * 10, parmsample) + jnp.array(init_val)
+    parmsample = jnp.dot(transform_matrix, param_base) + jnp.asarray(init_val)
     numpyro.deterministic("param", parmsample)
+
+    lower_penalty = jnp.sum(softplus(boundary_steepness * (param_lowers - parmsample)))
+    upper_penalty = jnp.sum(softplus(boundary_steepness * (parmsample - param_uppers)))
+    penalty = lower_penalty + upper_penalty
+    safe_params = jnp.clip(parmsample, param_lowers + 1e-5, param_uppers - 1e-5)
+
     pmap_light_curve = lambda curve_times, params, index: light_curve_Jax_pmap(
         curve_times, params, index, n_pmap
     )
     mag_mod = jax.pmap(pmap_light_curve, in_axes=(None, None, 0))(
-        times, parmsample, jnp.arange(n_pmap)
+        times, safe_params, jnp.arange(n_pmap)
     )
     mag_mod = jnp.reshape(mag_mod, (flux.shape[0],), order="F")
     flux_mod = mag_mod * fs + fb
     numpyro.sample("obs", dist.Normal(flux_mod, ferr), obs=flux)
+    numpyro.factor("boundary_penalty", -penalty_strength * penalty)
     chi2 = jnp.sum(((flux_mod - flux) / ferr) ** 2)
     numpyro.deterministic("chi2", chi2)
+    numpyro.deterministic("penalty", penalty)
