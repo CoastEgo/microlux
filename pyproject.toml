@@ -1,6 +1,6 @@
 [project]
 name = "microlux"
-version = "0.2.0"
+version = "0.3.0"
 description = "A JAX-based package for microlensing binary lens"
 authors = [
     {name = "Haibin Ren", email = "rhb23@mails.tsinghua.edu.cn"},
