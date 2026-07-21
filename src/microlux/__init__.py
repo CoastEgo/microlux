@@ -12,6 +12,16 @@ all = [
     "TrajectoryModel",
     "TrajectoryParameters",
     "get_trajectory_model",
+    "FisherInformation",
+    "FisherResult",
+    "GroupedFluxFit",
+    "fisher_information",
+    "fisher_from_residuals",
+    "normalized_residuals",
+    "fit_grouped_fluxes",
+    "profiled_grouped_fluxes",
+    "profiled_grouped_residuals",
+    "profiled_grouped_fisher",
 ]
 
 from .basic_function import (
@@ -20,6 +30,18 @@ from .basic_function import (
 )
 from .coordinates import Coordinates as Coordinates
 from .countour import contour_integral as contour_integral
+from .fitting import (
+    fisher_from_residuals as fisher_from_residuals,
+    fisher_information as fisher_information,
+    FisherInformation as FisherInformation,
+    FisherResult as FisherResult,
+    fit_grouped_fluxes as fit_grouped_fluxes,
+    GroupedFluxFit as GroupedFluxFit,
+    normalized_residuals as normalized_residuals,
+    profiled_grouped_fisher as profiled_grouped_fisher,
+    profiled_grouped_fluxes as profiled_grouped_fluxes,
+    profiled_grouped_residuals as profiled_grouped_residuals,
+)
 from .model import (
     binary_mag as binary_mag,
     extended_light_curve as extended_light_curve,
