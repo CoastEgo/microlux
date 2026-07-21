@@ -8,8 +8,10 @@ from .basic_function import get_parity, get_parity_error, get_poly_coff, verify
 from .linear_sum_assignment import find_nearest
 from .polynomial_solver import get_roots
 from .utils import (
-    custom_delete,
-    custom_insert,
+    apply_insert,
+    compact_delete,
+    get_delete_source_indices,
+    get_insert_source_indices,
     Iterative_State,
     MAX_CAUSTIC_INTERSECT_NUM,
 )
@@ -41,7 +43,8 @@ def add_points(add_idx, add_zeta, add_theta, roots_State, s, m1, m2):
     sample_n += (add_idx != -1).sum()
 
     ## insert the new samplings
-    insert_fun = lambda x, y: custom_insert(x, add_idx, y)
+    source_indices = get_insert_source_indices(theta.shape[0], add_idx)
+    insert_fun = lambda x, y: apply_insert(x, y, source_indices)
     original_list = [theta, roots, parity, ghost_roots_dis, sort_flag]
     add_list = [
         add_theta,
@@ -486,8 +489,9 @@ def theta_remove_fun(carry):
     sample_n -= cond.sum()
 
     delete_tree = [theta, real_parity, real_roots, ghost_roots_dis, add_idx[:, None]]
+    source_indices = get_delete_source_indices(n_ite, delidx)
     theta, real_parity, real_roots, ghost_roots_dis, add_idx = jax.tree.map(
-        lambda x: custom_delete(x, delidx), delete_tree
+        lambda x: compact_delete(x, source_indices), delete_tree
     )
     add_idx = add_idx[:, 0]
 

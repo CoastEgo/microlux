@@ -97,6 +97,35 @@ def custom_insert(array, idx, add_array):
     return final_array
 
 
+def get_insert_source_indices(array_length, add_idx):
+    """Build source indices for inserting a packed array in one gather."""
+    add_idx = jnp.asarray(add_idx)
+    valid = add_idx >= 0
+    safe_idx = jnp.where(valid, add_idx, 0)
+    insert_count = jnp.zeros(array_length, dtype=add_idx.dtype)
+    insert_count = insert_count.at[safe_idx].add(valid.astype(add_idx.dtype))
+
+    old_position = jnp.arange(array_length) + jnp.cumsum(insert_count)
+    add_rank = jnp.cumsum(valid.astype(add_idx.dtype)) - 1
+    add_position = jnp.where(valid, add_idx + add_rank, array_length)
+
+    padding_index = array_length + add_idx.shape[0]
+    source_indices = jnp.full(array_length, padding_index, dtype=add_idx.dtype)
+    source_indices = source_indices.at[old_position].set(
+        jnp.arange(array_length), mode="drop"
+    )
+    source_indices = source_indices.at[add_position].set(
+        array_length + jnp.arange(add_idx.shape[0]), mode="drop"
+    )
+    return source_indices
+
+
+def apply_insert(array, add_array, source_indices):
+    """Apply precomputed insertion indices to one padded array."""
+    combined = jnp.concatenate([array, add_array, array[-1:]], axis=0)
+    return combined[source_indices]
+
+
 def delete_body(carry, k):
     array, ite2, delidx = carry
     mask = ite2 < delidx[k]
@@ -117,6 +146,22 @@ def custom_delete(array, delidx):
         (ite < ite.size - (delidx < array.shape[0]).sum())[:, None], array, fill_value
     )
     return array
+
+
+def get_delete_source_indices(array_length, delidx):
+    """Build source indices for deleting packed rows in one gather."""
+    delidx = jnp.asarray(delidx)
+    valid = (delidx >= 0) & (delidx < array_length)
+    safe_idx = jnp.where(valid, delidx, 0)
+    delete_count = jnp.zeros(array_length, dtype=delidx.dtype)
+    delete_count = delete_count.at[safe_idx].add(valid.astype(delidx.dtype))
+    return jnp.where(delete_count == 0, size=array_length, fill_value=array_length)[0]
+
+
+def compact_delete(array, source_indices):
+    """Apply precomputed deletion indices to one padded array."""
+    padded = jnp.concatenate([array, array[-1:]], axis=0)
+    return padded[source_indices]
 
 
 def stop_grad_wrapper(func):
