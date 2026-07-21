@@ -274,7 +274,9 @@ def contour_integral(
 
 
 @partial(jax.jit, static_argnames=("inite", "n_ite"))
-def contour_init(rho, s, q, trajectory_l, epsilon, epsilon_rel=0, inite=30, n_ite=60):
+def contour_init(
+    rho, s, q, trajectory_l, epsilon, epsilon_rel=1e-3, inite=30, n_ite=60
+):
     """
     Perform initial contour integration with a fixed array length.
 
@@ -284,7 +286,7 @@ def contour_init(rho, s, q, trajectory_l, epsilon, epsilon_rel=0, inite=30, n_it
         q (float): The mass ratio of the two lens components.
         trajectory_l (array): The trajectory of the lens in the low mass coordinate system.
         epsilon (float): The integration precision.
-        epsilon_rel (float, optional): The relative integration precision. Defaults to 0.
+        epsilon_rel (float, optional): The relative integration precision. Defaults to 1e-3.
         inite (int, optional): The number of initial integration points. Defaults to 30.
         n_ite (int, optional): The total number of integration points. Defaults to 60.
 

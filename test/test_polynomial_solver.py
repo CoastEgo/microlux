@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from microlux.basic_function import get_poly_coff, to_lowmass
+from microlux.basic_function import get_poly_coff, to_lowmass, verify
 from microlux.polynomial_solver import Aberth_Ehrlich, AE_roots0
 from test_util import get_caustic_permutation
 
@@ -12,6 +12,23 @@ from test_util import get_caustic_permutation
 rho_values = [1e-2, 1e-3, 1e-4]
 q_values = [1e-1, 1e-2, 1e-3]
 s_values = [0.6, 1.0, 1.4]
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize("lens_position", [0.0, 0.9], ids=["secondary", "primary"])
+def test_polynomial_near_lens_cold_start(lens_position):
+    q = 0.2
+    s = 0.9
+    m1 = 1 / (1 + q)
+    m2 = q / (1 + q)
+    offset = 1e-14 * (1 + 1j) / jnp.sqrt(2)
+    zeta_l = jnp.array([[lens_position + offset]])
+    coff = get_poly_coff(zeta_l, s, m2)[0]
+
+    roots = Aberth_Ehrlich(coff, AE_roots0(coff), MAX_ITER=50)
+    lens_errors = jnp.sort(verify(zeta_l, roots[None, :], s, m1, m2)[0])
+
+    assert lens_errors[2] < 1e-10
 
 
 @pytest.mark.fast
