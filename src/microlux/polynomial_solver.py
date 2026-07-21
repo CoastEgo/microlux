@@ -215,8 +215,12 @@ def AE_roots0(coff: jnp.ndarray) -> jnp.ndarray:
     """
 
     def UV(coff):
-        U = 1 + 1 / jnp.abs(coff[0]) * jnp.max(jnp.abs(coff[:-1]))
-        V = jnp.abs(coff[-1]) / (jnp.abs(coff[-1]) + jnp.max(jnp.abs(coff[:-1])))
+        scale = jnp.max(jnp.abs(coff[:-1]))
+        leading_coff = jnp.maximum(
+            jnp.abs(coff[0]), jnp.sqrt(jnp.finfo(coff.real.dtype).eps) * scale
+        )
+        U = 1 + scale / leading_coff
+        V = jnp.abs(coff[-1]) / (jnp.abs(coff[-1]) + scale)
         return U, V
 
     def Roots0(coff):
