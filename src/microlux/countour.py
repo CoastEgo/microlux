@@ -20,7 +20,6 @@ from .solution import (
 )
 from .utils import (
     Error_State,
-    insert_body,
     Iterative_State,
     stop_grad_wrapper,
     warn_length_not_enough,
@@ -28,6 +27,31 @@ from .utils import (
 
 
 jax.config.update("jax_enable_x64", True)
+
+
+def build_add_theta(theta, idx, add_number, max_add, max_total_num):
+    """Build packed theta values for all selected intervals at once."""
+    add_number = add_number.reshape(-1)
+    valid_idx = idx >= 0
+    safe_idx = jnp.where(valid_idx, idx, 1)
+    local_index = jnp.arange(1, max_add + 1)[None, :]
+
+    theta_left = theta[safe_idx - 1, 0][:, None]
+    theta_right = theta[safe_idx, 0][:, None]
+    candidate_theta = theta_left + local_index * (theta_right - theta_left) / (
+        add_number[:, None] + 1
+    )
+    valid = valid_idx[:, None] & (local_index <= add_number[:, None])
+    selected = jnp.where(valid.reshape(-1), size=max_total_num, fill_value=-1)[0]
+    safe_selected = jnp.where(selected >= 0, selected, 0)
+
+    add_theta = candidate_theta.reshape(-1)[safe_selected]
+    add_theta = jnp.where(selected >= 0, add_theta, jnp.nan)[:, None]
+
+    candidate_idx = jnp.broadcast_to(idx[:, None], candidate_theta.shape)
+    add_idx = candidate_idx.reshape(-1)[safe_selected]
+    add_idx = jnp.where(selected >= 0, add_idx, -1)
+    return add_theta, add_idx
 
 
 def anayltic_warpper(trajectory_l, rho, s, q, roots_State, mag_State):
@@ -461,43 +485,14 @@ def while_body_fun(carry):
     )
     # jax.debug.print('add_number {}/{}  idx length {}/{}  sample_n: {}',add_number.sum(),Max_total_num,(idx!=0).sum(),Max_index_length,sample_n[0])
 
-    def theta_encode(carry, k):
-        (theta, idx, add_number, add_theta_encode) = carry
-
-        theta_diff = (theta[idx[k]] - theta[idx[k] - 1]) / (add_number[k] + 1)
-        add_theta = (
-            jnp.arange(1, Max_total_num + 1)[:, None] * theta_diff + theta[idx[k] - 1]
-        )
-        add_theta = jnp.where(
-            (jnp.arange(Max_total_num) < add_number[k])[:, None], add_theta, jnp.nan
-        )
-        carry2, _ = insert_body(
-            (
-                add_theta_encode,
-                add_theta,
-                jnp.where(jnp.isnan(add_theta_encode), size=1)[0],
-                add_number[k][None],
-            ),
-            0,
-        )
-        add_theta_encode = carry2[0]
-        return (theta, idx, add_number, add_theta_encode), k
-
     def update_carry(carrylast):
-        carry, _ = lax.scan(
-            theta_encode,
-            (theta, idx, add_number, jnp.full((Max_total_num, 1), jnp.nan)),
-            jnp.arange(idx.shape[0]),
+        add_theta, idx_all = build_add_theta(
+            theta,
+            idx,
+            add_number,
+            max_add=Max_add,
+            max_total_num=Max_total_num,
         )
-        add_theta = carry[-1]
-        jax_repeat = jax.jit(
-            jnp.repeat, static_argnames=["axis", "total_repeat_length"]
-        )
-        idx_all = jax_repeat(idx, add_number, total_repeat_length=Max_total_num)
-        idx_all = jnp.where(
-            jnp.arange(idx_all.shape[0]) < add_number.sum(), idx_all, -1
-        )
-        ####
         add_zeta_l = get_zeta_l(rho, trajectory_l, add_theta)
         roots_State_new, buried_error, add_outloop = add_points(
             idx_all, add_zeta_l, add_theta, roots_State, s, 1 / (1 + q), q / (1 + q)
