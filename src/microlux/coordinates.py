@@ -64,7 +64,12 @@ def normalize_jd_for_ephemeris(
     """
     times_arr = np.asarray(times, dtype=float)
     time_ref_val = float(time_ref)
-    if times_arr[0] < reduced_jd_cutoff:
+    reduced_times = times_arr < reduced_jd_cutoff
+    if np.any(reduced_times) and not np.all(reduced_times):
+        raise ValueError("times must not mix full and reduced JD")
+    if bool(reduced_times[0]) != (time_ref_val < reduced_jd_cutoff):
+        raise ValueError("times and time_ref must use the same JD convention")
+    if np.all(reduced_times):
         return times_arr + reduced_jd_cutoff, time_ref_val + reduced_jd_cutoff
     return times_arr, time_ref_val
 
