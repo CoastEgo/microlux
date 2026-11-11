@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-This page collects detailed example usages for different model entry points.
+Calculate binary-lens magnification, then add annual parallax or orbital motion.
 
 ## Example 1: Basic Binary Magnification
 
@@ -55,6 +55,45 @@ params = TrajectoryParameters(
     pi_E_E=piEE,
 )
 
-trajectory = traj_model.calculate_trajectory(params)
-mag = extended_light_curve(trajectory, s, q, rho)
+trajectory, separation = traj_model.calculate_trajectory(params)
+mag = extended_light_curve(trajectory, separation, q, rho)
 ```
+
+## Example 3: Circular Orbital Motion, with Optional Parallax
+
+The same trajectory model supports the effects independently:
+
+| Model | `t0_par` | `orbital_motion` |
+| --- | --- | --- |
+| Static | `None` | `None` |
+| Annual parallax | Reference epoch | `None` |
+| Circular orbit | `None` | `"circular"` |
+| Annual parallax + circular orbit | Reference epoch | `"circular"` |
+
+```python
+import jax.numpy as jnp
+from microlux import (
+    Coordinates, TrajectoryParameters, get_trajectory_model, extended_light_curve,
+)
+
+params = TrajectoryParameters(
+    t0=2460000.0, u0=0.1, tE=100.0, rho=0.01,
+    alpha_rad=1.2, s=1.3, q=0.2,
+    pi_E_N=0.1, pi_E_E=-0.1,
+    gamma1=0.001, gamma2=0.002, gamma3=0.003,
+)
+times = jnp.linspace(params.t0 - 100.0, params.t0 + 100.0, 161)
+model = get_trajectory_model(
+    times,
+    coords=Coordinates(ra="17:59:02.3", dec="-29:04:15.2"),
+    t0_par=2459983.0,
+    orbital_motion="circular",
+    photo_center=True,
+)
+trajectory, separation = model.calculate_trajectory(params)
+mag = extended_light_curve(trajectory, separation, params.q, params.rho)
+```
+
+`trajectory` and `separation` are arrays of shape `(N,)`, giving the source
+position and lens separation at each observation. Pass both to
+`extended_light_curve`; without orbital motion, separation is constant.

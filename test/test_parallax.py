@@ -98,10 +98,10 @@ def test_parallax_accuracy(piEN, piEE, plot=False):
     )
 
     # Calculate trajectory in center-of-mass coordinates
-    trajectory = trajectory_model.calculate_trajectory(params)
+    trajectory, separation = trajectory_model.calculate_trajectory(params)
 
     # Calculate magnification using the trajectory
-    mag_lux = extended_light_curve(trajectory, s, q, rho)
+    mag_lux = extended_light_curve(trajectory, separation, q, rho)
 
     # VBMicrolensing model
     VBM = VBMicrolensing.VBMicrolensing()
