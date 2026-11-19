@@ -73,6 +73,18 @@ You can then see your local copy of the documentation by navigating to `localhos
 
 ---
 
+**Preparing a pull request**
+
+Before creating or updating a pull request, review a few recent merged PRs to
+match their title, language, and description style.
+
+- Usually organize the description into `Summary`, `Changes`, and `Tests`; small
+  changes may use a shorter description.
+- Describe the resulting behavior, any breaking changes and required migration,
+  and relevant validation results. Omit development history and redundant details.
+
+---
+
 **What happens next?**
 
 When you open a pull request, GitHub Actions will automatically:

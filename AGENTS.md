@@ -26,7 +26,8 @@ trajectory calculations in JAX.
 
 ## Validation
 
-Follow [CONTRIBUTING.md](CONTRIBUTING.md) for checks relevant to the change.
+Follow [CONTRIBUTING.md](CONTRIBUTING.md) for checks relevant to the change
+and pull request preparation.
 CI selects only `fast` tests; see [.github/workflows/run_test.yml](.github/workflows/run_test.yml).
 After adding tests, verify collection and run the affected tests:
 
