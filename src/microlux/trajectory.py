@@ -254,7 +254,10 @@ def _project_delta_ne_to_tau_beta(
     - `delta_beta`: Shift perpendicular to trajectory direction.
     """
     delta_tau = jnp.dot(delta_ne, projection_vec_ne)
-    delta_beta = -jnp.cross(delta_ne, projection_vec_ne)
+    delta_beta = (
+        delta_ne[..., 1] * projection_vec_ne[0]
+        - delta_ne[..., 0] * projection_vec_ne[1]
+    )
     return delta_tau, delta_beta
 
 
