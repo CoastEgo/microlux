@@ -349,6 +349,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#example-3-circular-orbital-motion-with-optional-parallax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example 3: Circular Orbital Motion, with Optional Parallax
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -609,7 +618,7 @@
 
 
 <h1 id="quick-start-guide">Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permanent link">¤</a></h1>
-<p>This page collects detailed example usages for different model entry points.</p>
+<p>Calculate binary-lens magnification, then add annual parallax or orbital motion.</p>
 <h2 id="example-1-basic-binary-magnification">Example 1: Basic Binary Magnification<a class="headerlink" href="#example-1-basic-binary-magnification" title="Permanent link">¤</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">microlux</span><span class="w"> </span><span class="kn">import</span> <span class="n">binary_mag</span>
@@ -643,7 +652,7 @@
 <span class="n">piEE</span> <span class="o">=</span> <span class="mf">0.1</span>
 
 <span class="n">times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">tE</span><span class="p">,</span> <span class="n">t0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">tE</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
-<span class="n">coords</span> <span class="o">=</span> <span class="n">Coordinates</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="s2">&quot;17:59:02.3&quot;</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="s2">&quot;-29:04:15.2&quot;</span><span class="p">)</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="n">Coordinates</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="s2">"17:59:02.3"</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="s2">"-29:04:15.2"</span><span class="p">)</span>
 <span class="n">traj_model</span> <span class="o">=</span> <span class="n">get_trajectory_model</span><span class="p">(</span><span class="n">times</span><span class="o">=</span><span class="n">times</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">t0_par</span><span class="o">=</span><span class="n">t0</span><span class="p">)</span>
 
 <span class="n">params</span> <span class="o">=</span> <span class="n">TrajectoryParameters</span><span class="p">(</span>
@@ -658,9 +667,67 @@
     <span class="n">pi_E_E</span><span class="o">=</span><span class="n">piEE</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">trajectory</span> <span class="o">=</span> <span class="n">traj_model</span><span class="o">.</span><span class="n">calculate_trajectory</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-<span class="n">mag</span> <span class="o">=</span> <span class="n">extended_light_curve</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
+<span class="n">trajectory</span><span class="p">,</span> <span class="n">separation</span> <span class="o">=</span> <span class="n">traj_model</span><span class="o">.</span><span class="n">calculate_trajectory</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">mag</span> <span class="o">=</span> <span class="n">extended_light_curve</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">separation</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
 </code></pre></div>
+<h2 id="example-3-circular-orbital-motion-with-optional-parallax">Example 3: Circular Orbital Motion, with Optional Parallax<a class="headerlink" href="#example-3-circular-orbital-motion-with-optional-parallax" title="Permanent link">¤</a></h2>
+<p>The same trajectory model supports the effects independently:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th><code>t0_par</code></th>
+<th><code>orbital_motion</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static</td>
+<td><code>None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td>Annual parallax</td>
+<td>Reference epoch</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td>Circular orbit</td>
+<td><code>None</code></td>
+<td><code>"circular"</code></td>
+</tr>
+<tr>
+<td>Annual parallax + circular orbit</td>
+<td>Reference epoch</td>
+<td><code>"circular"</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">microlux</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Coordinates</span><span class="p">,</span> <span class="n">TrajectoryParameters</span><span class="p">,</span> <span class="n">get_trajectory_model</span><span class="p">,</span> <span class="n">extended_light_curve</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">params</span> <span class="o">=</span> <span class="n">TrajectoryParameters</span><span class="p">(</span>
+    <span class="n">t0</span><span class="o">=</span><span class="mf">2460000.0</span><span class="p">,</span> <span class="n">u0</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">tE</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">alpha_rad</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">1.3</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">pi_E_N</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">pi_E_E</span><span class="o">=-</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">gamma1</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">gamma2</span><span class="o">=</span><span class="mf">0.002</span><span class="p">,</span> <span class="n">gamma3</span><span class="o">=</span><span class="mf">0.003</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">t0</span> <span class="o">-</span> <span class="mf">100.0</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">t0</span> <span class="o">+</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mi">161</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">get_trajectory_model</span><span class="p">(</span>
+    <span class="n">times</span><span class="p">,</span>
+    <span class="n">coords</span><span class="o">=</span><span class="n">Coordinates</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="s2">"17:59:02.3"</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="s2">"-29:04:15.2"</span><span class="p">),</span>
+    <span class="n">t0_par</span><span class="o">=</span><span class="mf">2459983.0</span><span class="p">,</span>
+    <span class="n">orbital_motion</span><span class="o">=</span><span class="s2">"circular"</span><span class="p">,</span>
+    <span class="n">photo_center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">trajectory</span><span class="p">,</span> <span class="n">separation</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">calculate_trajectory</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">mag</span> <span class="o">=</span> <span class="n">extended_light_curve</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">separation</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">rho</span><span class="p">)</span>
+</code></pre></div>
+<p><code>trajectory</code> and <code>separation</code> are arrays of shape <code>(N,)</code>, giving the source
+position and lens separation at each observation. Pass both to
+<code>extended_light_curve</code>; without orbital motion, separation is constant.</p>
 
 
 

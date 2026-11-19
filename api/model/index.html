@@ -705,7 +705,7 @@ low-mass coordinates for the calculation.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>trajectory</code>: The trajectory of the lensing event in center-of-mass coordinates.</li>
-<li><code>s</code>: The projected separation between the lens and the source.</li>
+<li><code>s</code>: Binary lens separation, scalar or shape <code>(N,)</code> matching trajectory.</li>
 <li><code>q</code> : The mass ratio between the lens and the source.</li>
 <li><code>rho</code>: The source radius in units of the Einstein radius.</li>
 <li><code>tol</code>: The absolute tolerance for the quadrupole test.</li>
@@ -752,6 +752,7 @@ low-mass coordinates for the calculation.</p>
 <p><strong>Parameters</strong></p>
 <ul>
 <li><code>trajectory</code>: The trajectory in the center-of-mass coordinate system.</li>
+<li><code>s</code>: Binary lens separation, scalar or shape <code>(N,)</code> matching trajectory.</li>
 <li><code>n_annuli</code>: The number of annuli for the limb darkening calculation.</li>
 <li>For the definition of the other parameters, please see <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a>.</li>
 </ul>

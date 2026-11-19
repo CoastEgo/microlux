@@ -670,17 +670,17 @@ without rerunning the samplers.</p>
 
 <span class="n">N_pmap</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">numofchains</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;XLA_FLAGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;--xla_force_host_platform_device_count=</span><span class="si">{</span><span class="n">N_pmap</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">numofchains</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"XLA_FLAGS"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"--xla_force_host_platform_device_count=</span><span class="si">{</span><span class="n">N_pmap</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">numofchains</span><span class="si">}</span><span class="s2">"</span>
 <span class="p">)</span>
-<span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+<span class="k">if</span> <span class="s2">"__file__"</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
     <span class="n">EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
-<span class="k">elif</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;event_utils.py&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+<span class="k">elif</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"event_utils.py"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
     <span class="n">EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;example&quot;</span>
+    <span class="n">EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"example"</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">EXAMPLE_DIR</span><span class="p">))</span>
-<span class="n">FIGURE_DIR</span> <span class="o">=</span> <span class="n">EXAMPLE_DIR</span> <span class="o">/</span> <span class="s2">&quot;figures&quot;</span>
+<span class="n">FIGURE_DIR</span> <span class="o">=</span> <span class="n">EXAMPLE_DIR</span> <span class="o">/</span> <span class="s2">"figures"</span>
 <span class="n">FIGURE_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">corner</span>
@@ -712,7 +712,7 @@ without rerunning the samplers.</p>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">FIGURE_DIR</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">FIGURE_DIR</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">"tight"</span><span class="p">)</span>
 
 
 <span class="n">RUN_EMCEE</span> <span class="o">=</span> <span class="kc">False</span>
@@ -731,55 +731,55 @@ on a common scale.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># %matplotlib ipympl</span>
 <span class="k">if</span> <span class="n">jax</span><span class="o">.</span><span class="n">local_device_count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">N_pmap</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-        <span class="s2">&quot;Restart the Python kernel before running this notebook so XLA_FLAGS can set 10 CPU devices.&quot;</span>
+        <span class="s2">"Restart the Python kernel before running this notebook so XLA_FLAGS can set 10 CPU devices."</span>
     <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">EXAMPLE_DIR</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;KB_19_0371.csv&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">EXAMPLE_DIR</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="s2">"KB_19_0371.csv"</span><span class="p">)</span>
 
-<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_mag&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;HJD&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">8500</span><span class="p">)</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">8500</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span>
 
 <span class="n">error_frac</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;OGLE&quot;</span><span class="p">:</span> <span class="mf">1.59</span><span class="p">,</span>
-    <span class="s2">&quot;KMTC01&quot;</span><span class="p">:</span> <span class="mf">1.41</span><span class="p">,</span>
-    <span class="s2">&quot;KMTC41&quot;</span><span class="p">:</span> <span class="mf">1.38</span><span class="p">,</span>
-    <span class="s2">&quot;KMTA01&quot;</span><span class="p">:</span> <span class="mf">1.35</span><span class="p">,</span>
-    <span class="s2">&quot;KMTA41&quot;</span><span class="p">:</span> <span class="mf">1.57</span><span class="p">,</span>
-    <span class="s2">&quot;KMTS01&quot;</span><span class="p">:</span> <span class="mf">1.19</span><span class="p">,</span>
-    <span class="s2">&quot;KMTS41&quot;</span><span class="p">:</span> <span class="mf">1.41</span><span class="p">,</span>
+    <span class="s2">"OGLE"</span><span class="p">:</span> <span class="mf">1.59</span><span class="p">,</span>
+    <span class="s2">"KMTC01"</span><span class="p">:</span> <span class="mf">1.41</span><span class="p">,</span>
+    <span class="s2">"KMTC41"</span><span class="p">:</span> <span class="mf">1.38</span><span class="p">,</span>
+    <span class="s2">"KMTA01"</span><span class="p">:</span> <span class="mf">1.35</span><span class="p">,</span>
+    <span class="s2">"KMTA41"</span><span class="p">:</span> <span class="mf">1.57</span><span class="p">,</span>
+    <span class="s2">"KMTS01"</span><span class="p">:</span> <span class="mf">1.19</span><span class="p">,</span>
+    <span class="s2">"KMTS41"</span><span class="p">:</span> <span class="mf">1.41</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_mag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.003</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;e_mag&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">error_frac</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;Tel&quot;</span><span class="p">]]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.003</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">error_frac</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
 <span class="p">)</span>
 
 <span class="n">fs_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;OGLE&quot;</span><span class="p">:</span> <span class="mf">0.1865329</span><span class="p">,</span>
-    <span class="s2">&quot;KMTC01&quot;</span><span class="p">:</span> <span class="mf">0.15551681</span><span class="p">,</span>
-    <span class="s2">&quot;KMTC41&quot;</span><span class="p">:</span> <span class="mf">0.16063666</span><span class="p">,</span>
-    <span class="s2">&quot;KMTA01&quot;</span><span class="p">:</span> <span class="mf">0.1964294</span><span class="p">,</span>
-    <span class="s2">&quot;KMTA41&quot;</span><span class="p">:</span> <span class="mf">0.12068191</span><span class="p">,</span>
-    <span class="s2">&quot;KMTS01&quot;</span><span class="p">:</span> <span class="mf">0.22724801</span><span class="p">,</span>
-    <span class="s2">&quot;KMTS41&quot;</span><span class="p">:</span> <span class="mf">0.16661919</span><span class="p">,</span>
+    <span class="s2">"OGLE"</span><span class="p">:</span> <span class="mf">0.1865329</span><span class="p">,</span>
+    <span class="s2">"KMTC01"</span><span class="p">:</span> <span class="mf">0.15551681</span><span class="p">,</span>
+    <span class="s2">"KMTC41"</span><span class="p">:</span> <span class="mf">0.16063666</span><span class="p">,</span>
+    <span class="s2">"KMTA01"</span><span class="p">:</span> <span class="mf">0.1964294</span><span class="p">,</span>
+    <span class="s2">"KMTA41"</span><span class="p">:</span> <span class="mf">0.12068191</span><span class="p">,</span>
+    <span class="s2">"KMTS01"</span><span class="p">:</span> <span class="mf">0.22724801</span><span class="p">,</span>
+    <span class="s2">"KMTS41"</span><span class="p">:</span> <span class="mf">0.16661919</span><span class="p">,</span>
 <span class="p">}</span>
 <span class="n">fb_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;OGLE&quot;</span><span class="p">:</span> <span class="mf">0.07354933</span><span class="p">,</span>
-    <span class="s2">&quot;KMTC01&quot;</span><span class="p">:</span> <span class="mf">0.10144077</span><span class="p">,</span>
-    <span class="s2">&quot;KMTC41&quot;</span><span class="p">:</span> <span class="mf">0.10602545</span><span class="p">,</span>
-    <span class="s2">&quot;KMTA01&quot;</span><span class="p">:</span> <span class="mf">0.04612094</span><span class="p">,</span>
-    <span class="s2">&quot;KMTA41&quot;</span><span class="p">:</span> <span class="mf">0.144712</span><span class="p">,</span>
-    <span class="s2">&quot;KMTS01&quot;</span><span class="p">:</span> <span class="mf">0.00623068</span><span class="p">,</span>
-    <span class="s2">&quot;KMTS41&quot;</span><span class="p">:</span> <span class="mf">0.09311172</span><span class="p">,</span>
+    <span class="s2">"OGLE"</span><span class="p">:</span> <span class="mf">0.07354933</span><span class="p">,</span>
+    <span class="s2">"KMTC01"</span><span class="p">:</span> <span class="mf">0.10144077</span><span class="p">,</span>
+    <span class="s2">"KMTC41"</span><span class="p">:</span> <span class="mf">0.10602545</span><span class="p">,</span>
+    <span class="s2">"KMTA01"</span><span class="p">:</span> <span class="mf">0.04612094</span><span class="p">,</span>
+    <span class="s2">"KMTA41"</span><span class="p">:</span> <span class="mf">0.144712</span><span class="p">,</span>
+    <span class="s2">"KMTS01"</span><span class="p">:</span> <span class="mf">0.00623068</span><span class="p">,</span>
+    <span class="s2">"KMTS41"</span><span class="p">:</span> <span class="mf">0.09311172</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">data</span><span class="p">[</span><span class="s2">&quot;mag_aligned&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_mag_aligned&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">"mag_aligned"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span>
     <span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">align_function</span><span class="p">(</span>
-            <span class="n">x</span><span class="p">[</span><span class="s2">&quot;mag&quot;</span><span class="p">],</span>
-            <span class="n">x</span><span class="p">[</span><span class="s2">&quot;e_mag&quot;</span><span class="p">],</span>
-            <span class="n">fs_dict</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;Tel&quot;</span><span class="p">]],</span>
-            <span class="n">fb_dict</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;Tel&quot;</span><span class="p">]],</span>
-            <span class="n">fs_dict</span><span class="p">[</span><span class="s2">&quot;OGLE&quot;</span><span class="p">],</span>
-            <span class="n">fb_dict</span><span class="p">[</span><span class="s2">&quot;OGLE&quot;</span><span class="p">],</span>
+            <span class="n">x</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span>
+            <span class="n">x</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">],</span>
+            <span class="n">fs_dict</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]],</span>
+            <span class="n">fb_dict</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]],</span>
+            <span class="n">fs_dict</span><span class="p">[</span><span class="s2">"OGLE"</span><span class="p">],</span>
+            <span class="n">fb_dict</span><span class="p">[</span><span class="s2">"OGLE"</span><span class="p">],</span>
         <span class="p">),</span>
         <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
@@ -787,7 +787,7 @@ on a common scale.</p>
 
 <span class="n">data</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_mag_aligned&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;HJD&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">8500</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">8500</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span>
 </code></pre></div>
 <h2 id="close-binary-lens-solution">Close binary-lens solution<a class="headerlink" href="#close-binary-lens-solution" title="Permanent link">¤</a></h2>
@@ -796,18 +796,18 @@ curves. For this example, we use the close solution as the starting point.
 The inset shows the source trajectory and the corresponding caustic
 structure.</p>
 <div class="highlight"><pre><span></span><code><span class="n">parms_close</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;t0&quot;</span><span class="p">:</span> <span class="mf">8592.388619</span><span class="p">,</span>
-    <span class="s2">&quot;u0&quot;</span><span class="p">:</span> <span class="mf">0.140631</span><span class="p">,</span>
-    <span class="s2">&quot;tE&quot;</span><span class="p">:</span> <span class="mf">6.655161</span><span class="p">,</span>
-    <span class="s2">&quot;logrho&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.231148</span><span class="p">,</span>
-    <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">271.695690</span><span class="p">,</span>
-    <span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.079158</span><span class="p">,</span>
-    <span class="s2">&quot;logq&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.141006</span><span class="p">,</span>
+    <span class="s2">"t0"</span><span class="p">:</span> <span class="mf">8592.388619</span><span class="p">,</span>
+    <span class="s2">"u0"</span><span class="p">:</span> <span class="mf">0.140631</span><span class="p">,</span>
+    <span class="s2">"tE"</span><span class="p">:</span> <span class="mf">6.655161</span><span class="p">,</span>
+    <span class="s2">"logrho"</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.231148</span><span class="p">,</span>
+    <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">271.695690</span><span class="p">,</span>
+    <span class="s2">"logs"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.079158</span><span class="p">,</span>
+    <span class="s2">"logq"</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.141006</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="c1"># parms_wide = {&#39;t0&#39;: 8592.391925, &#39;u0&#39;: 0.144696, &#39;tE&#39;: 6.640740, &#39;logrho&#39;: -2.187052, &#39;alpha&#39;: 271.325666, &#39;logs&#39;: 0.188680, &#39;logq&#39;: -0.957499}</span>
+<span class="c1"># parms_wide = {'t0': 8592.391925, 'u0': 0.144696, 'tE': 6.640740, 'logrho': -2.187052, 'alpha': 271.325666, 'logs': 0.188680, 'logq': -0.957499}</span>
 
-<span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span> <span class="o">=</span> <span class="n">mag_to_flux</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;mag_aligned&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;e_mag_aligned&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-<span class="n">HJD</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;HJD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span> <span class="o">=</span> <span class="n">mag_to_flux</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"mag_aligned"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">HJD</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 <span class="n">fs</span><span class="p">,</span> <span class="n">fb</span> <span class="o">=</span> <span class="mf">0.18893952</span><span class="p">,</span> <span class="mf">0.07114746</span>
 
 <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">8500</span><span class="p">,</span> <span class="mi">8800</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
@@ -816,39 +816,39 @@ structure.</p>
 <span class="n">mag_close</span> <span class="o">=</span> <span class="n">flux_to_mag</span><span class="p">(</span><span class="n">flux_close</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
-<span class="n">all_tel</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Tel&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+<span class="n">all_tel</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">all_tel</span><span class="p">:</span>
-    <span class="n">tel_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Tel&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+    <span class="n">tel_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span>
-        <span class="n">tel_data</span><span class="p">[</span><span class="s2">&quot;HJD&quot;</span><span class="p">],</span>
-        <span class="n">tel_data</span><span class="p">[</span><span class="s2">&quot;mag_aligned&quot;</span><span class="p">],</span>
-        <span class="n">yerr</span><span class="o">=</span><span class="n">tel_data</span><span class="p">[</span><span class="s2">&quot;e_mag_aligned&quot;</span><span class="p">],</span>
-        <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+        <span class="n">tel_data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">],</span>
+        <span class="n">tel_data</span><span class="p">[</span><span class="s2">"mag_aligned"</span><span class="p">],</span>
+        <span class="n">yerr</span><span class="o">=</span><span class="n">tel_data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">],</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
     <span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">mag_close</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Close solution&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">mag_close</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Close solution"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">8580</span><span class="p">,</span> <span class="mi">8600</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;HJD&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Magnitude&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"HJD"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Magnitude"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
 
 <span class="n">ax_traj</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">])</span>
-<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="n">times</span> <span class="o">-</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">&quot;t0&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">&quot;tE&quot;</span><span class="p">]</span>
-<span class="n">alpha</span> <span class="o">=</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">180</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-<span class="n">y1</span> <span class="o">=</span> <span class="o">-</span><span class="n">parms_close</span><span class="p">[</span><span class="s2">&quot;u0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
-<span class="n">y2</span> <span class="o">=</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">&quot;u0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
-<span class="n">ax_traj</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
-<span class="n">ax_traj</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="n">times</span> <span class="o">-</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"t0"</span><span class="p">])</span> <span class="o">/</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"tE"</span><span class="p">]</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">180</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">y1</span> <span class="o">=</span> <span class="o">-</span><span class="n">parms_close</span><span class="p">[</span><span class="s2">"u0"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+<span class="n">y2</span> <span class="o">=</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"u0"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+<span class="n">ax_traj</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"black"</span><span class="p">)</span>
+<span class="n">ax_traj</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">"equal"</span><span class="p">)</span>
 <span class="n">ax_traj</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="n">ax_traj</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="n">caustics_instance</span> <span class="o">=</span> <span class="n">CausticsBinary</span><span class="p">(</span>
-    <span class="n">s</span><span class="o">=</span><span class="mi">10</span> <span class="o">**</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">],</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span> <span class="o">**</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">&quot;logq&quot;</span><span class="p">]</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">10</span> <span class="o">**</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"logs"</span><span class="p">],</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span> <span class="o">**</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"logq"</span><span class="p">]</span>
 <span class="p">)</span>
 <span class="n">caustics_x</span><span class="p">,</span> <span class="n">caustics_y</span> <span class="o">=</span> <span class="n">caustics_instance</span><span class="o">.</span><span class="n">get_caustics</span><span class="p">()</span>
-<span class="n">ax_traj</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">caustics_x</span><span class="p">,</span> <span class="n">caustics_y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax_traj</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">caustics_x</span><span class="p">,</span> <span class="n">caustics_y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">&quot;KB0371_close_solution.png&quot;</span><span class="p">)</span>
+<span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_close_solution.png"</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 </code></pre></div>
 <p><img alt="Close solution light curve and trajectory" src="../figures/KB0371_close_solution.png" /></p>
@@ -867,10 +867,10 @@ running only the HMC section.</p>
     <span class="o">-</span><span class="mf">1.14229367e00</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">objective_func</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">,</span> <span class="p">[</span><span class="n">HJD</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span><span class="p">],</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fb</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tot dof = &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">HJD</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">parms_close</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"tot dof = "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">HJD</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">parms_close</span><span class="p">))</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># import scipy.optimize as op</span>
-<span class="c1"># res = op.minimize(objective_func, x0=initial_guess, args=([HJD,flux,ferr], fs, fb), method=&#39;Nelder-Mead&#39;)</span>
+<span class="c1"># res = op.minimize(objective_func, x0=initial_guess, args=([HJD,flux,ferr], fs, fb), method='Nelder-Mead')</span>
 <span class="c1"># print(res.x)</span>
 <span class="c1"># print(res.fun)</span>
 </code></pre></div>
@@ -892,7 +892,7 @@ running only the HMC section.</p>
         <span class="n">sampler</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping emcee; set RUN_EMCEE = True to run it.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping emcee; set RUN_EMCEE = True to run it."</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
     <span class="n">sample_chain</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_chain</span><span class="p">()</span>
@@ -913,7 +913,7 @@ running only the HMC section.</p>
         <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">truths</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">&quot;KB0371_emcee_corner.png&quot;</span><span class="p">)</span>
+    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_emcee_corner.png"</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parm_name</span><span class="p">)):</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">parm_name</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]))</span>
@@ -951,10 +951,10 @@ posterior contours with this local Gaussian approximation.</p>
 <span class="n">fisher_cov</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">fisher_matrix</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">chain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_covariance</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">,</span> <span class="n">parm_name</span><span class="p">,</span> <span class="n">fisher_cov</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
-    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">&quot;KB0371_fisher_covariance.png&quot;</span><span class="p">)</span>
+    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_fisher_covariance.png"</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping Fisher covariance plot because the emcee chain is unavailable.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping Fisher covariance plot because the emcee chain is unavailable."</span><span class="p">)</span>
 </code></pre></div>
 <p><img alt="Fisher covariance compared with the emcee chain" src="../figures/KB0371_fisher_covariance.png" /></p>
 <h2 id="fisher-reparameterization-for-hmc">Fisher reparameterization for HMC<a class="headerlink" href="#fisher-reparameterization-for-hmc" title="Permanent link">¤</a></h2>
@@ -979,13 +979,13 @@ correlations during warmup.</p>
 <p>The light curve arrays are padded to a length compatible with the parallel
 JAX evaluation.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="n">HJD_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">HJD</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">HJD</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">HJD_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">HJD</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">HJD</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">HJD_pad</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="n">flux_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
-    <span class="n">flux</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">flux</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">flux</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">flux</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="p">)</span>
 <span class="n">ferr_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
-    <span class="n">ferr</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">ferr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">ferr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ferr</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">ferr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">ferr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">parameter_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -1006,14 +1006,14 @@ JAX evaluation.</p>
 <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">initial_param</span> <span class="o">&lt;=</span> <span class="n">param_lowers</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span>
     <span class="n">jnp</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">initial_param</span> <span class="o">&gt;=</span> <span class="n">param_uppers</span><span class="p">)</span>
 <span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Initial parameters must be strictly inside soft boundaries.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Initial parameters must be strictly inside soft boundaries."</span><span class="p">)</span>
 
 <span class="n">cholesky_transform</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">fisher_cov</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span>
-    <span class="s2">&quot;physical covariance eigenvalues from inv(Fisher):&quot;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">fisher_cov</span><span class="p">)</span>
+    <span class="s2">"physical covariance eigenvalues from inv(Fisher):"</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">fisher_cov</span><span class="p">)</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cholesky transform:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Cholesky transform:"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cholesky_transform</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="hmc-model">HMC model<a class="headerlink" href="#hmc-model" title="Permanent link">¤</a></h3>
@@ -1040,11 +1040,11 @@ the initial solution.</p>
 <span class="p">):</span>
     <span class="n">times</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span> <span class="o">=</span> <span class="n">data</span>
     <span class="n">param_base</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
-        <span class="s2">&quot;param_base&quot;</span><span class="p">,</span>
+        <span class="s2">"param_base"</span><span class="p">,</span>
         <span class="n">dist</span><span class="o">.</span><span class="n">ImproperUniform</span><span class="p">(</span><span class="n">constraints</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="p">(),</span> <span class="n">event_shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">init_val</span><span class="p">),)),</span>
     <span class="p">)</span>
     <span class="n">parmsample</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transform_matrix</span><span class="p">,</span> <span class="n">param_base</span><span class="p">)</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">init_val</span><span class="p">)</span>
-    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">&quot;param&quot;</span><span class="p">,</span> <span class="n">parmsample</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">"param"</span><span class="p">,</span> <span class="n">parmsample</span><span class="p">)</span>
 
     <span class="n">lower_penalty</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">softplus</span><span class="p">(</span><span class="n">boundary_steepness</span> <span class="o">*</span> <span class="p">(</span><span class="n">param_lowers</span> <span class="o">-</span> <span class="n">parmsample</span><span class="p">)))</span>
     <span class="n">upper_penalty</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">softplus</span><span class="p">(</span><span class="n">boundary_steepness</span> <span class="o">*</span> <span class="p">(</span><span class="n">parmsample</span> <span class="o">-</span> <span class="n">param_uppers</span><span class="p">)))</span>
@@ -1057,17 +1057,17 @@ the initial solution.</p>
     <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">pmap</span><span class="p">(</span><span class="n">pmap_light_curve</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))(</span>
         <span class="n">times</span><span class="p">,</span> <span class="n">safe_params</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_pmap</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mag_mod</span><span class="p">,</span> <span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">)</span>
+    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mag_mod</span><span class="p">,</span> <span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">)</span>
     <span class="n">flux_mod</span> <span class="o">=</span> <span class="n">mag_mod</span> <span class="o">*</span> <span class="n">fs</span> <span class="o">+</span> <span class="n">fb</span>
-    <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">&quot;obs&quot;</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">flux_mod</span><span class="p">,</span> <span class="n">ferr</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">flux</span><span class="p">)</span>
-    <span class="n">numpyro</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="s2">&quot;boundary_penalty&quot;</span><span class="p">,</span> <span class="o">-</span><span class="n">penalty_strength</span> <span class="o">*</span> <span class="n">penalty</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">"obs"</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">flux_mod</span><span class="p">,</span> <span class="n">ferr</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">flux</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="s2">"boundary_penalty"</span><span class="p">,</span> <span class="o">-</span><span class="n">penalty_strength</span> <span class="o">*</span> <span class="n">penalty</span><span class="p">)</span>
     <span class="n">chi2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">flux_mod</span> <span class="o">-</span> <span class="n">flux</span><span class="p">)</span> <span class="o">/</span> <span class="n">ferr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">&quot;chi2&quot;</span><span class="p">,</span> <span class="n">chi2</span><span class="p">)</span>
-    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">&quot;penalty&quot;</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">"chi2"</span><span class="p">,</span> <span class="n">chi2</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">"penalty"</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_HMC</span><span class="p">:</span>
     <span class="n">init_strategy</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">infer</span><span class="o">.</span><span class="n">init_to_value</span><span class="p">(</span>
-        <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param_base&quot;</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">initial_param</span><span class="p">))}</span>
+        <span class="n">values</span><span class="o">=</span><span class="p">{</span><span class="s2">"param_base"</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">initial_param</span><span class="p">))}</span>
     <span class="p">)</span>
     <span class="n">nuts_kernel</span> <span class="o">=</span> <span class="n">NUTS</span><span class="p">(</span>
         <span class="n">model_HMC_reparameterized</span><span class="p">,</span>
@@ -1101,19 +1101,19 @@ the initial solution.</p>
     <span class="p">)</span>
     <span class="n">mcmc</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">exclude_deterministic</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Skipping HMC; set RUN_HMC = True to run it.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping HMC; set RUN_HMC = True to run it."</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="hmc-posterior">HMC posterior<a class="headerlink" href="#hmc-posterior" title="Permanent link">¤</a></h2>
 <p>NumPyro runs NUTS in the reparameterized latent space. The deterministic
 parameter <code>param</code> maps the samples back to the original physical parameter
 space shown in the corner plot below.</p>
 <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_HMC</span><span class="p">:</span>
-    <span class="n">hmc_sample</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s2">&quot;param&quot;</span><span class="p">]</span>
+    <span class="n">hmc_sample</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s2">"param"</span><span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">hmc_sample</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">fig</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hmc_sample</span><span class="p">),</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span> <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
-    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">&quot;KB0371_hmc_corner.png&quot;</span><span class="p">)</span>
+    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_hmc_corner.png"</span><span class="p">)</span>
 </code></pre></div>
 <p><img alt="HMC posterior after Fisher reparameterization" src="../figures/KB0371_hmc_corner.png" /></p>
 

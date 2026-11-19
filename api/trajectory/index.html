@@ -560,7 +560,7 @@
 
 
 <h1 id="trajectory">Trajectory<a class="headerlink" href="#trajectory" title="Permanent link">¤</a></h1>
-<p>Trajectory utilities for building source tracks in the center-of-mass frame, with optional annual parallax correction.</p>
+<p>Trajectory utilities for building source tracks in the center-of-mass frame, with independently optional annual parallax and circular orbital motion.</p>
 <h1 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">¤</a></h1>
 
 
@@ -581,6 +581,8 @@
 
 
         <p>A NamedTuple containing microlensing trajectory parameters.</p>
+<p>Orbital rates follow VBMicrolensing and are defined at the center-of-mass
+t0. They are ignored unless orbital motion is enabled.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -600,7 +602,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Time of closest approach.</p>
+                <p>Time of closest approach, in days.</p>
               </div>
             </td>
           </tr>
@@ -622,7 +624,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Einstein timescale.</p>
+                <p>Einstein timescale in days.</p>
               </div>
             </td>
           </tr>
@@ -678,7 +680,7 @@
             <td>
               <div class="doc-md-description">
                 <p>North component of microlensing parallax vector.
-Only used when annual parallax is enabled.</p>
+Only used when parallax is enabled.</p>
               </div>
             </td>
           </tr>
@@ -690,7 +692,43 @@ Only used when annual parallax is enabled.</p>
             <td>
               <div class="doc-md-description">
                 <p>East component of microlensing parallax vector.
-Only used when annual parallax is enabled.</p>
+Only used when parallax is enabled.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="microlux.trajectory.TrajectoryParameters.gamma1">gamma1</span></code></td>
+            <td>
+                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Fractional projected-separation rate
+<code>(ds/dt)/s</code>, in day^-1.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="microlux.trajectory.TrajectoryParameters.gamma2">gamma2</span></code></td>
+            <td>
+                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Angular rate in rad day^-1, with the sign
+following the VBM trajectory convention.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="microlux.trajectory.TrajectoryParameters.gamma3">gamma3</span></code></td>
+            <td>
+                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Fractional line-of-sight separation rate
+<code>(ds_z/dt)/s</code>, in day^-1.</p>
               </div>
             </td>
           </tr>
@@ -741,7 +779,7 @@ Only used when annual parallax is enabled.</p>
               Bases: <code><span title="typing.NamedTuple">NamedTuple</span></code></p>
 
 
-        <p>A NamedTuple representing a trajectory model with optional annual parallax.</p>
+        <p>A trajectory model with independent parallax and circular-orbit effects.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -772,7 +810,7 @@ Only used when annual parallax is enabled.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Annual parallax displacement projected on
+                <p>Observer displacement in AU projected on
 the sky plane in (North, East), shape <code>(N, 2)</code>. If <code>None</code>, parallax
 correction is disabled.</p>
               </div>
@@ -785,8 +823,19 @@ correction is disabled.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Whether to convert trajectory from center-of-mass
-coordinates to magnification-center coordinates for the <code>s &gt; 1</code> case.</p>
+                <p>Whether input parameters use the magnification
+center for <code>s &gt; 1</code>. Output trajectories always use the center of mass.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="microlux.trajectory.TrajectoryModel.orbital_motion">orbital_motion</span></code></td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>None or "circular". Independent of delta_s.</p>
               </div>
             </td>
           </tr>
@@ -816,26 +865,64 @@ coordinates to magnification-center coordinates for the <code>s &gt; 1</code> ca
 
 
 <h3 id="microlux.trajectory.TrajectoryModel.calculate_trajectory" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">calculate_trajectory</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">TrajectoryParameters</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span></code>
+            <code class="highlight language-python"><span class="n">calculate_trajectory</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">TrajectoryParameters</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span></code>
 
 <a href="#microlux.trajectory.TrajectoryModel.calculate_trajectory" class="headerlink" title="Permanent link">¤</a></h3>
 
 
     <div class="doc doc-contents ">
 
-        <p>Calculate complex source trajectory at each epoch.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>params</code>: One of:</li>
-<li><code>TrajectoryParameters</code></li>
-<li>Length-9 array: <code>[t0, u0, tE, rho, alpha_rad, s, q, pi_E_N, pi_E_E]</code></li>
-<li>Length-7 array: <code>[t0, u0, tE, rho, alpha_rad, s, q]</code> (parallax disabled)</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>trajectory</code>: Complex trajectory array with shape <code>(N,)</code>.</li>
-</ul>
+        <p>Return (source trajectory, lens separation), each with shape <code>(N,)</code>.</p>
+<p>The trajectory uses center-of-mass coordinates in the instantaneous
+binary-axis frame. Without orbital motion, separation is constant.</p>
+<p>Parameters may be a TrajectoryParameters instance or a 1D array:
+[t0, u0, tE, rho, alpha_rad, s, q], followed by [pi_E_N, pi_E_E]
+when parallax is enabled. Circular motion appends [gamma1, gamma2,
+gamma3] (10/12 entries without/with parallax).</p>
+<p>The returned trajectory is complex and separation is real; pass both
+to extended_light_curve. To plot only the source, unpack trajectory, _.</p>
 
+
+<details class="reference-frame" open>
+  <summary>Reference frame</summary>
+  <p>With photo_center=False, the orbital reference epoch is params.t0.
+With photo_center=True and s &gt; 1, input parameters refer to the
+magnification center and are converted to the center of mass:</p>
+<pre><code>shift = q / (1 + q) * (s - 1 / s)
+t0_com = t0 + tE * shift * cos(alpha_rad)
+u0_com = u0 + shift * sin(alpha_rad)
+</code></pre>
+<p>The shift uses the reference separation s and stays fixed along the
+trajectory; it is not recomputed from s(t). For s &lt;= 1 it is zero.
+The reference s, alpha_rad, and orbital rates refer to t0_com.
+The parallax reference epoch t0_par is independent of this epoch.</p>
+</details>
+
+<details class="circular-orbit" open>
+  <summary>Circular orbit</summary>
+  <p>Away from the numerical boundary handling below, the circular
+constraint fixes the line-of-sight separation s_z/s = -gamma1/gamma3
+at the reference epoch. The projected separation can therefore vary
+even though the three-dimensional orbit is circular.</p>
+<p>Following VBMicrolensing, hypot(gamma1, gamma3) &lt;= 1e-8 selects a
+face-on orbit with constant separation and angular rate gamma2.
+All-zero rates recover the static/parallax model. Otherwise
+abs(gamma3) is floored at 1e-8 day^-1, preserving its sign and
+taking zero as positive. Opposite signs give the same projected
+orbit. This numerical convention does not uniquely continue the
+physical orbit through the degenerate parameters.</p>
+</details>
+
+<details class="fitting" open>
+  <summary>Fitting</summary>
+  <p>Start a full orbital fit near static with (gamma1, gamma2, gamma3)
+= (0, 0, 1e-6), rather than all zeros. RTModel uses a gamma3 lower
+bound of 1e-7 day^-1 in its fitter; configure such a bound in your
+optimizer or sampler, since this forward model does not impose it.
+Derivatives in the floored region or across the branch boundary
+follow the numerical guard; avoid those regions for inference and
+Fisher calculations.</p>
+</details>
 
     </div>
 
@@ -855,20 +942,22 @@ coordinates to magnification-center coordinates for the <code>s &gt; 1</code> ca
 
 
 <h2 id="microlux.trajectory.get_trajectory_model" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">trajectory</span><span class="o">.</span><span class="n">get_trajectory_model</span><span class="p">(</span><span class="n">times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="n">Coordinates</span><span class="p">,</span> <span class="n">t0_par</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">photo_center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrajectoryModel</span></code>
+            <code class="highlight language-python"><span class="n">microlux</span><span class="o">.</span><span class="n">trajectory</span><span class="o">.</span><span class="n">get_trajectory_model</span><span class="p">(</span><span class="n">times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="n">Coordinates</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">t0_par</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">photo_center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">orbital_motion</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrajectoryModel</span></code>
 
 <a href="#microlux.trajectory.get_trajectory_model" class="headerlink" title="Permanent link">¤</a></h2>
 
 
     <div class="doc doc-contents first">
 
-        <p>Build a <code>TrajectoryModel</code> with optional annual parallax precomputation.</p>
+        <p>Build a trajectory model with optional annual parallax and circular orbit.</p>
 <p><strong>Parameters</strong></p>
 <ul>
-<li><code>times</code>: Observation epochs in JD.</li>
-<li><code>coords</code>: Source sky coordinates used for annual parallax projection.</li>
+<li><code>times</code>: Observation epochs in full JD or reduced JD (JD - 2450000).</li>
+<li><code>coords</code>: Source sky coordinates; required only for annual parallax.</li>
 <li><code>t0_par</code>: Parallax reference epoch. If <code>None</code>, parallax is disabled.</li>
-<li><code>photo_center</code>: Whether to apply photocenter correction for <code>s &gt; 1</code>.</li>
+<li><code>photo_center</code>: Whether input parameters use the magnification center
+  for <code>s &gt; 1</code>; output is always in the center-of-mass frame.</li>
+<li><code>orbital_motion</code>: None or "circular", independently of parallax.</li>
 </ul>
 <p><strong>Returns</strong></p>
 <ul>
@@ -876,8 +965,13 @@ coordinates to magnification-center coordinates for the <code>s &gt; 1</code> ca
 </ul>
 <p><strong>Notes</strong></p>
 <ul>
-<li>When <code>t0_par</code> is <code>None</code>, the model expects 7 trajectory parameters.</li>
-<li>When <code>t0_par</code> is set, annual parallax is enabled and the model expects 9 trajectory parameters.</li>
+<li>Use the same full or reduced JD convention for times, t0, and t0_par.</li>
+<li>Annual ephemerides are precomputed here, outside JAX differentiation.
+  The returned model stores the observer displacement in delta_s, in AU
+  projected onto North/East. This factory computes annual parallax only.</li>
+<li>Named <code>TrajectoryParameters</code> work with every combination of effects.
+  See <code>TrajectoryModel.calculate_trajectory</code> for array layouts, reference
+  frames, and orbital boundary handling.</li>
 </ul>
 
 
