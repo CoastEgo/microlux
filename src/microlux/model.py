@@ -39,7 +39,7 @@ def point_light_curve(trajectory, s, q, rho, tol, return_num: bool = False):
     **Parameters**
 
     - `trajectory`: The trajectory of the lensing event in center-of-mass coordinates.
-    - `s`: The projected separation between the lens and the source.
+    - `s`: Binary lens separation, scalar or shape `(N,)` matching trajectory.
     - `q` : The mass ratio between the lens and the source.
     - `rho`: The source radius in units of the Einstein radius.
     - `tol`: The absolute tolerance for the quadrupole test.
@@ -61,6 +61,8 @@ def point_light_curve(trajectory, s, q, rho, tol, return_num: bool = False):
     m1 = 1 / (1 + q)
     m2 = q / (1 + q)
     zeta_l = trajectory_l[:, None]
+    # The image axis needs a singleton dimension for per-epoch separation.
+    s = jnp.broadcast_to(jnp.asarray(s), trajectory.shape)[:, None]
     coff = get_poly_coff(zeta_l, s, m2)
     z_l = get_roots(trajectory_l.shape[0], coff)
     error = verify(zeta_l, z_l, s, m1, m2)
@@ -160,7 +162,7 @@ def binary_mag(
         s=s,
         q=q,
     )
-    trajectory = traj_model.calculate_trajectory(traj_params)
+    trajectory, separation = traj_model.calculate_trajectory(traj_params)
 
     limb_darkening_instance = (
         LinearLimbDarkening(limb_darkening_coeff)
@@ -169,7 +171,7 @@ def binary_mag(
     )
     mag = extended_light_curve(
         trajectory,
-        s,
+        separation,
         q,
         rho,
         tol,
@@ -216,6 +218,7 @@ def extended_light_curve(
     **Parameters**
 
     - `trajectory`: The trajectory in the center-of-mass coordinate system.
+    - `s`: Binary lens separation, scalar or shape `(N,)` matching trajectory.
     - `n_annuli`: The number of annuli for the limb darkening calculation.
     - For the definition of the other parameters, please see [`microlux.binary_mag`][].
 
@@ -224,6 +227,8 @@ def extended_light_curve(
     - `magnification`: The magnification of the source at the given trajectory points.
     - `info`: Additional information about the computation used for debugging if return_info is True.
     """
+
+    s = jnp.broadcast_to(jnp.asarray(s), trajectory.shape)
 
     # Transform from center-of-mass to low-mass coordinate system
     trajectory_l = to_lowmass(s, q, trajectory)
@@ -248,9 +253,10 @@ def extended_light_curve(
         rho_array = rho * rho_frac
 
         @jax.jit
-        def mag_limbdarkening(trajectory_l):
+        def mag_limbdarkening(geometry):
+            trajectory_l, separation = geometry
             mag_contour_rho_fun = lambda rho: contour_integral(
-                trajectory_l, tol, retol, rho, s, q, default_strategy, analytic
+                trajectory_l, tol, retol, rho, separation, q, default_strategy, analytic
             )
             mag_concentric, info = lax.map(
                 mag_contour_rho_fun, rho_array
@@ -264,8 +270,8 @@ def extended_light_curve(
 
         mag_contour = mag_limbdarkening
     else:
-        mag_contour = lambda trajectory_l: contour_integral(
-            trajectory_l, tol, retol, rho, s, q, default_strategy, analytic
+        mag_contour = lambda geometry: contour_integral(
+            geometry[0], tol, retol, rho, geometry[1], q, default_strategy, analytic
         )
 
     if return_info:
@@ -273,24 +279,31 @@ def extended_light_curve(
             np.sum(default_strategy)
         )
 
-        result = lax.map(
-            lambda x: lax.cond(
-                x[0],
-                lambda _: (
-                    x[1],
-                    (
-                        x[2],
-                        rho,
-                        s,
-                        q,
-                        default_roots_state,
-                        default_error_state,
-                    ),
-                ),
+        def evaluate_epoch(epoch):
+            use_point_source, point_mag, source_position, separation = epoch
+
+            def point_source_result(geometry):
+                position, separation = geometry
+                info = (
+                    position,
+                    rho,
+                    separation,
+                    q,
+                    default_roots_state,
+                    default_error_state,
+                )
+                return point_mag, info
+
+            return lax.cond(
+                use_point_source,
+                point_source_result,
                 jax.jit(mag_contour),
-                x[2],
-            ),
-            [cond, mag, trajectory_l],
+                (source_position, separation),
+            )
+
+        result = lax.map(
+            evaluate_epoch,
+            (cond, mag, trajectory_l, s),
         )
         return result
 
@@ -298,9 +311,9 @@ def extended_light_curve(
         mag_contour_return_mag = lambda x: mag_contour(x)[0]
         mag_final = lax.map(
             lambda x: lax.cond(
-                x[0], lambda _: x[1], jax.jit(mag_contour_return_mag), x[2]
+                x[0], lambda _: x[1], jax.jit(mag_contour_return_mag), (x[2], x[3])
             ),
-            [cond, mag, trajectory_l],
+            [cond, mag, trajectory_l, s],
         )
 
         return mag_final

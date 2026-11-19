@@ -10,7 +10,10 @@ import numpy as np
 import pytest
 import VBMicrolensing
 from microlux import extended_light_curve
-from microlux.coordinates import Coordinates
+from microlux.coordinates import (
+    Coordinates,
+    normalize_jd_for_ephemeris,
+)
 from microlux.trajectory import get_trajectory_model, TrajectoryParameters
 
 
@@ -20,6 +23,25 @@ jax.config.update("jax_enable_x64", True)
 # Parallax parameter combinations for testing
 piEN_values = [0.0, 0.1, 0.2]
 piEE_values = [0.0, 0.1, 0.2]
+
+
+@pytest.mark.fast
+def test_normalize_jd_requires_one_convention():
+    reduced_times = np.array([10000.0, 10001.0])
+    full_times = reduced_times + 2450000.0
+
+    normalized_times, normalized_ref = normalize_jd_for_ephemeris(
+        reduced_times, 10000.5
+    )
+    np.testing.assert_array_equal(normalized_times, full_times)
+    assert normalized_ref == 2460000.5
+
+    with pytest.raises(ValueError, match="times must not mix"):
+        normalize_jd_for_ephemeris(np.array([10000.0, 2460001.0]), 10000.5)
+    with pytest.raises(ValueError, match="same JD convention"):
+        normalize_jd_for_ephemeris(reduced_times, 2460000.5)
+    with pytest.raises(ValueError, match="same JD convention"):
+        normalize_jd_for_ephemeris(full_times, 10000.5)
 
 
 @pytest.mark.fast
@@ -76,10 +98,10 @@ def test_parallax_accuracy(piEN, piEE, plot=False):
     )
 
     # Calculate trajectory in center-of-mass coordinates
-    trajectory = trajectory_model.calculate_trajectory(params)
+    trajectory, separation = trajectory_model.calculate_trajectory(params)
 
     # Calculate magnification using the trajectory
-    mag_lux = extended_light_curve(trajectory, s, q, rho)
+    mag_lux = extended_light_curve(trajectory, separation, q, rho)
 
     # VBMicrolensing model
     VBM = VBMicrolensing.VBMicrolensing()
