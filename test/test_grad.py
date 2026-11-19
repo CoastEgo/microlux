@@ -14,7 +14,7 @@ from test_util import VBM_light_curve
 def test_analytic_contour_source_curvature():
     def magnification(x):
         # Loose tolerances keep the contour mesh fixed across the difference step.
-        return contour_integral(
+        mag, _ = contour_integral(
             x + 0.2j,
             tol=1.0,
             retol=1.0,
@@ -23,7 +23,8 @@ def test_analytic_contour_source_curvature():
             q=0.2,
             default_strategy=(60,),
             analytic=True,
-        )[0]
+        )
+        return jnp.stack((mag, jnp.log(mag)))
 
     x = 0.62
     step = 1e-5
@@ -31,6 +32,33 @@ def test_analytic_contour_source_curvature():
     second = jax.jit(jax.jacfwd(jax.jacfwd(magnification)))
     expected = (first(x + step) - first(x - step)) / (2 * step)
     np.testing.assert_allclose(second(x), expected, rtol=1e-5)
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize("strategy, exceeded", [((30, 30, 60), False), ((30,), True)])
+def test_analytic_gradient_uses_selected_contour(strategy, exceeded):
+    # A source crossing a caustic needs the second layer at this tolerance.
+    params = jnp.array([0.7145553, 0.2613920, 0.01, 0.9, 0.2])
+
+    def evaluate(params, analytic):
+        x, y, rho, s, q = params
+        mag, info = contour_integral(
+            x + 1j * y, 1e-3, 1e-3, rho, s, q, strategy, analytic
+        )
+        return mag, (info[-2].sample_num, info[-1].exceed_flag, info[-1].mag[0])
+
+    (mag, (count, flag, info_mag)), gradient = jax.value_and_grad(
+        evaluate, has_aux=True
+    )(params, True)
+    expected, (raw_count, raw_flag, raw_mag) = jax.jacfwd(evaluate, has_aux=True)(
+        params, False
+    )
+    assert bool(flag) == bool(raw_flag) == exceeded
+    assert count == raw_count
+    if not exceeded:
+        assert strategy[0] < count < sum(strategy[:2]) - 2
+    np.testing.assert_allclose([mag, info_mag], raw_mag, rtol=1e-12)
+    np.testing.assert_allclose(gradient, expected, rtol=1e-7, atol=1e-7)
 
 
 def grad_test(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol, tol):

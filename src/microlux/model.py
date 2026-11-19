@@ -139,7 +139,7 @@ def binary_mag(
     - `tol`: The tolerance for the adaptive contour integration. Defaults to 1e-2.
     - `retol`: The relative tolerance for the adaptive contour integration. Defaults to 0.001.
     - `default_strategy`: The default strategy for the contour integration. Defaults to (30, 30, 60, 120, 240). more details can be found in the [`microlux.contour_integral`][].
-    - `analytic`: Whether to use the analytic chain rule to simplify the computation graph. Set this to True will accelerate the computation of the gradient and will support the reverse mode differentiation containing the while loop. But set this to True will slow down if only calculate the model without differentiation. Defaults to True.
+    - `analytic`: Use implicit root derivatives on the final contour mesh to support forward- and reverse-mode differentiation. Defaults to True.
     - `return_info`: Whether to return additional information about the computation. Defaults to False. when set to True, the function will return a tuple containing (magnification, info), where info is a tuple containing additional information about the computation used for debugging.
     - `limb_darkening_coeff`: The limb darkening coefficient for the source star. Defaults to None. currently only support linear limb darkening.
 

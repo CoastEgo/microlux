@@ -1,4 +1,5 @@
 from functools import partial
+from itertools import accumulate
 from typing import Tuple
 
 import jax
@@ -21,7 +22,6 @@ from .solution import (
 from .utils import (
     Error_State,
     Iterative_State,
-    stop_grad_wrapper,
     warn_length_not_enough,
 )
 
@@ -54,47 +54,58 @@ def build_add_theta(theta, idx, add_number, max_add, max_total_num):
     return add_theta, add_idx
 
 
-def anayltic_warpper(trajectory_l, rho, s, q, roots_State, mag_State):
-    """
-    Wrapper function for the hierarchical contour integration.
-    This function is used for better support of automatic differentiation, which can reduce the computational graph size to accelerate the computation and
-    support the reverse mode differentiation containing the while loop.
-    Args:
-        trajectory_l (complex): The trajectory of the lensing event at the low mass coordinate system.
-        tol (float): The tolerance value.
-        retol (float): The relative tolerance value.
-        rho (float): The density value.
-        s (float): The separation value.
-        q (float): The mass ratio value
-    """
-
-    sample_n, theta, roots, parity, ghost_roots_dis, sort_flag, Is_create = roots_State
+def _magnification_on_mesh(geometry, roots_state, capacity):
+    """Evaluate the differentiable contour area on the selected sampling mesh."""
+    x, y, rho, s, q = geometry
+    roots = roots_state.roots[:capacity]
     mask = ~jnp.isnan(roots)
-    roots_100fill = jnp.where(mask, roots, 100.0)
-    parity = jnp.where(mask, parity, 0.0)
-    theta = jnp.where(mask, theta, 0.0)
-
-    # stop gradient to avoid nan in reverse mode
-    zeta_l = get_zeta_l(rho, trajectory_l, theta)
-    roots_100fill = refine_gradient(zeta_l, q, s, roots_100fill)
+    # Use finite placeholders before differentiating through the padded contour.
+    roots = jnp.where(mask, roots, 100.0)
+    parity = jnp.where(mask, roots_state.parity[:capacity], 0.0)
+    theta = jnp.where(mask, roots_state.theta[:capacity], 0.0)
+    zeta_l = get_zeta_l(rho, x + 1j * y, theta)
+    roots = refine_gradient(zeta_l, q, s, roots)
 
     mask_diff = mask[1:] & mask[:-1]
-    roots_State_refine_grad = Iterative_State(
-        sample_n, theta, roots_100fill, parity, ghost_roots_dis, sort_flag, Is_create
+    mesh = roots_state._replace(
+        theta=theta,
+        roots=roots,
+        parity=parity,
+        ghost_roots_distant=roots_state.ghost_roots_distant[:capacity],
+        sort_flag=roots_state.sort_flag[:capacity],
     )
     mag_ndarray = (
-        (roots_100fill.imag[0:-1] + roots_100fill.imag[1:])
-        * (roots_100fill.real[0:-1] - roots_100fill.real[1:])
+        (roots.imag[0:-1] + roots.imag[1:])
+        * (roots.real[0:-1] - roots.real[1:])
         * parity[0:-1]
     )
     mag = 1 / 2 * jnp.sum(jnp.where(mask_diff, mag_ndarray, 0.0).sum(axis=1))
 
-    _, magc, parab = error_sum(roots_State_refine_grad, rho, q, s, mask)
-    # parab = jax.lax.stop_gradient(parab)
-    mag = (mag + magc + parab) / (jnp.pi * rho**2)
+    _, magc, parab = error_sum(mesh, rho, q, s, mask)
+    return ((mag + magc + parab) / (jnp.pi * rho**2))[0]
 
-    mag_State = mag_State._replace(mag=mag)
-    return (trajectory_l, rho, s, q, roots_State, mag_State)
+
+@partial(jax.custom_jvp, nondiff_argnums=(4,))
+def _final_magnification(geometry, roots_state, mag, active_capacity, capacities):
+    """Reuse the adaptive integral's value and differentiate on its final mesh."""
+    return mag
+
+
+@_final_magnification.defjvp
+def _final_magnification_jvp(capacities, primals, tangents):
+    geometry, roots_state, _, active_capacity = primals
+    # Later layers only padded this mesh. Replay the area at its original capacity.
+    layer = jnp.sum(active_capacity > jnp.asarray(capacities[:-1]))
+    # Only the five local partials need to be saved for the reverse pass over epochs.
+    grad_on_mesh = jax.grad(_magnification_on_mesh)
+    partials = lax.switch(
+        layer,
+        [partial(grad_on_mesh, capacity=n) for n in capacities],
+        geometry,
+        roots_state,
+    )
+    # Calling the primal keeps its derivative when differentiating this rule again.
+    return _final_magnification(*primals, capacities), jnp.vdot(partials, tangents[0])
 
 
 @partial(jax.jit, static_argnames=["default_strategy", "analytic"])
@@ -113,9 +124,8 @@ def contour_integral(
     - For other parameters: please see at [`microlux.binary_mag`][]
     - `default_strategy`: The default strategy for the contour integration. The array length will be added gradually according to this strategy.
     For example, if the default_strategy is (60, 80, 150), the array length in each layer will be 60, 140, 290, respectively.
-    - `analytic`: Whether to use the analytic chain rule to simplify the computation graph. Set this to True will accelerate
-    the computation of the gradient and will support the reverse mode differentiation containing the while loop. But set this to True
-    will slow down if only calculate the model without differentiation. Defaults to True.
+    - `analytic`: Use implicit root derivatives on the final sampling mesh to support
+    forward- and reverse-mode differentiation. Defaults to True.
 
     **Returns**
 
@@ -153,12 +163,7 @@ def contour_integral(
         pad_fun = lambda x, y: jnp.pad(
             x, ((0, arraylength), (0, 0)), "constant", constant_values=y
         )
-        if analytic:
-            pad_fun = stop_grad_wrapper(pad_fun)
-            padded_list = jax.tree.map(pad_fun, pad_list, pad_value)
-            padded_list = jax.lax.stop_gradient(padded_list)
-        else:
-            padded_list = jax.tree.map(pad_fun, pad_list, pad_value)
+        padded_list = jax.tree.map(pad_fun, pad_list, pad_value)
 
         theta, error_hist, roots, parity, ghost_roots_dis, sort_flag = padded_list
         carry = (
@@ -192,59 +197,20 @@ def contour_integral(
         """
         result, resultlast, add_length, Max_array_length = carry
 
-        ## switch the different method to add points while loop or scan
-        ## while loop don't support the reverse mode differentiation and shard_map in current jax version
-
-        ## while loop
-
-        # resultnew,resultlast=lax.while_loop(cond_fun,while_body_fun,(resultlast,resultlast))
-        if analytic:
-            stop_grad_loop = stop_grad_wrapper(
-                lambda x: lax.while_loop(cond_fun, while_body_fun, x)
-            )
-            resultnew, resultlast = stop_grad_loop((resultlast, resultlast))
-            resultnew = anayltic_warpper(
-                trajectory_l, rho, s, q, resultnew[-2], resultnew[-1]
-            )
-        else:
-            resultnew, resultlast = lax.while_loop(
-                cond_fun, while_body_fun, (resultlast, resultlast)
-            )
+        resultnew, resultlast = lax.while_loop(
+            cond_fun, while_body_fun, (resultlast, resultlast)
+        )
 
         Max_array_length += add_length
         return resultnew, resultlast, Max_array_length
 
-    # first add
-
+    init_args = (rho, s, q, trajectory_l, tol, retol)
     if analytic:
-        carry = stop_grad_wrapper(contour_init)(
-            rho,
-            s,
-            q,
-            trajectory_l,
-            tol,
-            epsilon_rel=retol,
-            inite=default_strategy[0] - 3,
-            n_ite=default_strategy[0],
-        )
-        stop_grad_loop = lambda x: lax.while_loop(cond_fun, while_body_fun, x)
-        result_no_grad, resultlast = stop_grad_wrapper(stop_grad_loop)((carry, carry))
-        result = anayltic_warpper(
-            trajectory_l, rho, s, q, result_no_grad[-2], result_no_grad[-1]
-        )
-
-    else:
-        carry = contour_init(
-            rho,
-            s,
-            q,
-            trajectory_l,
-            tol,
-            epsilon_rel=retol,
-            inite=default_strategy[0] - 3,
-            n_ite=default_strategy[0],
-        )
-        result, resultlast = lax.while_loop(cond_fun, while_body_fun, (carry, carry))
+        init_args = lax.stop_gradient(init_args)
+    carry = contour_init(
+        *init_args, inite=default_strategy[0] - 3, n_ite=default_strategy[0]
+    )
+    result, resultlast = lax.while_loop(cond_fun, while_body_fun, (carry, carry))
 
     Max_array_length = default_strategy[0]
     for i in range(len(default_strategy) - 1):
@@ -260,9 +226,7 @@ def contour_integral(
             (result, resultlast, add_length, Max_array_length),
         )
 
-    (trajectory_l, rho, s, q, roots_State, mag_State) = result
-
-    condition = roots_State.sample_num < Max_array_length - 2
+    condition = result[-2].sample_num < Max_array_length - 2
 
     def update_result_fun(carry):
         # update the exceed flag to True in the mag_State
@@ -272,28 +236,33 @@ def contour_integral(
             warn_length_not_enough, carry[0][-2].sample_num, Max_array_length
         )
         mag_State_new = mag_State._replace(exceed_flag=True)
-        if analytic:
-            result_last, mag_State_new = (
-                jax.lax.stop_gradient(result_last),
-                jax.lax.stop_gradient(mag_State_new),
-            )
-            result_last_update = anayltic_warpper(
-                trajectory_l, rho, s, q, result_last[-2], mag_State_new
-            )
-        else:
-            result_last_update = (
-                trajectory_l,
-                rho,
-                s,
-                q,
-                result_last[-2],
-                mag_State_new,
-            )
-        return result_last_update
+        return (*result_last[:-1], mag_State_new)
 
     result = lax.cond(
         condition, lambda x: x[0], update_result_fun, (result, resultlast)
     )
+    if analytic:
+        roots_state, mag_state = result[-2:]
+        geometry = jnp.stack(
+            jnp.broadcast_arrays(
+                jnp.real(trajectory_l), jnp.imag(trajectory_l), rho, s, q
+            )
+        ).astype(mag_state.mag.dtype)
+        mag = _final_magnification(
+            geometry,
+            roots_state,
+            mag_state.mag[0],
+            Max_array_length,
+            tuple(accumulate(default_strategy)),
+        )
+        result = (
+            trajectory_l,
+            rho,
+            s,
+            q,
+            roots_state,
+            mag_state._replace(mag=mag[None]),
+        )
     return (result[-1].mag[0], result)
 
 
