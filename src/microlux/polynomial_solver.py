@@ -284,9 +284,12 @@ def Aberth_Ehrlich(
     solution = lambda f, x0: lax.while_loop(
         cond_fun, loop_body, (x0, coff, jnp.ones_like(x0, dtype=bool), x0, 0)
     )[0]
-    sclar = lambda g, y: jnp.linalg.solve(jax.jacobian(g, holomorphic=True)(y), y)
 
-    return lax.custom_root(f, roots, solve=solution, tangent_solve=sclar)
+    def tangent_solve(g, y):
+        # Each residual P(z_i) depends only on z_i, so g(ones) is the diagonal.
+        return y / g(jnp.ones_like(y))
+
+    return lax.custom_root(f, roots, solve=solution, tangent_solve=tangent_solve)
 
 
 """

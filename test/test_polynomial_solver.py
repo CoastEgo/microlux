@@ -15,6 +15,19 @@ s_values = [0.6, 1.0, 1.4]
 
 
 @pytest.mark.fast
+def test_complex_root_tangents():
+    def roots_of_quintic(c):
+        coeffs = jnp.array([1, 0, 0, 0, 0, -c])
+        return Aberth_Ehrlich(coeffs, AE_roots0(coeffs))
+
+    c = 1.0 + 0.5j
+    direction = 0.3 - 0.7j
+    roots, tangents = jax.jvp(roots_of_quintic, (c,), (direction,))
+    # Differentiating z**5 = c gives 5 * z**4 * dz = dc for each root.
+    np.testing.assert_allclose(5 * roots**4 * tangents, direction, rtol=1e-12)
+
+
+@pytest.mark.fast
 @pytest.mark.parametrize("lens_position", [0.0, 0.9], ids=["secondary", "primary"])
 def test_polynomial_near_lens_cold_start(lens_position):
     q = 0.2

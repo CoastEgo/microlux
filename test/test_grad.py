@@ -2,11 +2,35 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from matplotlib import gridspec
-from microlux import binary_mag
+from microlux import binary_mag, contour_integral
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from scipy.optimize import approx_fprime
 from test_util import VBM_light_curve
+
+
+@pytest.mark.fast
+def test_analytic_contour_source_curvature():
+    def magnification(x):
+        # Loose tolerances keep the contour mesh fixed across the difference step.
+        return contour_integral(
+            x + 0.2j,
+            tol=1.0,
+            retol=1.0,
+            rho=0.01,
+            s=0.9,
+            q=0.2,
+            default_strategy=(60,),
+            analytic=True,
+        )[0]
+
+    x = 0.62
+    step = 1e-5
+    first = jax.jit(jax.jacfwd(magnification))
+    second = jax.jit(jax.jacfwd(jax.jacfwd(magnification)))
+    expected = (first(x + step) - first(x - step)) / (2 * step)
+    np.testing.assert_allclose(second(x), expected, rtol=1e-5)
 
 
 def grad_test(t_0, u_0, t_E, rho, q, s, alpha_deg, times, retol, tol):
