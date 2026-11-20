@@ -1,4 +1,11 @@
-# Welcome to microlux
+---
+title: Welcome to microlux
+---
+
+<h1 id="welcome-to-microlux" class="mx-wordmark">
+  <img src="_static/wordmark.svg#only-light" alt="microlux" width="300">
+  <img src="_static/wordmark-light.svg#only-dark" alt="microlux" width="300">
+</h1>
 
 `microlux` is a <a href='https://github.com/jax-ml/jax'>Jax</a>-based package that can calculate the binary lensing light curve and its derivatives both efficiently and accurately.  We use the modified adaptive contour integratoin in <a href='https://github.com/valboz/VBBinaryLensing'>`VBBinaryLensing`</a> to maximize the performance. 
 With the access to the gradient, we can use more advanced algorithms for microlensing modeling, such as Hamiltonian Monte Carlo (HMC) in <a href='https://num.pyro.ai/en/latest/mcmc.html#numpyro.infer.hmc.NUTS'>`numpyro`</a>.
