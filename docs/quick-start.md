@@ -2,22 +2,33 @@
 
 Calculate binary-lens magnification, then add annual parallax or orbital motion.
 
+## Installation
+
+Install microlux:
+
+```bash
+pip install microlux
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/CoastEgo/microlux.git
+cd microlux
+pip install -e .
+```
+
 ## Example 1: Basic Binary Magnification
 
 ```python
 import jax.numpy as jnp
 from microlux import binary_mag
 
-t_0 = 0.0
-u_0 = 0.1
-t_E = 1.0
-rho = 1e-2
-q = 0.2
-s = 0.9
-alpha_deg = 270.0
-times = jnp.linspace(t_0 - 1.0 * t_E, t_0 + 1.0 * t_E, 1000)
+# t0, u0, tE, rho, q, s, alpha in degrees
+params = jnp.array([0.0, 0.1, 1.0, 0.01, 0.2, 0.9, 270.0])
+times = jnp.linspace(-1.0, 1.0, 1000)
 
-mag = binary_mag(t_0, u_0, t_E, rho, q, s, alpha_deg, times, tol=1e-3, retol=1e-3)
+mag = binary_mag(*params, times, tol=1e-3, retol=1e-3)
 ```
 
 ## Example 2: Trajectory + Annual Parallax

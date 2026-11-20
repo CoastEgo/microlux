@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ---
 
-`microlux` is a <a href='https://github.com/jax-ml/jax'>Jax</a>-based package that can calculate the binary lensing light curve and its derivatives both efficiently and accurately.  We use the modified adaptive contour integratoin in <a href='https://github.com/valboz/VBBinaryLensing'>`VBBinaryLensing`</a> to maximize the performance. 
+`microlux` is a <a href='https://github.com/jax-ml/jax'>JAX</a>-based package that can calculate the binary lensing light curve and its derivatives both efficiently and accurately. We use modified adaptive contour integration based on <a href='https://github.com/valboz/VBBinaryLensing'>`VBBinaryLensing`</a>.
 With the access to the gradient, we can use more advanced algorithms for microlensing modeling, such as Hamiltonian Monte Carlo (HMC) in <a href='https://num.pyro.ai/en/latest/mcmc.html#numpyro.infer.hmc.NUTS'>`numpyro`</a>.
 
 
@@ -23,8 +23,25 @@ git clone https://github.com/CoastEgo/microlux.git
 cd microlux
 pip install -e .
 ```
+
+## Quick Start
+
+Compute a binary-lens light curve:
+
+```python
+import jax.numpy as jnp
+from microlux import binary_mag
+
+# t0, u0, tE, rho, q, s, alpha in degrees
+params = jnp.array([0.0, 0.1, 1.0, 0.01, 0.2, 0.9, 270.0])
+times = jnp.linspace(-1.0, 1.0, 1000)
+
+mag = binary_mag(*params, times, tol=1e-3, retol=1e-3)
+```
+
 ## Documentation
-The documentation is available at <a href='https://coastego.github.io/microlux/'>here</a>. See this for more details.
+The [documentation](https://coastego.github.io/microlux/) includes runnable
+examples for parallax, orbital motion, and real-event fitting.
 
 
   

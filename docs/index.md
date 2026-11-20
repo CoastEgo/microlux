@@ -16,27 +16,22 @@ With the access to the gradient, we can use more advanced algorithms for microle
 - Robust and accurate calculation: Widely test over the broad parameter space compared with `VBBinaryLensing`.
 - Fast speed: Fully compatible with JIT compilation to speed up calculation. 
 - Accurate gradient: Automatic differentiation with specially designed error estimator to ensure the convergence of gradient.
+- Forward- and reverse-mode differentiation using implicit root derivatives on the final adaptive contour.
 - <a href='https://en.wikipedia.org/wiki/Aberth_method'>Aberth–Ehrlich</a> method to find the roots of the polynomial and <a href='https://docs.scipy.org/doc/scipy-1.15.0/reference/generated/scipy.optimize.linear_sum_assignment.html'>Liner sum assignment </a> algorithm to match the images.
 - [Application](example/KB0371.ipynb) on the real event modeling.
 
 
 ## Quick Start
-Please make sure that you have known the basic usage of `Jax`. Check the [Jax documentation](https://jax.readthedocs.io/en/latest/quickstart.html) for more details.
+Compute a binary-lens light curve with the example below.
 ```python
 import jax.numpy as jnp
 from microlux import binary_mag
 
-b = 0.1
-t_0 = 0.
-t_E = 1.
-alphadeg = 270.
-q = 0.2
-s = 0.9
-rho = 10 ** (-2)
-trajectory_n = 1000
-times = jnp.linspace(t_0 - 1.0 * t_E, t_0 + 1.0 * t_E, trajectory_n)
-#calculate the binary lensing magnification
-mag = binary_mag(t_0, b, t_E, rho, q, s, alphadeg, times, tol=1e-3, retol=1e-3)
+# t0, u0, tE, rho, q, s, alpha in degrees
+params = jnp.array([0.0, 0.1, 1.0, 0.01, 0.2, 0.9, 270.0])
+times = jnp.linspace(-1.0, 1.0, 1000)
+
+mag = binary_mag(*params, times, tol=1e-3, retol=1e-3)
 ```
 
 Detailed example usages are documented in the [Quick Start Guide](quick-start.md).
