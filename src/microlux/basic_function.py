@@ -241,6 +241,8 @@ def refine_gradient_jvp(primals, tangents):
     zeta, q, s, z = primals
     tangent_zeta, tangent_q, tangent_s, tangent_z = tangents
 
+    # Keep the implicit derivative of z when this JVP is differentiated again.
+    z = refine_gradient(zeta, q, s, z)
     z_c = jnp.conj(z)
     parZetaConZ = 1 / (1 + q) * (1 / (z_c - s) ** 2 + q / z_c**2)
     detJ = 1 - jnp.abs(parZetaConZ) ** 2

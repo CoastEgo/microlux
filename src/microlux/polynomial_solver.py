@@ -24,12 +24,18 @@ def get_roots(sample_n, coff):
     return roots
 
 
-@partial(jax.jit, static_argnums=0)
-def get_roots_vmap(sample_n, coff):
-    ## used when solving the coff without zero coffes
-    roots_solver = lambda x: Aberth_Ehrlich(x, AE_roots0(x))
-    roots = jax.vmap(roots_solver, in_axes=(0))(coff)
-    return roots
+@jax.jit
+def get_point_roots(coefficients):
+    # Solve the unpadded point-source rows in time order to reuse the previous roots.
+    roots = get_roots(coefficients.shape[0], lax.stop_gradient(coefficients))
+    # Reuse the converged roots and differentiate P_t(z) = 0 implicitly.
+    return lax.custom_root(
+        partial(jax.vmap(jnp.polyval), coefficients),
+        roots,
+        solve=lambda _, z: z,
+        # Each residual depends only on its own root, so g(ones) gives P'_t(z).
+        tangent_solve=lambda g, rhs: rhs / g(jnp.ones_like(rhs)),
+    )
 
 
 # @jax.jit
@@ -284,9 +290,12 @@ def Aberth_Ehrlich(
     solution = lambda f, x0: lax.while_loop(
         cond_fun, loop_body, (x0, coff, jnp.ones_like(x0, dtype=bool), x0, 0)
     )[0]
-    sclar = lambda g, y: jnp.linalg.solve(jax.jacobian(g, holomorphic=True)(y), y)
 
-    return lax.custom_root(f, roots, solve=solution, tangent_solve=sclar)
+    def tangent_solve(g, y):
+        # Each residual P(z_i) depends only on z_i, so g(ones) is the diagonal.
+        return y / g(jnp.ones_like(y))
+
+    return lax.custom_root(f, roots, solve=solution, tangent_solve=tangent_solve)
 
 
 """
