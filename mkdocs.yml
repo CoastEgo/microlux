@@ -1,5 +1,7 @@
 theme:
     name: material
+    logo: _static/logo.svg
+    favicon: _static/favicon.svg
     features:
         - navigation.sections  # Sections are included in the navigation on the left.
         - toc.integrate  # Table of contents is integrated on the left; does not appear separately on the right.
@@ -72,6 +74,8 @@ plugins:
         handlers:
             python:
                 options:
+                    docstring_style: google
+                    docstring_section_style: list
                     show_source: false  # Don't include source code
                     show_root_heading: true
                     show_root_full_path: true

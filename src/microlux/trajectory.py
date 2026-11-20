@@ -203,15 +203,13 @@ def _parse_trajectory_parameters(
     """
     Parse array-like inputs into `TrajectoryParameters`.
 
-    **Parameters**
+    Args:
+        params: Input parameters as a `TrajectoryParameters` instance or 1D array.
+        has_parallax: Whether the model includes parallax.
+        has_orbital_motion: Whether arrays include the three orbital rates.
 
-    - `params`: Input parameters as a `TrajectoryParameters` instance or 1D array.
-    - `has_parallax`: Whether the model includes parallax.
-    - `has_orbital_motion`: Whether arrays include the three orbital rates.
-
-    **Returns**
-
-    - `parsed_params`: Parsed `TrajectoryParameters` object.
+    Returns:
+        parsed_params: Parsed `TrajectoryParameters` object.
     """
     if isinstance(params, TrajectoryParameters):
         return params
@@ -243,15 +241,13 @@ def _project_delta_ne_to_tau_beta(
     """
     Project North/East displacement onto `(tau, beta)` shifts.
 
-    **Parameters**
+    Args:
+        delta_ne: Displacement in North/East with shape `(N, 2)`.
+        projection_vec_ne: Projection vector in North/East with shape `(2,)`.
 
-    - `delta_ne`: Displacement in North/East with shape `(N, 2)`.
-    - `projection_vec_ne`: Projection vector in North/East with shape `(2,)`.
-
-    **Returns**
-
-    - `delta_tau`: Shift along trajectory direction.
-    - `delta_beta`: Shift perpendicular to trajectory direction.
+    Returns:
+        delta_tau: Shift along trajectory direction.
+        delta_beta: Shift perpendicular to trajectory direction.
     """
     delta_tau = jnp.dot(delta_ne, projection_vec_ne)
     delta_beta = (
@@ -272,28 +268,25 @@ def get_trajectory_model(
     """
     Build a trajectory model with optional annual parallax and circular orbit.
 
-    **Parameters**
+    Args:
+        times: Observation epochs in full JD or reduced JD (JD - 2450000).
+        coords: Source sky coordinates; required only for annual parallax.
+        t0_par: Parallax reference epoch. If `None`, parallax is disabled.
+        photo_center: Whether input parameters use the magnification center
+            for `s > 1`; output is always in the center-of-mass frame.
+        orbital_motion: None or "circular", independently of parallax.
 
-    - `times`: Observation epochs in full JD or reduced JD (JD - 2450000).
-    - `coords`: Source sky coordinates; required only for annual parallax.
-    - `t0_par`: Parallax reference epoch. If `None`, parallax is disabled.
-    - `photo_center`: Whether input parameters use the magnification center
-      for `s > 1`; output is always in the center-of-mass frame.
-    - `orbital_motion`: None or "circular", independently of parallax.
+    Returns:
+        trajectory_model: Trajectory model instance.
 
-    **Returns**
-
-    - `trajectory_model`: Trajectory model instance.
-
-    **Notes**
-
-    - Use the same full or reduced JD convention for times, t0, and t0_par.
-    - Annual ephemerides are precomputed here, outside JAX differentiation.
-      The returned model stores the observer displacement in delta_s, in AU
-      projected onto North/East. This factory computes annual parallax only.
-    - Named `TrajectoryParameters` work with every combination of effects.
-      See `TrajectoryModel.calculate_trajectory` for array layouts, reference
-      frames, and orbital boundary handling.
+    Notes:
+        - Use the same full or reduced JD convention for times, t0, and t0_par.
+        - Annual ephemerides are precomputed here, outside JAX differentiation.
+          The returned model stores the observer displacement in delta_s, in AU
+          projected onto North/East. This factory computes annual parallax only.
+        - Named `TrajectoryParameters` work with every combination of effects.
+          See `TrajectoryModel.calculate_trajectory` for array layouts, reference
+          frames, and orbital boundary handling.
     """
     if orbital_motion not in (None, "circular"):
         raise ValueError('orbital_motion must be None or "circular".')

@@ -239,13 +239,12 @@ def solve(cost):
     Solves the linear sum assignment problem using the Hungarian algorithm. Adapted from
     [https://github.com/google/jax/issues/10403](https://github.com/google/jax/issues/10403)
 
-    Parameters:
-    - `cost`: The cost matrix representing the assignment problem.
+    Args:
+        cost: The cost matrix representing the assignment problem.
 
     Returns:
-
-    - `row_ind`: The row indices of the assigned elements.
-    - `col_ind`: The column indices of the assigned elements.
+        row_ind: The row indices of the assigned elements.
+        col_ind: The column indices of the assigned elements.
     """
 
     # transpose = cost.shape[1] < cost.shape[0]

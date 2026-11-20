@@ -211,13 +211,12 @@ def get_point_roots(coefficients):
 def AE_roots0(coff: jnp.ndarray) -> jnp.ndarray:
     """
     Computes the initial guesses using the Aberth-Ehrlich method. This code is adapted from [https://github.com/afoures/aberth-method](https://github.com/afoures/aberth-method)
-    **Args**:
 
-    - `coff` (ndarray): Coefficients of the polynomial.
+    Args:
+        coff (ndarray): Coefficients of the polynomial.
 
-    **Returns**:
-
-    - `initial_guess`: Initial guesses for the roots of the polynomial.
+    Returns:
+        initial_guess: Initial guesses for the roots of the polynomial.
     """
 
     def UV(coff):
@@ -254,16 +253,13 @@ def Aberth_Ehrlich(
     Solves a polynomial equation using the Aberth-Ehrlich method. Adapted from [https://github.com/afoures/aberth-method](https://github.com/afoures/aberth-method).
     Use `jax.lax.custom_root` to get precise derivative in automatic differentiation.
 
-    **Parameters**:
+    Args:
+        coff: Coefficients of the polynomial equation.
+        roots: Initial guesses for the roots of the polynomial equation.
+        MAX_ITER: Maximum number of iterations. Defaults to 100.
 
-    - `coff`: Coefficients of the polynomial equation.
-    - `roots`: Initial guesses for the roots of the polynomial equation.
-    - `MAX_ITER`: Maximum number of iterations. Defaults to 100.
-
-    **Returns**:
-
-    - `roots`: The roots of the polynomial equation.
-
+    Returns:
+        roots: The roots of the polynomial equation.
     """
     derp = jnp.polyder(coff)
     mask = 1 - jnp.eye(roots.shape[0])

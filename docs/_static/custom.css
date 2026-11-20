@@ -23,6 +23,15 @@ html {
 }
 
 /* ---------- Typography & Layout ---------- */
+.md-typeset .mx-wordmark img {
+  max-width: 100%;
+  height: auto;
+}
+
+[data-md-color-scheme="slate"] .md-logo img {
+  filter: brightness(0) invert(1);
+}
+
 .md-typeset {
   font-size: 0.82rem;
   line-height: 1.75;
