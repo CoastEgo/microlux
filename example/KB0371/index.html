@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -100,8 +100,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -238,8 +237,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -1072,17 +1070,11 @@ reduces the scale differences and correlations seen by HMC. Soft penalties
 keep the resulting physical parameters inside their valid boundaries. We
 also use <code>dense_mass=True</code> so that NumPyro can adapt the remaining
 correlations during warmup.</p>
-<p>The light curve arrays are padded to a length compatible with the parallel
-JAX evaluation.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="n">HJD_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">HJD</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">HJD</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">HJD_pad</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="n">flux_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
-    <span class="n">flux</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">flux</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="p">)</span>
-<span class="n">ferr_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
-    <span class="n">ferr</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10170</span> <span class="o">-</span> <span class="n">ferr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">"constant"</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">ferr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="p">)</span>
+<p>Pad the time array to a multiple of the number of parallel devices. Keep
+the observed fluxes and uncertainties at their original length, and trim
+the model predictions before evaluating the likelihood and chi2.</p>
+<div class="highlight"><pre><span></span><code><span class="n">padding</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">N_pmap</span>
+<span class="n">HJD_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">HJD</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"edge"</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">parameter_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
     <span class="p">[</span>
@@ -1153,7 +1145,7 @@ the initial solution.</p>
     <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">pmap</span><span class="p">(</span><span class="n">pmap_light_curve</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))(</span>
         <span class="n">times</span><span class="p">,</span> <span class="n">safe_params</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_pmap</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mag_mod</span><span class="p">,</span> <span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">)</span>
+    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mag_mod</span><span class="p">,</span> <span class="n">times</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">)[:</span> <span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
     <span class="n">flux_mod</span> <span class="o">=</span> <span class="n">mag_mod</span> <span class="o">*</span> <span class="n">fs</span> <span class="o">+</span> <span class="n">fb</span>
     <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">"obs"</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">flux_mod</span><span class="p">,</span> <span class="n">ferr</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">flux</span><span class="p">)</span>
     <span class="n">numpyro</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="s2">"boundary_penalty"</span><span class="p">,</span> <span class="o">-</span><span class="n">penalty_strength</span> <span class="o">*</span> <span class="n">penalty</span><span class="p">)</span>
@@ -1184,7 +1176,7 @@ the initial solution.</p>
 
     <span class="n">mcmc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-        <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">HJD_pad</span><span class="p">,</span> <span class="n">flux_pad</span><span class="p">,</span> <span class="n">ferr_pad</span><span class="p">],</span>
+        <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">HJD_pad</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span><span class="p">],</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
         <span class="n">fb</span><span class="o">=</span><span class="n">fb</span><span class="p">,</span>
         <span class="n">init_val</span><span class="o">=</span><span class="n">initial_param</span><span class="p">,</span>

@@ -379,19 +379,13 @@ else:
 # also use `dense_mass=True` so that NumPyro can adapt the remaining
 # correlations during warmup.
 #
-# The light curve arrays are padded to a length compatible with the parallel
-# JAX evaluation.
+# Pad the time array to a multiple of the number of parallel devices. Keep
+# the observed fluxes and uncertainties at their original length, and trim
+# the model predictions before evaluating the likelihood and chi2.
 
 # %%
-print(HJD.shape)
-HJD_pad = jnp.pad(HJD, (0, 10170 - HJD.shape[0]), "constant", constant_values=HJD[-1])
-print(HJD_pad.shape)
-flux_pad = jnp.pad(
-    flux, (0, 10170 - flux.shape[0]), "constant", constant_values=flux[-1]
-)
-ferr_pad = jnp.pad(
-    ferr, (0, 10170 - ferr.shape[0]), "constant", constant_values=ferr[-1]
-)
+padding = (-HJD.shape[0]) % N_pmap
+HJD_pad = jnp.pad(HJD, (0, padding), mode="edge")
 
 # %%
 
@@ -470,7 +464,7 @@ def model_HMC_reparameterized(
     mag_mod = jax.pmap(pmap_light_curve, in_axes=(None, None, 0))(
         times, safe_params, jnp.arange(n_pmap)
     )
-    mag_mod = jnp.reshape(mag_mod, (flux.shape[0],), order="F")
+    mag_mod = jnp.reshape(mag_mod, times.shape, order="F")[: flux.shape[0]]
     flux_mod = mag_mod * fs + fb
     numpyro.sample("obs", dist.Normal(flux_mod, ferr), obs=flux)
     numpyro.factor("boundary_penalty", -penalty_strength * penalty)
@@ -503,7 +497,7 @@ if RUN_HMC:
 
     mcmc.run(
         jax.random.PRNGKey(0),
-        data=[HJD_pad, flux_pad, ferr_pad],
+        data=[HJD_pad, flux, ferr],
         fs=fs,
         fb=fb,
         init_val=initial_param,

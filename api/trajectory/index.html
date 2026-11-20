@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -102,8 +102,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -240,8 +239,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -662,154 +660,109 @@ t0. They are ignored unless orbital motion is enabled.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.t0">t0</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Time of closest approach, in days.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.u0">u0</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Impact parameter at <code>t0</code>.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.tE">tE</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Einstein timescale in days.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.rho">rho</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Source radius in units of Einstein radius.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.alpha_rad">alpha_rad</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Trajectory angle in radians.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.s">s</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Projected lens separation in Einstein-radius units.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.q">q</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Lens mass ratio.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.pi_E_N">pi_E_N</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>North component of microlensing parallax vector.
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.t0">t0</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Time of closest approach, in days.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.u0">u0</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Impact parameter at <code>t0</code>.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.tE">tE</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Einstein timescale in days.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.rho">rho</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Source radius in units of Einstein radius.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.alpha_rad">alpha_rad</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Trajectory angle in radians.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.s">s</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Projected lens separation in Einstein-radius units.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.q">q</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Lens mass ratio.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.pi_E_N">pi_E_N</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>North component of microlensing parallax vector.
 Only used when parallax is enabled.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.pi_E_E">pi_E_E</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>East component of microlensing parallax vector.
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.pi_E_E">pi_E_E</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>East component of microlensing parallax vector.
 Only used when parallax is enabled.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.gamma1">gamma1</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Fractional projected-separation rate
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.gamma1">gamma1</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Fractional projected-separation rate
 <code>(ds/dt)/s</code>, in day^-1.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.gamma2">gamma2</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Angular rate in rad day^-1, with the sign
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.gamma2">gamma2</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Angular rate in rad day^-1, with the sign
 following the VBM trajectory convention.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryParameters.gamma3">gamma3</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Fractional line-of-sight separation rate
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryParameters.gamma3">gamma3</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Fractional line-of-sight separation rate
 <code>(ds_z/dt)/s</code>, in day^-1.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+          </div>
+        </li>
+    </ul>
 
 
 
@@ -859,64 +812,43 @@ following the VBM trajectory convention.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryModel.times">times</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Observation times in Julian Date.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryModel.delta_s">delta_s</span></code></td>
-            <td>
-                  <code><span title="jax.numpy.ndarray">ndarray</span> | None</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Observer displacement in AU projected on
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryModel.times">times</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Observation times in Julian Date.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryModel.delta_s">delta_s</span></code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span> | None</code>)
+          –
+          <div class="doc-md-description">
+            <p>Observer displacement in AU projected on
 the sky plane in (North, East), shape <code>(N, 2)</code>. If <code>None</code>, parallax
 correction is disabled.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryModel.photo_center">photo_center</span></code></td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Whether input parameters use the magnification
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryModel.photo_center">photo_center</span></code></b>
+              (<code><span title="bool">bool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Whether input parameters use the magnification
 center for <code>s &gt; 1</code>. Output trajectories always use the center of mass.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.trajectory.TrajectoryModel.orbital_motion">orbital_motion</span></code></td>
-            <td>
-                  <code><span title="str">str</span> | None</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>None or "circular". Independent of delta_s.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.trajectory.TrajectoryModel.orbital_motion">orbital_motion</span></code></b>
+              (<code><span title="str">str</span> | None</code>)
+          –
+          <div class="doc-md-description">
+            <p>None or "circular". Independent of delta_s.</p>
+          </div>
+        </li>
+    </ul>
 
 
 
@@ -1026,21 +958,77 @@ Fisher calculations.</p>
     <div class="doc doc-contents first">
 
         <p>Build a trajectory model with optional annual parallax and circular orbit.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>times</code>: Observation epochs in full JD or reduced JD (JD - 2450000).</li>
-<li><code>coords</code>: Source sky coordinates; required only for annual parallax.</li>
-<li><code>t0_par</code>: Parallax reference epoch. If <code>None</code>, parallax is disabled.</li>
-<li><code>photo_center</code>: Whether input parameters use the magnification center
-  for <code>s &gt; 1</code>; output is always in the center-of-mass frame.</li>
-<li><code>orbital_motion</code>: None or "circular", independently of parallax.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>trajectory_model</code>: Trajectory model instance.</li>
-</ul>
-<p><strong>Notes</strong></p>
-<ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>times</code></b>
+              (<code><span title="numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Observation epochs in full JD or reduced JD (JD - 2450000).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>coords</code></b>
+              (<code><a class="autorefs autorefs-internal" title="Coordinates (microlux.coordinates.Coordinates)" href="../coordinates/#microlux.coordinates.Coordinates">Coordinates</a> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Source sky coordinates; required only for annual parallax.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>t0_par</code></b>
+              (<code><span title="float">float</span> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Parallax reference epoch. If <code>None</code>, parallax is disabled.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>photo_center</code></b>
+              (<code><span title="bool">bool</span></code>, default:
+                  <code>False</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Whether input parameters use the magnification center
+for <code>s &gt; 1</code>; output is always in the center-of-mass frame.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>orbital_motion</code></b>
+              (<code><span title="str">str</span> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>None or "circular", independently of parallax.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>trajectory_model</code></b> (              <code><a class="autorefs autorefs-internal" title="TrajectoryModel (microlux.trajectory.TrajectoryModel)" href="#microlux.trajectory.TrajectoryModel">TrajectoryModel</a></code>
+)          –
+          <div class="doc-md-description">
+            <p>Trajectory model instance.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<details class="notes" open>
+  <summary>Notes</summary>
+  <ul>
 <li>Use the same full or reduced JD convention for times, t0, and t0_par.</li>
 <li>Annual ephemerides are precomputed here, outside JAX differentiation.
   The returned model stores the observer displacement in delta_s, in AU
@@ -1049,7 +1037,7 @@ Fisher calculations.</p>
   See <code>TrajectoryModel.calculate_trajectory</code> for array layouts, reference
   frames, and orbital boundary handling.</li>
 </ul>
-
+</details>
 
     </div>
 

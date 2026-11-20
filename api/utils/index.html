@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -102,8 +102,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -240,8 +239,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -660,94 +658,64 @@
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Iterative_State.sample_num">sample_num</span></code></td>
-            <td>
-                  <code><span title="int">int</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The number of samples.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Iterative_State.theta">theta</span></code></td>
-            <td>
-                  <code><span title="jax.Array">Array</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The sampling angles.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Iterative_State.roots">roots</span></code></td>
-            <td>
-                  <code><span title="jax.Array">Array</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The roots array.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Iterative_State.parity">parity</span></code></td>
-            <td>
-                  <code><span title="jax.Array">Array</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The parity array.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Iterative_State.ghost_roots_distant">ghost_roots_distant</span></code></td>
-            <td>
-                  <code><span title="jax.Array">Array</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The ghost roots distant array, used to detect the buried images (hidden cusps)</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Iterative_State.sort_flag">sort_flag</span></code></td>
-            <td>
-                  <code><span title="typing.Union">Union</span>[<span title="bool">bool</span>, <span title="jax.Array">Array</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A boolean flag indicating whether the roots are sorted and matched.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Iterative_State.Is_create">Is_create</span></code></td>
-            <td>
-                  <code><span title="jax.Array">Array</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The Is_create array. A boolean flag indicating whether the image is created or destroyed.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Iterative_State.sample_num">sample_num</span></code></b>
+              (<code><span title="int">int</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The number of samples.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Iterative_State.theta">theta</span></code></b>
+              (<code><span title="jax.Array">Array</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The sampling angles.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Iterative_State.roots">roots</span></code></b>
+              (<code><span title="jax.Array">Array</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The roots array.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Iterative_State.parity">parity</span></code></b>
+              (<code><span title="jax.Array">Array</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The parity array.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Iterative_State.ghost_roots_distant">ghost_roots_distant</span></code></b>
+              (<code><span title="jax.Array">Array</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The ghost roots distant array, used to detect the buried images (hidden cusps)</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Iterative_State.sort_flag">sort_flag</span></code></b>
+              (<code><span title="typing.Union">Union</span>[<span title="bool">bool</span>, <span title="jax.Array">Array</span>]</code>)
+          –
+          <div class="doc-md-description">
+            <p>A boolean flag indicating whether the roots are sorted and matched.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Iterative_State.Is_create">Is_create</span></code></b>
+              (<code><span title="jax.Array">Array</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The Is_create array. A boolean flag indicating whether the image is created or destroyed.</p>
+          </div>
+        </li>
+    </ul>
 
 
 
@@ -797,94 +765,64 @@
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Error_State.mag">mag</span></code></td>
-            <td>
-                  <code><span title="jax.Array">Array</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Current magnification values.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Error_State.mag_no_diff">mag_no_diff</span></code></td>
-            <td>
-                  <code><span title="int">int</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The number of magnification values without sufficient difference.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Error_State.outloop">outloop</span></code></td>
-            <td>
-                  <code><span title="int">int</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A integer flag indicating whether the iteration should be terminated.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Error_State.error_hist">error_hist</span></code></td>
-            <td>
-                  <code><span title="jax.Array">Array</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The current error estimated in each sampling interval.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Error_State.epsilon">epsilon</span></code></td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The absolute tolerance value.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Error_State.epsilon_rel">epsilon_rel</span></code></td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The relative tolerance value.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.Error_State.exceed_flag">exceed_flag</span></code></td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The flag indicating whether the current sampling number exceeds the length of the array.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Error_State.mag">mag</span></code></b>
+              (<code><span title="jax.Array">Array</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Current magnification values.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Error_State.mag_no_diff">mag_no_diff</span></code></b>
+              (<code><span title="int">int</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The number of magnification values without sufficient difference.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Error_State.outloop">outloop</span></code></b>
+              (<code><span title="int">int</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>A integer flag indicating whether the iteration should be terminated.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Error_State.error_hist">error_hist</span></code></b>
+              (<code><span title="jax.Array">Array</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The current error estimated in each sampling interval.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Error_State.epsilon">epsilon</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The absolute tolerance value.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Error_State.epsilon_rel">epsilon_rel</span></code></b>
+              (<code><span title="float">float</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The relative tolerance value.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.Error_State.exceed_flag">exceed_flag</span></code></b>
+              (<code><span title="bool">bool</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The flag indicating whether the current sampling number exceeds the length of the array.</p>
+          </div>
+        </li>
+    </ul>
 
 
 

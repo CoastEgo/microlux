@@ -18,7 +18,16 @@ def generate_notebooks() -> None:
     for notebook in NOTEBOOKS:
         output_path = notebook["output"]
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        jupytext.write(jupytext.read(notebook["source"]), output_path, fmt="ipynb")
+        content = jupytext.read(notebook["source"])
+        # Stable IDs make repeated exports identical and avoid live-reload loops.
+        for index, cell in enumerate(content.cells):
+            cell["id"] = f"cell-{index}"
+        serialized = jupytext.writes(content, fmt="ipynb")
+        if (
+            not output_path.exists()
+            or output_path.read_text(encoding="utf-8") != serialized
+        ):
+            output_path.write_text(serialized, encoding="utf-8")
 
 
 def on_pre_build(config) -> None:  # noqa: ANN001

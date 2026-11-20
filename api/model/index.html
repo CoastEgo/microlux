@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -102,8 +102,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -240,8 +239,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -733,7 +731,7 @@
     <div class="doc doc-contents first">
 
         <p>Compute the light curve of a binary lens system with finite source effects.
-This function will dynamically choose full contour integration or point source approximation based on the quadrupole test.</p>
+This function will dynamically choose full contour integration or point source approximation based on the point-source validity checks.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The coordinate system is consistent with the MulensModel(Center of mass).</p>
@@ -743,28 +741,144 @@ This function will dynamically choose full contour integration or point source a
 <p>Currently, to deal with limb-darkening effect, we only use 10 annuli which are uniformly distributed in terms of the area,
 which is <strong>not</strong> in an adaptive scheme. So the tolerance of the limb darkening effect is not guaranteed.</p>
 </div>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>t_0</code>: The time of the peak of the microlensing event.</li>
-<li><code>u_0</code>: The impact parameter of the source trajectory.</li>
-<li><code>t_E</code>: The Einstein crossing time.</li>
-<li><code>rho</code>: The source radius normalized to the Einstein radius.</li>
-<li><code>q</code>: The planet to host mass ratio of the binary lens system.</li>
-<li><code>s</code>: The projected separation of the binary lens system normalized to the Einstein radius.</li>
-<li><code>alpha_deg</code>: The angle between the source trajectory and the binary axis in degrees.</li>
-<li><code>times</code>: The times at which to compute the model.</li>
-<li><code>tol</code>: The tolerance for the adaptive contour integration. Defaults to 1e-2.</li>
-<li><code>retol</code>: The relative tolerance for the adaptive contour integration. Defaults to 0.001.</li>
-<li><code>default_strategy</code>: The default strategy for the contour integration. Defaults to (30, 30, 60, 120, 240). more details can be found in the <a class="autorefs autorefs-internal" href="#microlux.contour_integral"><code>microlux.contour_integral</code></a>.</li>
-<li><code>analytic</code>: Use implicit root derivatives on the final contour mesh to support forward- and reverse-mode differentiation. Defaults to True.</li>
-<li><code>return_info</code>: Whether to return additional information about the computation. Defaults to False. when set to True, the function will return a tuple containing (magnification, info), where info is a tuple containing additional information about the computation used for debugging.</li>
-<li><code>limb_darkening_coeff</code>: The limb darkening coefficient for the source star. Defaults to None. currently only support linear limb darkening.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>magnification</code>: The magnification of the source at the given times.</li>
-<li><code>info</code>: Additional information about the computation used for debugging if return_info is True. The structure of info is (trajectory, rho, s, q, default_roots_state, default_error_state), where trajectory, rho, s, q are the input parameters, default_roots_state and default_error_state are the states used for the contour integration. see <a class="autorefs autorefs-internal" href="../utils/#microlux.Iterative_State"><code>microlux.utils.Iterative_State</code></a> and <a class="autorefs autorefs-internal" href="../utils/#microlux.Error_State"><code>microlux.utils.Error_State</code></a>for more details.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>t_0</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The time of closest approach to the center of mass.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>u_0</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The impact parameter of the source trajectory.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>t_E</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The Einstein crossing time.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>rho</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The source radius normalized to the Einstein radius.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>q</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The mass ratio of the secondary lens to the primary lens.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>s</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The projected separation of the binary lens system normalized to the Einstein radius.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>alpha_deg</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The angle between the source trajectory and the binary axis in degrees.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>times</code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>The times at which to compute the model.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>tol</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The tolerance for the adaptive contour integration. Defaults to 1e-2.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>retol</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The relative tolerance for the adaptive contour integration. Defaults to 0.001.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>default_strategy</code></b>
+              (<code><span title="typing.Tuple">Tuple</span>[<span title="int">int</span>]</code>, default:
+                  <code>(30, 30, 60, 120, 240)</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The default strategy for the contour integration. Defaults to (30, 30, 60, 120, 240). more details can be found in the <a class="autorefs autorefs-internal" href="#microlux.contour_integral"><code>microlux.contour_integral</code></a>.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>analytic</code></b>
+              (<code><span title="bool">bool</span></code>, default:
+                  <code>True</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Use implicit root derivatives on the final contour mesh to support forward- and reverse-mode differentiation. Defaults to True.
+If False, differentiate through the adaptive iterations in forward mode.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>return_info</code></b>
+              (<code><span title="bool">bool</span></code>, default:
+                  <code>False</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Whether to return additional information about the computation. Defaults to False. when set to True, the function will return a tuple containing (magnification, info), where info is a tuple containing additional information about the computation used for debugging.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>limb_darkening_coeff</code></b>
+              (<code><span title="float">float</span> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The limb darkening coefficient for the source star. Defaults to None for a uniformly bright source. Currently only supports linear limb darkening.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>magnification</code></b>          –
+          <div class="doc-md-description">
+            <p>The magnification of the source at the given times.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>info</code></b>          –
+          <div class="doc-md-description">
+            <p>Additional information about the computation used for debugging if return_info is True.
+The structure is <code>(trajectory_l, rho, s, q, roots_state, error_state)</code>, with an epoch axis on the arrays.
+<code>trajectory_l</code> uses the low-mass lens coordinate system. Point-source epochs contain placeholder
+contour states; use the returned <code>magnification</code> array for the light curve.
+See <a class="autorefs autorefs-internal" href="../utils/#microlux.Iterative_State"><code>microlux.utils.Iterative_State</code></a> and <a class="autorefs autorefs-internal" href="../utils/#microlux.Error_State"><code>microlux.utils.Error_State</code></a> for state fields.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>
@@ -792,26 +906,80 @@ which is <strong>not</strong> in an adaptive scheme. So the tolerance of the lim
 (consistent with MulensModel). The function internally transforms to
 low-mass coordinates for the calculation.</p>
 </div>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>trajectory</code>: The trajectory of the lensing event in center-of-mass coordinates.</li>
-<li><code>s</code>: Binary lens separation, scalar or shape <code>(N,)</code> matching trajectory.</li>
-<li><code>q</code> : The mass ratio between the lens and the source.</li>
-<li><code>rho</code>: The source radius in units of the Einstein radius.</li>
-<li><code>tol</code>: The absolute tolerance for the quadrupole test.</li>
-<li><code>return_num</code>: Whether to return the number of real roots. Defaults to False.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>result</code>: A tuple containing:<ul>
-<li>The magnification array.</li>
-<li>A boolean array indicating the validity of the calculation. If the quadrupole test is passed, the corresponding element in the boolean array is <code>True</code>.</li>
-<li>If <code>return_num</code> is <code>True</code>, the tuple will also contain the number of real roots.</li>
-</ul>
-</li>
-<li><code>cond</code>: A boolean array indicating whether the quadrupole test is passed. <code>True</code> means the quadrupole test is passed.</li>
-<li><code>mask</code>: An integer array indicating the number of real roots.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>trajectory</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The trajectory of the lensing event in center-of-mass coordinates.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>s</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Binary lens separation, scalar or shape <code>(N,)</code> matching trajectory.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>q</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The mass ratio of the secondary lens to the primary lens.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>rho</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The source radius in units of the Einstein radius.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>tol</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The absolute tolerance for the point-source validity checks.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>return_num</code></b>
+              (<code><span title="bool">bool</span></code>, default:
+                  <code>False</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Whether to return the number of physical images. Defaults to False.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>magnification</code></b>          –
+          <div class="doc-md-description">
+            <p>The magnification array.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>cond</code></b>          –
+          <div class="doc-md-description">
+            <p>A boolean array. <code>True</code> means the point-source approximation passes the validity checks.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>image_count</code></b>          –
+          <div class="doc-md-description">
+            <p>The number of physical images at each epoch, included only when <code>return_num=True</code>.</p>
+          </div>
+        </li>
+    </ul>
+        <p>A tuple <code>(magnification, cond)</code>, or <code>(magnification, cond, image_count)</code> if <code>return_num=True</code>.</p>
 
 
     </div>
@@ -839,18 +1007,67 @@ low-mass coordinates for the calculation.</p>
 (consistent with MulensModel). The function internally transforms to
 low-mass coordinates for the calculation.</p>
 </div>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>trajectory</code>: The trajectory in the center-of-mass coordinate system.</li>
-<li><code>s</code>: Binary lens separation, scalar or shape <code>(N,)</code> matching trajectory.</li>
-<li><code>n_annuli</code>: The number of annuli for the limb darkening calculation.</li>
-<li>For the definition of the other parameters, please see <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a>.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>magnification</code>: The magnification of the source at the given trajectory points.</li>
-<li><code>info</code>: Additional information about the computation used for debugging if return_info is True.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>trajectory</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The trajectory in the center-of-mass coordinate system.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>s</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Binary lens separation, scalar or shape <code>(N,)</code> matching trajectory.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>limb_darkening</code></b>
+              (<code><span title="microlux.limb_darkening.AbstractLimbDarkening">AbstractLimbDarkening</span> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>An <code>AbstractLimbDarkening</code> instance providing <code>profile</code> and <code>cumulative_profile</code>,
+or None for a uniformly bright source. Defaults to None.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>n_annuli</code></b>
+              (<code><span title="int">int</span></code>, default:
+                  <code>10</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The number of equal-area annuli for the limb darkening calculation. Defaults to 10.
+Increase this value to check convergence.</p>
+          </div>
+        </li>
+    </ul>
+        <p>For the definition of the other parameters, please see <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a>.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>magnification</code></b>          –
+          <div class="doc-md-description">
+            <p>The magnification of the source at the given trajectory points.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>info</code></b>          –
+          <div class="doc-md-description">
+            <p>Additional information about the computation used for debugging if return_info is True.
+See <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a> for the layout and point-source placeholders. For epochs using
+contour integration with limb darkening, the states are from the outermost source radius.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>
@@ -876,18 +1093,52 @@ This function is used to reduce the memory usage and improve the performance of 
 is hard to determine before the code runs which the basic requirement for JIT compilation. If the array length is too small, the adaptive contour integration will stop
 early and the error will be larger than the tolerance. If the array length is too large, it will cause the waste of memory and time. This waste is linear with the array length.
 So we use this pre-define shaped array to solve this problem.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li>For other parameters: please see at <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a></li>
-<li><code>default_strategy</code>: The default strategy for the contour integration. The array length will be added gradually according to this strategy.
-For example, if the default_strategy is (60, 80, 150), the array length in each layer will be 60, 140, 290, respectively.</li>
-<li><code>analytic</code>: Use implicit root derivatives on the final sampling mesh to support
-forward- and reverse-mode differentiation. Defaults to True.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>result</code>: A tuple containing the magnitude and the result of the contour integration.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>trajectory_l</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Source position in the low-mass lens coordinate system.
+Convert center-of-mass coordinates with <code>to_lowmass</code> before calling this function.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>default_strategy</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The default strategy for the contour integration. The array length will be added gradually according to this strategy.
+For example, if the default_strategy is (60, 80, 150), the array length in each layer will be 60, 140, 290, respectively.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>analytic</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Use implicit root derivatives on the final sampling mesh to support
+forward- and reverse-mode differentiation. Defaults to True.
+If False, differentiate through the adaptive iterations in forward mode.</p>
+          </div>
+        </li>
+    </ul>
+        <p>For other parameters: please see at <a class="autorefs autorefs-internal" href="#microlux.binary_mag"><code>microlux.binary_mag</code></a></p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>result</code></b> (              <code><span title="typing.Tuple">Tuple</span>[<span title="jax.numpy.ndarray">ndarray</span>, <span title="typing.Tuple">Tuple</span>]</code>
+)          –
+          <div class="doc-md-description">
+            <p>A tuple <code>(magnification, info)</code>, where
+<code>info = (trajectory_l, rho, s, q, roots_state, error_state)</code>.</p>
+          </div>
+        </li>
+    </ul>
+        <p>If the contour capacity is exhausted, <code>error_state.exceed_flag</code> is True and the requested
+tolerance may be unmet. Increase <code>default_strategy</code> and recompute to allow further refinement.</p>
 
 
     </div>

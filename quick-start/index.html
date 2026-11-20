@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -102,8 +102,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -240,8 +239,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -353,6 +351,17 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#example-1-basic-binary-magnification" class="md-nav__link">
@@ -707,20 +716,24 @@
 
 <h1 id="quick-start-guide">Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permanent link">¤</a></h1>
 <p>Calculate binary-lens magnification, then add annual parallax or orbital motion.</p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
+<p>Install microlux:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>microlux
+</code></pre></div>
+<p>Or install from source:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/CoastEgo/microlux.git
+<span class="nb">cd</span><span class="w"> </span>microlux
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</code></pre></div>
 <h2 id="example-1-basic-binary-magnification">Example 1: Basic Binary Magnification<a class="headerlink" href="#example-1-basic-binary-magnification" title="Permanent link">¤</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">microlux</span><span class="w"> </span><span class="kn">import</span> <span class="n">binary_mag</span>
 
-<span class="n">t_0</span> <span class="o">=</span> <span class="mf">0.0</span>
-<span class="n">u_0</span> <span class="o">=</span> <span class="mf">0.1</span>
-<span class="n">t_E</span> <span class="o">=</span> <span class="mf">1.0</span>
-<span class="n">rho</span> <span class="o">=</span> <span class="mf">1e-2</span>
-<span class="n">q</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">s</span> <span class="o">=</span> <span class="mf">0.9</span>
-<span class="n">alpha_deg</span> <span class="o">=</span> <span class="mf">270.0</span>
-<span class="n">times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">t_0</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">t_E</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="c1"># t0, u0, tE, rho, q, s, alpha in degrees</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">])</span>
+<span class="n">times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 
-<span class="n">mag</span> <span class="o">=</span> <span class="n">binary_mag</span><span class="p">(</span><span class="n">t_0</span><span class="p">,</span> <span class="n">u_0</span><span class="p">,</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">alpha_deg</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">retol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="n">mag</span> <span class="o">=</span> <span class="n">binary_mag</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">retol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="example-2-trajectory-annual-parallax">Example 2: Trajectory + Annual Parallax<a class="headerlink" href="#example-2-trajectory-annual-parallax" title="Permanent link">¤</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>

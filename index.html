@@ -22,12 +22,12 @@
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>microlux</title>
+        <title>Welcome to microlux - microlux</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#welcome-to-microlux" class="md-skip">
+        <a href="#features" class="md-skip">
           Skip to content
         </a>
       
@@ -100,8 +100,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -238,8 +237,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -271,8 +269,6 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
-      
-        
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -315,8 +311,6 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  
-    
   
   
     <label class="md-nav__title" for="__toc">
@@ -703,7 +697,11 @@
   
 
 
-<h1 id="welcome-to-microlux">Welcome to microlux<a class="headerlink" href="#welcome-to-microlux" title="Permanent link">¤</a></h1>
+<h1 id="welcome-to-microlux" class="mx-wordmark">
+  <img src="_static/wordmark.svg#only-light" alt="microlux" width="300">
+  <img src="_static/wordmark-light.svg#only-dark" alt="microlux" width="300">
+</h1>
+
 <p><code>microlux</code> is a <a href='https://github.com/jax-ml/jax'>Jax</a>-based package that can calculate the binary lensing light curve and its derivatives both efficiently and accurately.  We use the modified adaptive contour integratoin in <a href='https://github.com/valboz/VBBinaryLensing'><code>VBBinaryLensing</code></a> to maximize the performance. 
 With the access to the gradient, we can use more advanced algorithms for microlensing modeling, such as Hamiltonian Monte Carlo (HMC) in <a href='https://num.pyro.ai/en/latest/mcmc.html#numpyro.infer.hmc.NUTS'><code>numpyro</code></a>.</p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">¤</a></h2>
@@ -712,25 +710,20 @@ With the access to the gradient, we can use more advanced algorithms for microle
 <li>Robust and accurate calculation: Widely test over the broad parameter space compared with <code>VBBinaryLensing</code>.</li>
 <li>Fast speed: Fully compatible with JIT compilation to speed up calculation. </li>
 <li>Accurate gradient: Automatic differentiation with specially designed error estimator to ensure the convergence of gradient.</li>
+<li>Forward- and reverse-mode differentiation using implicit root derivatives on the final adaptive contour.</li>
 <li><a href='https://en.wikipedia.org/wiki/Aberth_method'>Aberth–Ehrlich</a> method to find the roots of the polynomial and <a href='https://docs.scipy.org/doc/scipy-1.15.0/reference/generated/scipy.optimize.linear_sum_assignment.html'>Liner sum assignment </a> algorithm to match the images.</li>
 <li><a href="example/KB0371/">Application</a> on the real event modeling.</li>
 </ul>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">¤</a></h2>
-<p>Please make sure that you have known the basic usage of <code>Jax</code>. Check the <a href="https://jax.readthedocs.io/en/latest/quickstart.html">Jax documentation</a> for more details.
+<p>Compute a binary-lens light curve with the example below.
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">microlux</span><span class="w"> </span><span class="kn">import</span> <span class="n">binary_mag</span>
 
-<span class="n">b</span> <span class="o">=</span> <span class="mf">0.1</span>
-<span class="n">t_0</span> <span class="o">=</span> <span class="mf">0.</span>
-<span class="n">t_E</span> <span class="o">=</span> <span class="mf">1.</span>
-<span class="n">alphadeg</span> <span class="o">=</span> <span class="mf">270.</span>
-<span class="n">q</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">s</span> <span class="o">=</span> <span class="mf">0.9</span>
-<span class="n">rho</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">trajectory_n</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t_0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">t_0</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">trajectory_n</span><span class="p">)</span>
-<span class="c1">#calculate the binary lensing magnification</span>
-<span class="n">mag</span> <span class="o">=</span> <span class="n">binary_mag</span><span class="p">(</span><span class="n">t_0</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t_E</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">alphadeg</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">retol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="c1"># t0, u0, tE, rho, q, s, alpha in degrees</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">270.0</span><span class="p">])</span>
+<span class="n">times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">mag</span> <span class="o">=</span> <span class="n">binary_mag</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">retol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
 </code></pre></div></p>
 <p>Detailed example usages are documented in the <a href="quick-start/">Quick Start Guide</a>.
 Additional examples can be found in the <a href="https://github.com/CoastEgo/microlux/tree/master/test"><code>test</code></a> folder.</p>
@@ -758,6 +751,9 @@ Additional examples can be found in the <a href="https://github.com/CoastEgo/mic
 
 
 
+
+  
+  
 
 
 

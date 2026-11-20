@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -102,8 +102,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -240,8 +239,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -652,16 +650,49 @@
 
         <p>Solves a polynomial equation using the Aberth-Ehrlich method. Adapted from <a href="https://github.com/afoures/aberth-method">https://github.com/afoures/aberth-method</a>.
 Use <code>jax.lax.custom_root</code> to get precise derivative in automatic differentiation.</p>
-<p><strong>Parameters</strong>:</p>
-<ul>
-<li><code>coff</code>: Coefficients of the polynomial equation.</li>
-<li><code>roots</code>: Initial guesses for the roots of the polynomial equation.</li>
-<li><code>MAX_ITER</code>: Maximum number of iterations. Defaults to 100.</li>
-</ul>
-<p><strong>Returns</strong>:</p>
-<ul>
-<li><code>roots</code>: The roots of the polynomial equation.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>coff</code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Coefficients of the polynomial equation.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>roots</code></b>
+              (<code><span title="jax.numpy.ndarray">ndarray</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Initial guesses for the roots of the polynomial equation.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>MAX_ITER</code></b>
+              (<code><span title="int">int</span></code>, default:
+                  <code>50</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Maximum number of iterations. Defaults to 100.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>roots</code></b> (              <code><span title="jax.numpy.ndarray">ndarray</span></code>
+)          –
+          <div class="doc-md-description">
+            <p>The roots of the polynomial equation.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>
@@ -683,13 +714,35 @@ Use <code>jax.lax.custom_root</code> to get precise derivative in automatic diff
 
         <p>Solves the linear sum assignment problem using the Hungarian algorithm. Adapted from
 <a href="https://github.com/google/jax/issues/10403">https://github.com/google/jax/issues/10403</a></p>
-<p>Parameters:
-- <code>cost</code>: The cost matrix representing the assignment problem.</p>
-<p>Returns:</p>
-<ul>
-<li><code>row_ind</code>: The row indices of the assigned elements.</li>
-<li><code>col_ind</code>: The column indices of the assigned elements.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>cost</code></b>
+          –
+          <div class="doc-md-description">
+            <p>The cost matrix representing the assignment problem.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>row_ind</code></b>          –
+          <div class="doc-md-description">
+            <p>The row indices of the assigned elements.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>col_ind</code></b>          –
+          <div class="doc-md-description">
+            <p>The column indices of the assigned elements.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>

@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../_static/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -102,8 +102,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="microlux" class="md-header__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -240,8 +239,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="microlux" class="md-nav__button md-logo" aria-label="microlux" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../../_static/logo.svg" alt="logo">
 
     </a>
     microlux
@@ -660,39 +658,24 @@
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.coordinates.Coordinates.ra">ra</span></code></td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Right ascension string in sexagesimal format (<code>HH:MM:SS</code>).</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="microlux.coordinates.Coordinates.dec">dec</span></code></td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Declination string in sexagesimal format (<code>DD:MM:SS</code>).</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.coordinates.Coordinates.ra">ra</span></code></b>
+              (<code><span title="str">str</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Right ascension string in sexagesimal format (<code>HH:MM:SS</code>).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><span title="microlux.coordinates.Coordinates.dec">dec</span></code></b>
+              (<code><span title="str">str</span></code>)
+          –
+          <div class="doc-md-description">
+            <p>Declination string in sexagesimal format (<code>DD:MM:SS</code>).</p>
+          </div>
+        </li>
+    </ul>
 
 
 
@@ -725,11 +708,23 @@
     <div class="doc doc-contents ">
 
         <p>Convert RA/Dec from sexagesimal strings to decimal degrees.</p>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>alpha</code>: Right ascension in degrees.</li>
-<li><code>delta</code>: Declination in degrees.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>alpha</code></b>          –
+          <div class="doc-md-description">
+            <p>Right ascension in degrees.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>delta</code></b>          –
+          <div class="doc-md-description">
+            <p>Declination in degrees.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>
@@ -748,11 +743,23 @@
     <div class="doc doc-contents ">
 
         <p>Calculate East/North unit vectors on the sky plane.</p>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>north_projected</code>: Unit vector toward North on the tangent plane.</li>
-<li><code>east_projected</code>: Unit vector toward East on the tangent plane.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>north_projected</code></b>          –
+          <div class="doc-md-description">
+            <p>Unit vector toward North on the tangent plane.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>east_projected</code></b>          –
+          <div class="doc-md-description">
+            <p>Unit vector toward East on the tangent plane.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>
@@ -781,18 +788,53 @@
     <div class="doc doc-contents first">
 
         <p>Normalize reduced Julian dates for ephemeris calls.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>times</code>: Observation epochs as a 1D array.</li>
-<li><code>time_ref</code>: Reference epoch.</li>
-<li><code>reduced_jd_cutoff</code>: Threshold used to detect reduced-JD input. Defaults to <code>2450000.0</code>.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>times_jd</code>: Full-JD epochs for ephemeris lookup.</li>
-<li><code>time_ref_jd</code>: Full-JD reference epoch.</li>
-</ul>
-<p>If <code>times[0] &lt; reduced_jd_cutoff</code>, both outputs are shifted by <code>reduced_jd_cutoff</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>times</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Observation epochs as a 1D array.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>time_ref</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Reference epoch.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>reduced_jd_cutoff</code></b>
+              (<code><span title="float">float</span></code>, default:
+                  <code>2450000.0</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Threshold used to detect reduced-JD input. Defaults to <code>2450000.0</code>.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>times_jd</code></b>          –
+          <div class="doc-md-description">
+            <p>Full-JD epochs for ephemeris lookup.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<b><code>time_ref_jd</code></b>          –
+          <div class="doc-md-description">
+            <p>Full-JD reference epoch.</p>
+          </div>
+        </li>
+    </ul>
+        <p>If <code>times[0] &lt; reduced_jd_cutoff</code>, both outputs are shifted by <code>reduced_jd_cutoff</code>.</p>
 
 
     </div>
@@ -812,14 +854,29 @@
     <div class="doc doc-contents first">
 
         <p>Calculate Earth's barycentric velocity at a given epoch.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>full_BJD</code>: Barycentric Julian Date in full-JD form (e.g., <code>245xxxx</code> or <code>246xxxx</code>).</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>velocity</code>: Earth barycentric velocity vector in <code>AU/day</code>, shape <code>(3,)</code>.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>full_BJD</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Barycentric Julian Date in full-JD form (e.g., <code>245xxxx</code> or <code>246xxxx</code>).</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>velocity</code></b>          –
+          <div class="doc-md-description">
+            <p>Earth barycentric velocity vector in <code>AU/day</code>, shape <code>(3,)</code>.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>
@@ -839,16 +896,44 @@
     <div class="doc doc-contents first">
 
         <p>Compute annual parallax displacement projected to North/East.</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><code>times</code>: Observation epochs in JD.</li>
-<li><code>time_ref</code>: Reference epoch in JD (typically <code>t0_par</code>).</li>
-<li><code>coords</code>: Source sky coordinates.</li>
-</ul>
-<p><strong>Returns</strong></p>
-<ul>
-<li><code>delta_s_projected</code>: Array with shape <code>(N, 2)</code> where columns are <code>[North, East]</code> in <code>AU</code>.</li>
-</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>times</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Observation epochs in JD.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>time_ref</code></b>
+          –
+          <div class="doc-md-description">
+            <p>Reference epoch in JD (typically <code>t0_par</code>).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+            <b><code>coords</code></b>
+              (<code><a class="autorefs autorefs-internal" title="Coordinates (microlux.coordinates.Coordinates)" href="#microlux.coordinates.Coordinates">Coordinates</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Source sky coordinates.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>delta_s_projected</code></b>          –
+          <div class="doc-md-description">
+            <p>Array with shape <code>(N, 2)</code> where columns are <code>[North, East]</code> in <code>AU</code>.</p>
+          </div>
+        </li>
+    </ul>
 
 
     </div>
