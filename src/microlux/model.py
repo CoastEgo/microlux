@@ -13,10 +13,8 @@ from .basic_function import (
 )
 from .countour import contour_integral
 from .limb_darkening import AbstractLimbDarkening, LinearLimbDarkening
-from .solution import (
-    get_poly_coff,
-    get_roots,
-)
+from .polynomial_solver import get_point_roots
+from .solution import get_poly_coff
 from .trajectory import TrajectoryModel, TrajectoryParameters
 from .utils import (
     get_default_state,
@@ -64,7 +62,7 @@ def point_light_curve(trajectory, s, q, rho, tol, return_num: bool = False):
     # The image axis needs a singleton dimension for per-epoch separation.
     s = jnp.broadcast_to(jnp.asarray(s), trajectory.shape)[:, None]
     coff = get_poly_coff(zeta_l, s, m2)
-    z_l = get_roots(trajectory_l.shape[0], coff)
+    z_l = get_point_roots(coff)
     error = verify(zeta_l, z_l, s, m1, m2)
 
     iterator = jnp.arange(

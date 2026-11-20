@@ -5,7 +5,12 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from microlux.basic_function import get_poly_coff, to_lowmass, verify
-from microlux.polynomial_solver import Aberth_Ehrlich, AE_roots0
+from microlux.polynomial_solver import (
+    Aberth_Ehrlich,
+    AE_roots0,
+    get_point_roots,
+    get_roots,
+)
 from test_util import get_caustic_permutation
 
 
@@ -25,6 +30,41 @@ def test_complex_root_tangents():
     roots, tangents = jax.jvp(roots_of_quintic, (c,), (direction,))
     # Differentiating z**5 = c gives 5 * z**4 * dz = dc for each root.
     np.testing.assert_allclose(5 * roots**4 * tangents, direction, rtol=1e-12)
+
+
+@pytest.mark.fast
+@pytest.mark.parametrize(
+    "padded", [False, True], ids=["point_source", "contour_padding"]
+)
+def test_root_derivatives_across_epochs(padded):
+    constants = jnp.array([1 + 0.5j, 0.9 - 0.1j, 1.1 + 0.3j])
+    directions = jnp.array([0.3 - 0.7j, -0.2 + 0.1j, 0.5 + 0.2j])
+
+    def coefficients(t):
+        rows = jnp.zeros((3, 6), dtype=complex).at[:, 0].set(1)
+        rows = rows.at[:, -1].set(-(constants + t * directions))
+        return rows.at[1].set(0) if padded else rows
+
+    def solve(t):
+        rows = coefficients(t)
+        return get_roots(rows.shape[0], rows) if padded else get_point_roots(rows)
+
+    roots, dz = jax.jvp(solve, (0.0,), (1.0,))
+    if padded:
+        np.testing.assert_array_equal(roots[1], roots[0])
+    else:
+        np.testing.assert_array_equal(roots, get_roots(3, coefficients(0.0)))
+    dc = directions.at[1].set(directions[0]) if padded else directions
+    expected_dz = dc[:, None] / (5 * roots**4)
+    np.testing.assert_allclose(dz, expected_dz, rtol=1e-12)
+
+    # For z**5 = c(t) with linear c, differentiating twice gives z'' = -4 z'²/z.
+    objective = lambda t: solve(t)[:, 0].real.sum()
+    first, second = jax.jvp(jax.grad(objective), (0.0,), (1.0,))
+    np.testing.assert_allclose(first, expected_dz[:, 0].real.sum(), rtol=1e-12)
+    np.testing.assert_allclose(
+        second, (-4 * expected_dz[:, 0] ** 2 / roots[:, 0]).real.sum(), rtol=1e-12
+    )
 
 
 @pytest.mark.fast
