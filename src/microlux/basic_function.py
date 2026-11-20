@@ -9,13 +9,13 @@ def to_centroid(s, q, x):
     """
     Transforms the coordinate system to the centroid.
 
-    Parameters:
-    s (float): The projected separation between the two objects.
-    q (float): The planet to host mass ratio.
-    x (complex): The original coordinate.
+    Args:
+        s (float): The projected separation between the two objects.
+        q (float): The planet to host mass ratio.
+        x (complex): The original coordinate.
 
     Returns:
-    complex: The transformed coordinate in the centroid system.
+        (complex): The transformed coordinate in the centroid system.
     """
     delta_x = s / (1 + q)
     return -(jnp.conj(x) - delta_x)
@@ -25,13 +25,13 @@ def to_lowmass(s, q, x):
     """
     Transforms the coordinate system to the system where the lower mass object is at the origin.
 
-    Parameters:
-    s (float): The separation between the two components.
-    q (float): The mass ratio of the two components.
-    x (complex): The original centroid coordinate.
+    Args:
+        s (float): The separation between the two components.
+        q (float): The mass ratio of the two components.
+        x (complex): The original centroid coordinate.
 
     Returns:
-    complex: The transformed coordinate in the low mass component coordinate system.
+        (complex): The transformed coordinate in the low mass component coordinate system.
     """
     delta_x = s / (1 + q)
     return -jnp.conj(x) + delta_x

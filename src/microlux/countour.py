@@ -119,21 +119,20 @@ def contour_integral(
     early and the error will be larger than the tolerance. If the array length is too large, it will cause the waste of memory and time. This waste is linear with the array length.
     So we use this pre-define shaped array to solve this problem.
 
-    **Parameters**
+    Args:
+        trajectory_l: Source position in the low-mass lens coordinate system.
+            Convert center-of-mass coordinates with `to_lowmass` before calling this function.
+        default_strategy: The default strategy for the contour integration. The array length will be added gradually according to this strategy.
+            For example, if the default_strategy is (60, 80, 150), the array length in each layer will be 60, 140, 290, respectively.
+        analytic: Use implicit root derivatives on the final sampling mesh to support
+            forward- and reverse-mode differentiation. Defaults to True.
+            If False, differentiate through the adaptive iterations in forward mode.
 
-    - `trajectory_l`: Source position in the low-mass lens coordinate system.
-        Convert center-of-mass coordinates with `to_lowmass` before calling this function.
-    - For other parameters: please see at [`microlux.binary_mag`][]
-    - `default_strategy`: The default strategy for the contour integration. The array length will be added gradually according to this strategy.
-    For example, if the default_strategy is (60, 80, 150), the array length in each layer will be 60, 140, 290, respectively.
-    - `analytic`: Use implicit root derivatives on the final sampling mesh to support
-    forward- and reverse-mode differentiation. Defaults to True.
-    If False, differentiate through the adaptive iterations in forward mode.
+    For other parameters: please see at [`microlux.binary_mag`][]
 
-    **Returns**
-
-    - `result`: A tuple `(magnification, info)`, where
-        `info = (trajectory_l, rho, s, q, roots_state, error_state)`.
+    Returns:
+        result: A tuple `(magnification, info)`, where
+            `info = (trajectory_l, rho, s, q, roots_state, error_state)`.
 
     If the contour capacity is exhausted, `error_state.exceed_flag` is True and the requested
     tolerance may be unmet. Increase `default_strategy` and recompute to allow further refinement.

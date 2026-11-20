@@ -415,20 +415,13 @@ def find_create_points(roots, parity, sample_n):
         if create=1, it means image creation, if create=-1, it means image destruction
         and for image creation, the error should be added to the previous row, for image destruction, the error should be added to the next row
 
-    Parameters
-    ----------
-    roots : jnp.ndarray
-        the roots of the polynomial
-    parity : jnp.ndarray
-        the parity of the roots
-    sample_n : int
-        the number of the sample points
+    Args:
+        roots (jnp.ndarray): the roots of the polynomial
+        parity (jnp.ndarray): the parity of the roots
+        sample_n (int): the number of the sample points
 
-    Returns
-    -------
-    Is_create : jnp.ndarray
-        the row and column index of the created or destroyed points
-
+    Returns:
+        Is_create (jnp.ndarray): the row and column index of the created or destroyed points
     """
     cond = jnp.isnan(roots)
     Num_change_cond = jnp.diff(

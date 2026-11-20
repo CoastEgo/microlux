@@ -34,22 +34,20 @@ def point_light_curve(trajectory, s, q, rho, tol, return_num: bool = False):
         (consistent with MulensModel). The function internally transforms to
         low-mass coordinates for the calculation.
 
-    **Parameters**
+    Args:
+        trajectory: The trajectory of the lensing event in center-of-mass coordinates.
+        s: Binary lens separation, scalar or shape `(N,)` matching trajectory.
+        q: The mass ratio of the secondary lens to the primary lens.
+        rho: The source radius in units of the Einstein radius.
+        tol: The absolute tolerance for the point-source validity checks.
+        return_num: Whether to return the number of physical images. Defaults to False.
 
-    - `trajectory`: The trajectory of the lensing event in center-of-mass coordinates.
-    - `s`: Binary lens separation, scalar or shape `(N,)` matching trajectory.
-    - `q`: The mass ratio of the secondary lens to the primary lens.
-    - `rho`: The source radius in units of the Einstein radius.
-    - `tol`: The absolute tolerance for the point-source validity checks.
-    - `return_num`: Whether to return the number of physical images. Defaults to False.
-
-    **Returns**
+    Returns:
+        magnification: The magnification array.
+        cond: A boolean array. `True` means the point-source approximation passes the validity checks.
+        image_count: The number of physical images at each epoch, included only when `return_num=True`.
 
     A tuple `(magnification, cond)`, or `(magnification, cond, image_count)` if `return_num=True`.
-
-    - `magnification`: The magnification array.
-    - `cond`: A boolean array. `True` means the point-source approximation passes the validity checks.
-    - `image_count`: The number of physical images at each epoch, included only when `return_num=True`.
     """
 
     # Transform from center-of-mass to low-mass coordinate system
@@ -123,33 +121,30 @@ def binary_mag(
         Currently, to deal with limb-darkening effect, we only use 10 annuli which are uniformly distributed in terms of the area,
         which is **not** in an adaptive scheme. So the tolerance of the limb darkening effect is not guaranteed.
 
-    **Parameters**
+    Args:
+        t_0: The time of closest approach to the center of mass.
+        u_0: The impact parameter of the source trajectory.
+        t_E: The Einstein crossing time.
+        rho: The source radius normalized to the Einstein radius.
+        q: The mass ratio of the secondary lens to the primary lens.
+        s: The projected separation of the binary lens system normalized to the Einstein radius.
+        alpha_deg: The angle between the source trajectory and the binary axis in degrees.
+        times: The times at which to compute the model.
+        tol: The tolerance for the adaptive contour integration. Defaults to 1e-2.
+        retol: The relative tolerance for the adaptive contour integration. Defaults to 0.001.
+        default_strategy: The default strategy for the contour integration. Defaults to (30, 30, 60, 120, 240). more details can be found in the [`microlux.contour_integral`][].
+        analytic: Use implicit root derivatives on the final contour mesh to support forward- and reverse-mode differentiation. Defaults to True.
+            If False, differentiate through the adaptive iterations in forward mode.
+        return_info: Whether to return additional information about the computation. Defaults to False. when set to True, the function will return a tuple containing (magnification, info), where info is a tuple containing additional information about the computation used for debugging.
+        limb_darkening_coeff: The limb darkening coefficient for the source star. Defaults to None for a uniformly bright source. Currently only supports linear limb darkening.
 
-    - `t_0`: The time of closest approach to the center of mass.
-    - `u_0`: The impact parameter of the source trajectory.
-    - `t_E`: The Einstein crossing time.
-    - `rho`: The source radius normalized to the Einstein radius.
-    - `q`: The mass ratio of the secondary lens to the primary lens.
-    - `s`: The projected separation of the binary lens system normalized to the Einstein radius.
-    - `alpha_deg`: The angle between the source trajectory and the binary axis in degrees.
-    - `times`: The times at which to compute the model.
-    - `tol`: The tolerance for the adaptive contour integration. Defaults to 1e-2.
-    - `retol`: The relative tolerance for the adaptive contour integration. Defaults to 0.001.
-    - `default_strategy`: The default strategy for the contour integration. Defaults to (30, 30, 60, 120, 240). more details can be found in the [`microlux.contour_integral`][].
-    - `analytic`: Use implicit root derivatives on the final contour mesh to support forward- and reverse-mode differentiation. Defaults to True.
-        If False, differentiate through the adaptive iterations in forward mode.
-    - `return_info`: Whether to return additional information about the computation. Defaults to False. when set to True, the function will return a tuple containing (magnification, info), where info is a tuple containing additional information about the computation used for debugging.
-    - `limb_darkening_coeff`: The limb darkening coefficient for the source star. Defaults to None for a uniformly bright source. Currently only supports linear limb darkening.
-
-
-    **Returns**
-
-    - `magnification`: The magnification of the source at the given times.
-    - `info`: Additional information about the computation used for debugging if return_info is True.
-        The structure is `(trajectory_l, rho, s, q, roots_state, error_state)`, with an epoch axis on the arrays.
-        `trajectory_l` uses the low-mass lens coordinate system. Point-source epochs contain placeholder
-        contour states; use the returned `magnification` array for the light curve.
-        See [`microlux.utils.Iterative_State`][] and [`microlux.utils.Error_State`][] for state fields.
+    Returns:
+        magnification: The magnification of the source at the given times.
+        info: Additional information about the computation used for debugging if return_info is True.
+            The structure is `(trajectory_l, rho, s, q, roots_state, error_state)`, with an epoch axis on the arrays.
+            `trajectory_l` uses the low-mass lens coordinate system. Point-source epochs contain placeholder
+            contour states; use the returned `magnification` array for the light curve.
+            See [`microlux.utils.Iterative_State`][] and [`microlux.utils.Error_State`][] for state fields.
     """
     # Here the parameterization is consistent with Mulensmodel and VBBinaryLensing
     ### initialize parameters
@@ -217,22 +212,21 @@ def extended_light_curve(
         (consistent with MulensModel). The function internally transforms to
         low-mass coordinates for the calculation.
 
-    **Parameters**
+    Args:
+        trajectory: The trajectory in the center-of-mass coordinate system.
+        s: Binary lens separation, scalar or shape `(N,)` matching trajectory.
+        limb_darkening: An `AbstractLimbDarkening` instance providing `profile` and `cumulative_profile`,
+            or None for a uniformly bright source. Defaults to None.
+        n_annuli: The number of equal-area annuli for the limb darkening calculation. Defaults to 10.
+            Increase this value to check convergence.
 
-    - `trajectory`: The trajectory in the center-of-mass coordinate system.
-    - `s`: Binary lens separation, scalar or shape `(N,)` matching trajectory.
-    - `limb_darkening`: An `AbstractLimbDarkening` instance providing `profile` and `cumulative_profile`,
-        or None for a uniformly bright source. Defaults to None.
-    - `n_annuli`: The number of equal-area annuli for the limb darkening calculation. Defaults to 10.
-        Increase this value to check convergence.
-    - For the definition of the other parameters, please see [`microlux.binary_mag`][].
+    For the definition of the other parameters, please see [`microlux.binary_mag`][].
 
-    **Returns**
-
-    - `magnification`: The magnification of the source at the given trajectory points.
-    - `info`: Additional information about the computation used for debugging if return_info is True.
-        See [`microlux.binary_mag`][] for the layout and point-source placeholders. For epochs using
-        contour integration with limb darkening, the states are from the outermost source radius.
+    Returns:
+        magnification: The magnification of the source at the given trajectory points.
+        info: Additional information about the computation used for debugging if return_info is True.
+            See [`microlux.binary_mag`][] for the layout and point-source placeholders. For epochs using
+            contour integration with limb darkening, the states are from the outermost source radius.
     """
 
     s = jnp.broadcast_to(jnp.asarray(s), trajectory.shape)
