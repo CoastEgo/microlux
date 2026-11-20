@@ -121,15 +121,22 @@ def contour_integral(
 
     **Parameters**
 
+    - `trajectory_l`: Source position in the low-mass lens coordinate system.
+        Convert center-of-mass coordinates with `to_lowmass` before calling this function.
     - For other parameters: please see at [`microlux.binary_mag`][]
     - `default_strategy`: The default strategy for the contour integration. The array length will be added gradually according to this strategy.
     For example, if the default_strategy is (60, 80, 150), the array length in each layer will be 60, 140, 290, respectively.
     - `analytic`: Use implicit root derivatives on the final sampling mesh to support
     forward- and reverse-mode differentiation. Defaults to True.
+    If False, differentiate through the adaptive iterations in forward mode.
 
     **Returns**
 
-    - `result`: A tuple containing the magnitude and the result of the contour integration.
+    - `result`: A tuple `(magnification, info)`, where
+        `info = (trajectory_l, rho, s, q, roots_state, error_state)`.
+
+    If the contour capacity is exhausted, `error_state.exceed_flag` is True and the requested
+    tolerance may be unmet. Increase `default_strategy` and recompute to allow further refinement.
     """
 
     # JIT compile operation needs shape of the array to be determined.
@@ -274,10 +281,10 @@ def contour_init(
     Perform initial contour integration with a fixed array length.
 
     Args:
-        rho (float): The radius of the lens.
+        rho (float): The source radius in units of the Einstein radius.
         s (float): The separation between the two lens components.
         q (float): The mass ratio of the two lens components.
-        trajectory_l (array): The trajectory of the lens in the low mass coordinate system.
+        trajectory_l (array): The source position in the low-mass lens coordinate system.
         epsilon (float): The integration precision.
         epsilon_rel (float, optional): The relative integration precision. Defaults to 1e-3.
         inite (int, optional): The number of initial integration points. Defaults to 30.
