@@ -3,85 +3,20 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from microlux.fitting import (
-    fisher_from_residuals,
     fisher_information,
     fit_grouped_fluxes,
-    normalized_residuals,
-    profiled_grouped_fisher,
-    profiled_grouped_fluxes,
-    profiled_grouped_residuals,
 )
-
-
-@pytest.mark.fast
-def test_fisher_from_linear_residuals():
-    design = jnp.array(
-        [
-            [1.0, 0.0],
-            [0.0, 2.0],
-            [1.0, 1.0],
-        ]
-    )
-    offset = jnp.array([0.2, -0.3, 0.5])
-
-    def residual_fn(params):
-        return design @ params - offset
-
-    result = fisher_from_residuals(residual_fn, jnp.array([0.1, -0.2]))
-    expected_fisher = np.asarray(design.T @ design)
-    expected_covariance = np.linalg.inv(expected_fisher)
-
-    np.testing.assert_allclose(result.jacobian, design)
-    np.testing.assert_allclose(result.fisher_matrix, expected_fisher)
-    np.testing.assert_allclose(result.covariance, expected_covariance)
-    np.testing.assert_allclose(result.errors, np.sqrt(np.diag(expected_covariance)))
-    np.testing.assert_allclose(np.diag(result.correlation), 1.0)
-    assert result.rank == 2
-    assert np.isclose(result.condition_number, np.linalg.cond(expected_fisher))
 
 
 @pytest.mark.fast
 def test_fisher_information_can_be_jitted():
     design = jnp.array([[1.0, 2.0], [3.0, 4.0], [5.0, 7.0]])
     residual_fn = lambda params: design @ params
-    jacobian, fisher_matrix = jax.jit(
-        lambda params: fisher_information(residual_fn, params)
-    )(jnp.array([0.2, -0.1]))
-
-    np.testing.assert_allclose(jacobian, design)
-    np.testing.assert_allclose(fisher_matrix, design.T @ design)
-
-
-@pytest.mark.fast
-def test_fisher_from_residuals_rejects_singular_matrix():
-    def residual_fn(params):
-        return jnp.array([params[0] + params[1], 2.0 * (params[0] + params[1])])
-
-    with pytest.raises(np.linalg.LinAlgError, match="singular"):
-        fisher_from_residuals(residual_fn, jnp.array([1.0, 2.0]))
-
-
-@pytest.mark.fast
-def test_fisher_from_residuals_rejects_nonfinite_values():
-    def residual_fn(params):
-        return jnp.array([params[0], jnp.nan * params[1]])
-
-    with pytest.raises(ValueError, match="non-finite"):
-        fisher_from_residuals(residual_fn, jnp.array([1.0, 2.0]))
-
-
-@pytest.mark.fast
-def test_normalized_residuals_uses_flux_model():
-    times = jnp.array([0.0, 1.0, 2.0])
-    flux = jnp.array([1.2, 2.9, 5.1])
-    flux_err = jnp.array([0.1, 0.2, 0.5])
-    model_fn = lambda params, model_times: params[0] * model_times + params[1]
-
-    residuals = normalized_residuals(
-        jnp.array([2.0, 1.0]), times, flux, flux_err, model_fn
+    fisher_matrix = jax.jit(lambda params: fisher_information(residual_fn, params))(
+        jnp.array([0.2, -0.1])
     )
 
-    np.testing.assert_allclose(residuals, [2.0, -0.5, 0.2])
+    np.testing.assert_allclose(fisher_matrix, [[35.0, 49.0], [49.0, 69.0]])
 
 
 @pytest.mark.fast
@@ -94,7 +29,13 @@ def test_fit_grouped_fluxes_matches_weighted_least_squares():
     noise = np.array([0.01, -0.03, 0.02, -0.04, 0.05, -0.01])
     flux = source_flux[group_ids] * magnification + blend_flux[group_ids] + noise
 
-    result = fit_grouped_fluxes(magnification, flux, flux_err, group_ids)
+    result = fit_grouped_fluxes(magnification, flux, flux_err, group_ids, n_groups=2)
+
+    compiled = jax.jit(fit_grouped_fluxes, static_argnames=("n_groups",))(
+        magnification, flux, flux_err, group_ids, n_groups=2
+    )
+    for actual, expected in zip(compiled, result):
+        np.testing.assert_allclose(actual, expected, rtol=1e-12, atol=1e-12)
 
     for group_id in range(2):
         mask = group_ids == group_id
@@ -111,28 +52,12 @@ def test_fit_grouped_fluxes_matches_weighted_least_squares():
             expected_coefficients,
         )
         np.testing.assert_allclose(result.covariance[group_id], expected_covariance)
-
-    np.testing.assert_allclose(
-        result.model_flux,
-        result.source_flux[group_ids] * magnification + result.blend_flux[group_ids],
-    )
-    np.testing.assert_allclose(
-        result.chi2_by_group,
-        [
-            np.sum(np.asarray(result.residuals)[group_ids == group_id] ** 2)
-            for group_id in range(2)
-        ],
-    )
-
-
-@pytest.mark.fast
-def test_fit_grouped_fluxes_rejects_noncontiguous_groups():
-    with pytest.raises(ValueError, match="contiguous"):
-        fit_grouped_fluxes(
-            np.array([1.0, 2.0, 1.0, 2.0]),
-            np.array([1.0, 2.0, 1.0, 2.0]),
-            np.ones(4),
-            np.array([0, 0, 2, 2]),
+        expected_model_flux = design @ expected_coefficients
+        expected_residuals = (flux[mask] - expected_model_flux) / flux_err[mask]
+        np.testing.assert_allclose(result.model_flux[mask], expected_model_flux)
+        np.testing.assert_allclose(result.residuals[mask], expected_residuals)
+        np.testing.assert_allclose(
+            result.chi2_by_group[group_id], np.sum(expected_residuals**2)
         )
 
 
@@ -158,32 +83,18 @@ def test_profiled_grouped_residual_jacobian_matches_finite_difference():
     params = jnp.array([0.22, 0.1])
 
     def residual_fn(values):
-        return profiled_grouped_residuals(
-            values,
-            times,
+        return fit_grouped_fluxes(
+            magnification_fn(values, times),
             flux,
             flux_err,
             group_ids,
-            magnification_fn,
             n_groups=2,
-        )
+        ).residuals
 
-    profiled_fit = jax.jit(
-        lambda values: profiled_grouped_fluxes(
-            values,
-            times,
-            flux,
-            flux_err,
-            group_ids,
-            magnification_fn,
-            n_groups=2,
-        )
-    )(params)
-    np.testing.assert_allclose(profiled_fit.residuals, residual_fn(params))
-    assert profiled_fit.source_flux.shape == (2,)
-    assert profiled_fit.blend_flux.shape == (2,)
-
-    jacobian = np.asarray(jax.jacfwd(residual_fn)(params))
+    profiled_fit = fit_grouped_fluxes(
+        magnification_fn(params, times), flux, flux_err, group_ids, n_groups=2
+    )
+    jacobian = np.asarray(jax.jit(jax.jacfwd(residual_fn))(params))
     epsilon = 1e-5
     finite_difference = np.column_stack(
         [
@@ -197,14 +108,38 @@ def test_profiled_grouped_residual_jacobian_matches_finite_difference():
     )
 
     np.testing.assert_allclose(jacobian, finite_difference, rtol=2e-5, atol=2e-6)
-    np.testing.assert_allclose(jax.jit(residual_fn)(params), residual_fn(params))
-
-    fisher_result = profiled_grouped_fisher(
-        params,
-        times,
-        flux,
-        flux_err,
-        group_ids,
-        magnification_fn,
+    np.testing.assert_allclose(
+        jax.jit(jax.jacrev(residual_fn))(params),
+        finite_difference,
+        rtol=2e-5,
+        atol=2e-6,
     )
-    np.testing.assert_allclose(fisher_result.jacobian, jacobian)
+
+    # Padded observations must not change the solved fluxes or their derivatives.
+    padded_times = jnp.pad(times, (0, 2), mode="edge")
+    padded_flux = jnp.pad(flux, (0, 2), mode="edge")
+    padded_errors = jnp.pad(flux_err, (0, 2), constant_values=jnp.inf)
+    padded_groups = jnp.pad(group_ids, (0, 2))
+
+    def padded_fit(values):
+        return fit_grouped_fluxes(
+            magnification_fn(values, padded_times),
+            padded_flux,
+            padded_errors,
+            padded_groups,
+            n_groups=2,
+        )
+
+    padded = jax.jit(padded_fit)(params)
+    for name in ("source_flux", "blend_flux", "covariance", "chi2_by_group"):
+        np.testing.assert_allclose(getattr(padded, name), getattr(profiled_fit, name))
+    np.testing.assert_allclose(padded.residuals[:-2], profiled_fit.residuals)
+    np.testing.assert_array_equal(padded.residuals[-2:], 0)
+    expected_padded_jacobian = np.pad(jacobian, ((0, 2), (0, 0)))
+    padded_residuals = lambda p: padded_fit(p).residuals
+    np.testing.assert_allclose(
+        jax.jit(jax.jacfwd(padded_residuals))(params), expected_padded_jacobian
+    )
+    np.testing.assert_allclose(
+        jax.jit(jax.jacrev(padded_residuals))(params), expected_padded_jacobian
+    )

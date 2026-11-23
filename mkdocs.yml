@@ -73,6 +73,7 @@ plugins:
     - mkdocstrings:
         handlers:
             python:
+                paths: [src]
                 options:
                     docstring_style: google
                     docstring_section_style: list
@@ -103,6 +104,7 @@ nav:
         - 'api/model.md'
         - 'api/trajectory.md'
         - 'api/coordinates.md'
+        - 'api/fitting.md'
         - 'api/solver.md'
         - 'api/utils.md'
     - Real event modeling: 

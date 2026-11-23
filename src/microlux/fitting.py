@@ -1,33 +1,23 @@
-"""Differentiable residual, linear-flux, and Fisher utilities."""
+"""Differentiable grouped-flux fitting and Fisher information."""
 
-from typing import Callable, NamedTuple, Optional
+from typing import Callable, NamedTuple
 
 import jax
 import jax.numpy as jnp
-import numpy as np
-
-
-class FisherInformation(NamedTuple):
-    """JAX-compatible residual Jacobian and Fisher matrix."""
-
-    jacobian: jax.Array
-    fisher_matrix: jax.Array
-
-
-class FisherResult(NamedTuple):
-    """Eager Fisher result with covariance and reliability diagnostics."""
-
-    jacobian: np.ndarray
-    fisher_matrix: np.ndarray
-    covariance: np.ndarray
-    errors: np.ndarray
-    correlation: np.ndarray
-    rank: int
-    condition_number: float
 
 
 class GroupedFluxFit(NamedTuple):
-    """Analytic source/blend-flux fit for independent photometric groups."""
+    """Analytic source/blend-flux fit for independent photometric groups.
+
+    Attributes:
+        source_flux (jax.Array): Source flux for each group, shape (G,).
+        blend_flux (jax.Array): Blend flux for each group, shape (G,).
+        covariance (jax.Array): Source/blend covariance per group, shape
+            (G, 2, 2), conditional on the supplied magnifications and errors.
+        model_flux (jax.Array): Fitted fluxes in observation order, shape (N,).
+        residuals (jax.Array): (flux - model_flux) / flux_err, shape (N,).
+        chi2_by_group (jax.Array): Sum of squared residuals per group, shape (G,).
+    """
 
     source_flux: jax.Array
     blend_flux: jax.Array
@@ -39,117 +29,68 @@ class GroupedFluxFit(NamedTuple):
 
 def fisher_information(
     residual_fn: Callable[[jax.Array], jax.Array], params: jax.Array
-) -> FisherInformation:
-    """Return the residual Jacobian and Gauss--Newton Fisher matrix."""
+) -> jax.Array:
+    """Return the Gauss--Newton Fisher matrix of normalized residuals.
+
+    Args:
+        residual_fn (Callable): Function mapping params to one-dimensional
+            normalized residuals of shape (N,).
+        params (jax.Array): Parameter vector of shape (P,).
+
+    Returns:
+        fisher_matrix (jax.Array): J.T @ J of shape (P, P), where J is the
+            residual Jacobian. Supports JIT compilation.
+    """
     jacobian = jax.jacfwd(residual_fn)(params)
     if jacobian.ndim != 2:
         raise ValueError("params and normalized residuals must be one-dimensional.")
-    fisher_matrix = jacobian.T @ jacobian
-    return FisherInformation(jacobian, fisher_matrix)
+    return jacobian.T @ jacobian
 
 
-def fisher_from_residuals(
-    residual_fn: Callable[[jax.Array], jax.Array], params: jax.Array
-) -> FisherResult:
-    """Compute an eager, validated Fisher covariance from normalized residuals."""
-    information = fisher_information(residual_fn, params)
-    jacobian = np.asarray(information.jacobian)
-    fisher_matrix = np.asarray(information.fisher_matrix)
-
-    if not np.all(np.isfinite(jacobian)) or not np.all(np.isfinite(fisher_matrix)):
-        raise ValueError("Fisher calculation produced non-finite values.")
-
-    rank = int(np.linalg.matrix_rank(fisher_matrix))
-    condition_number = float(np.linalg.cond(fisher_matrix))
-    if rank < fisher_matrix.shape[0]:
-        raise np.linalg.LinAlgError("Fisher matrix is singular.")
-
-    covariance = np.linalg.inv(fisher_matrix)
-    if not np.all(np.isfinite(covariance)):
-        raise ValueError("Fisher covariance contains non-finite values.")
-
-    variance = np.diag(covariance)
-    if np.any(variance < 0):
-        raise ValueError("Fisher covariance has a negative diagonal entry.")
-
-    errors = np.sqrt(variance)
-    correlation = covariance / np.outer(errors, errors)
-    return FisherResult(
-        jacobian=jacobian,
-        fisher_matrix=fisher_matrix,
-        covariance=covariance,
-        errors=errors,
-        correlation=correlation,
-        rank=rank,
-        condition_number=condition_number,
-    )
-
-
-def normalized_residuals(
-    params: jax.Array,
-    times: jax.Array,
-    flux: jax.Array,
-    flux_err: jax.Array,
-    model_fn: Callable[[jax.Array, jax.Array], jax.Array],
-) -> jax.Array:
-    """Return Gaussian residuals normalized by their flux uncertainties."""
-    model_flux = model_fn(params, times)
-    return (flux - model_flux) / flux_err
-
-
-def _validate_grouped_inputs(
-    magnification,
-    flux,
-    flux_err,
-    group_ids,
-    n_groups: Optional[int],
-) -> int:
-    """Validate eager grouped-fit inputs and return the group count."""
-    arrays = tuple(
-        np.asarray(values) for values in (magnification, flux, flux_err, group_ids)
-    )
-    if any(values.ndim != 1 for values in arrays):
-        raise ValueError("Grouped flux fitting requires one-dimensional arrays.")
-    if len(arrays[0]) == 0:
-        raise ValueError("Grouped flux fitting requires non-empty arrays.")
-    if any(values.shape != arrays[0].shape for values in arrays[1:]):
-        raise ValueError("Grouped flux fitting inputs must have the same shape.")
-    if not all(np.all(np.isfinite(values)) for values in arrays[:3]):
-        raise ValueError("Grouped flux fitting inputs must be finite.")
-    if np.any(arrays[2] <= 0):
-        raise ValueError("Flux uncertainties must be positive.")
-    if not np.issubdtype(arrays[3].dtype, np.integer):
-        raise ValueError("group_ids must contain integers.")
-
-    unique_groups = np.unique(arrays[3])
-    inferred_groups = len(unique_groups)
-    if n_groups is None:
-        n_groups = inferred_groups
-    if n_groups < 1 or not np.array_equal(unique_groups, np.arange(n_groups)):
-        raise ValueError("group_ids must be contiguous from 0 to n_groups - 1.")
-
-    for group_id in range(n_groups):
-        mask = arrays[3] == group_id
-        design = np.column_stack([arrays[0][mask], np.ones(np.sum(mask))])
-        if np.linalg.matrix_rank(design) < 2:
-            raise np.linalg.LinAlgError(
-                f"Source/blend flux design is singular for group {group_id}."
-            )
-    return n_groups
-
-
-def _fit_grouped_fluxes(
+def fit_grouped_fluxes(
     magnification: jax.Array,
     flux: jax.Array,
     flux_err: jax.Array,
     group_ids: jax.Array,
+    *,
     n_groups: int,
 ) -> GroupedFluxFit:
-    """Solve all grouped source/blend flux fits with JAX segment sums."""
+    """Fit source and blend fluxes for each group with JAX.
+
+    Args:
+        magnification (jax.Array): Finite magnifications of shape (N,).
+        flux (jax.Array): Finite observed fluxes of shape (N,).
+        flux_err (jax.Array): Positive uncertainties of shape (N,). Use
+            infinity for zero-weight padding with finite flux and magnification.
+        group_ids (jax.Array): Integer labels of shape (N,), contiguous from
+            zero to n_groups - 1. Observations may be interleaved.
+        n_groups (int): Number of groups, fixed when tracing a JIT function.
+
+    Returns:
+        result (GroupedFluxFit): Weighted least-squares solution of
+            `flux = source_flux[group_ids] * magnification + blend_flux[group_ids]`.
+            Differentiation includes the dependence of the fitted fluxes
+            on the supplied magnifications.
+
+    Notes:
+        Accepts NumPy or JAX arrays and supports JIT and automatic differentiation.
+        Each group needs a full-rank weighted source/blend design. Validate
+        data values and handle degenerate fits in the caller. Only shapes
+        and label dtype are checked here.
+    """
     magnification = jnp.asarray(magnification)
     flux = jnp.asarray(flux)
     flux_err = jnp.asarray(flux_err)
     group_ids = jnp.asarray(group_ids)
+    arrays = (magnification, flux, flux_err, group_ids)
+    if any(
+        values.ndim != 1 or values.shape != magnification.shape for values in arrays
+    ):
+        raise ValueError(
+            "Grouped flux fitting requires matching one-dimensional arrays."
+        )
+    if not jnp.issubdtype(group_ids.dtype, jnp.integer):
+        raise ValueError("group_ids must contain integers.")
     weight = 1.0 / flux_err**2
 
     def grouped_sum(values):
@@ -187,89 +128,3 @@ def _fit_grouped_fluxes(
         residuals=residuals,
         chi2_by_group=chi2_by_group,
     )
-
-
-def fit_grouped_fluxes(
-    magnification,
-    flux,
-    flux_err,
-    group_ids,
-    *,
-    n_groups: Optional[int] = None,
-) -> GroupedFluxFit:
-    """Fit independent source and blend fluxes for contiguous groups."""
-    n_groups = _validate_grouped_inputs(
-        magnification, flux, flux_err, group_ids, n_groups
-    )
-    result = _fit_grouped_fluxes(magnification, flux, flux_err, group_ids, n_groups)
-    if not all(np.all(np.isfinite(np.asarray(values))) for values in result):
-        raise ValueError("Grouped flux fitting produced non-finite values.")
-    return result
-
-
-def profiled_grouped_fluxes(
-    params: jax.Array,
-    times: jax.Array,
-    flux: jax.Array,
-    flux_err: jax.Array,
-    group_ids: jax.Array,
-    magnification_fn: Callable[[jax.Array, jax.Array], jax.Array],
-    *,
-    n_groups: int,
-) -> GroupedFluxFit:
-    """Return a differentiable per-group source and blend flux fit."""
-    magnification = magnification_fn(params, times)
-    return _fit_grouped_fluxes(magnification, flux, flux_err, group_ids, n_groups)
-
-
-def profiled_grouped_residuals(
-    params: jax.Array,
-    times: jax.Array,
-    flux: jax.Array,
-    flux_err: jax.Array,
-    group_ids: jax.Array,
-    magnification_fn: Callable[[jax.Array, jax.Array], jax.Array],
-    *,
-    n_groups: int,
-) -> jax.Array:
-    """Return residuals after profiling per-group source and blend fluxes."""
-    return profiled_grouped_fluxes(
-        params,
-        times,
-        flux,
-        flux_err,
-        group_ids,
-        magnification_fn,
-        n_groups=n_groups,
-    ).residuals
-
-
-def profiled_grouped_fisher(
-    params: jax.Array,
-    times: jax.Array,
-    flux: jax.Array,
-    flux_err: jax.Array,
-    group_ids: jax.Array,
-    magnification_fn: Callable[[jax.Array, jax.Array], jax.Array],
-    *,
-    n_groups: Optional[int] = None,
-) -> FisherResult:
-    """Compute a validated Fisher result with per-group fluxes profiled out."""
-    magnification = magnification_fn(params, times)
-    n_groups = _validate_grouped_inputs(
-        magnification, flux, flux_err, group_ids, n_groups
-    )
-
-    def residual_fn(values):
-        """Evaluate normalized residuals after profiling grouped fluxes."""
-        return profiled_grouped_residuals(
-            values,
-            times,
-            flux,
-            flux_err,
-            group_ids,
-            magnification_fn,
-            n_groups=n_groups,
-        )
-
-    return fisher_from_residuals(residual_fn, params)
