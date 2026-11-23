@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/_static/wordmark-light.svg">
-  <img src="docs/_static/wordmark.svg" alt="microlux — Microlensing using JAX" width="360">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CoastEgo/microlux/master/docs/_static/wordmark-light.svg">
+  <img src="https://raw.githubusercontent.com/CoastEgo/microlux/master/docs/_static/wordmark.svg" alt="microlux — Microlensing using JAX" width="360">
 </picture>
 
 [![Test Status](https://github.com/coastego/microlux/actions/workflows/run_test.yml/badge.svg)](https://github.com/CoastEgo/microlux/actions/workflows/run_test.yml)
