@@ -456,6 +456,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api/fitting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/solver/" class="md-nav__link">
         
   
@@ -655,10 +683,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#initial-parameters-and-emcee-reference-chain" class="md-nav__link">
+  <a href="#gradient-optimization-with-scipy-and-jax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Initial parameters and emcee reference chain
+        Gradient optimization with SciPy and JAX
       
     </span>
   </a>
@@ -715,6 +743,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#emcee-reference-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emcee reference chain
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -749,23 +788,29 @@
 
 
 <h1 id="modeling-kb-19-0371-with-microlux">Modeling KB-19-0371 with microlux<a class="headerlink" href="#modeling-kb-19-0371-with-microlux" title="Permanent link">¤</a></h1>
-<p>This notebook demonstrates a binary microlensing analysis for the real event
-KB-19-0371. It covers photometric preprocessing, a close binary-lens
-solution, an optional emcee reference chain, and Fisher-reparameterized HMC
-sampling with NumPyro.</p>
-<p>The expensive sampling steps can be enabled independently with <code>RUN_EMCEE</code>
-and <code>RUN_HMC</code>. The documentation build converts this script into a notebook
-without rerunning the samplers.</p>
+<p>Fit KB-19-0371 using SciPy and automatic differentiation, then sample with
+Fisher-reparameterized HMC and compare with an optional emcee chain.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing.pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPool</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 
-<span class="n">N_pmap</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">numofchains</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">N_PMAP</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">HMC_NUM_CHAINS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">RUN_HMC</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">HMC_NUM_WARMUP</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">HMC_NUM_SAMPLES</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">TARGET_ACCEPT</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">RUN_EMCEE</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">EMCEE_NWALKERS</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">EMCEE_NUM_WARMUP</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">EMCEE_NUM_SAMPLES</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">BOUNDARY_STEEPNESS</span> <span class="o">=</span> <span class="mf">100.0</span>
+<span class="n">PENALTY_STRENGTH</span> <span class="o">=</span> <span class="mf">1000.0</span>
+
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"XLA_FLAGS"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="sa">f</span><span class="s2">"--xla_force_host_platform_device_count=</span><span class="si">{</span><span class="n">N_pmap</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">numofchains</span><span class="si">}</span><span class="s2">"</span>
+    <span class="sa">f</span><span class="s2">"--xla_force_host_platform_device_count=</span><span class="si">{</span><span class="n">N_PMAP</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">HMC_NUM_CHAINS</span><span class="si">}</span><span class="s2">"</span>
 <span class="p">)</span>
 <span class="k">if</span> <span class="s2">"__file__"</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
     <span class="n">EXAMPLE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
@@ -790,49 +835,36 @@ without rerunning the samplers.</p>
     <span class="n">align_function</span><span class="p">,</span>
     <span class="n">flux_to_mag</span><span class="p">,</span>
     <span class="n">light_curve_Jax</span><span class="p">,</span>
-    <span class="n">light_curve_Jax_pmap</span><span class="p">,</span>
     <span class="n">light_curve_VBBL</span><span class="p">,</span>
     <span class="n">mag_to_flux</span><span class="p">,</span>
-    <span class="n">objective_func</span><span class="p">,</span>
     <span class="n">PARAMETER_NAMES</span><span class="p">,</span>
     <span class="n">plot_covariance</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">jax.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">softplus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">microlux</span><span class="w"> </span><span class="kn">import</span> <span class="n">fisher_information</span><span class="p">,</span> <span class="n">fit_grouped_fluxes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">MulensModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">CausticsBinary</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpyro.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_summary</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpyro.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">constraints</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpyro.infer</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCMC</span><span class="p">,</span> <span class="n">NUTS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">least_squares</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">FIGURE_DIR</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">"tight"</span><span class="p">)</span>
-
-
-<span class="n">RUN_EMCEE</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">RUN_HMC</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">HMC_NUM_WARMUP</span> <span class="o">=</span> <span class="mi">500</span>
-<span class="n">HMC_NUM_SAMPLES</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">TARGET_ACCEPT</span> <span class="o">=</span> <span class="mf">0.8</span>
-<span class="n">BOUNDARY_STEEPNESS</span> <span class="o">=</span> <span class="mf">100.0</span>
-<span class="n">PENALTY_STRENGTH</span> <span class="o">=</span> <span class="mf">1000.0</span>
 </code></pre></div>
 <h2 id="photometric-data-preparation">Photometric data preparation<a class="headerlink" href="#photometric-data-preparation" title="Permanent link">¤</a></h2>
-<p>The event was observed by OGLE and several KMTNet data sets. We remove
-low-quality measurements, rescale the reported uncertainties, and align the
-photometry to the OGLE flux system so that all observations can be modeled
-on a common scale.</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># %matplotlib ipympl</span>
-<span class="k">if</span> <span class="n">jax</span><span class="o">.</span><span class="n">local_device_count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">N_pmap</span><span class="p">:</span>
+<p>Filter the photometry and rescale the reported uncertainties. Alignment
+to the OGLE flux system is used only for plotting.</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">jax</span><span class="o">.</span><span class="n">local_device_count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">N_PMAP</span> <span class="o">*</span> <span class="n">HMC_NUM_CHAINS</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-        <span class="s2">"Restart the Python kernel before running this notebook so XLA_FLAGS can set 10 CPU devices."</span>
+        <span class="sa">f</span><span class="s2">"Restart the Python kernel so XLA_FLAGS can set </span><span class="si">{</span><span class="n">N_PMAP</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">HMC_NUM_CHAINS</span><span class="si">}</span><span class="s2"> CPU devices."</span>
     <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">EXAMPLE_DIR</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="s2">"KB_19_0371.csv"</span><span class="p">)</span>
 
 <span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">8500</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
 <span class="n">error_frac</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"OGLE"</span><span class="p">:</span> <span class="mf">1.59</span><span class="p">,</span>
@@ -843,52 +875,11 @@ on a common scale.</p>
     <span class="s2">"KMTS01"</span><span class="p">:</span> <span class="mf">1.19</span><span class="p">,</span>
     <span class="s2">"KMTS41"</span><span class="p">:</span> <span class="mf">1.41</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.003</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">error_frac</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-<span class="p">)</span>
-
-<span class="n">fs_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"OGLE"</span><span class="p">:</span> <span class="mf">0.1865329</span><span class="p">,</span>
-    <span class="s2">"KMTC01"</span><span class="p">:</span> <span class="mf">0.15551681</span><span class="p">,</span>
-    <span class="s2">"KMTC41"</span><span class="p">:</span> <span class="mf">0.16063666</span><span class="p">,</span>
-    <span class="s2">"KMTA01"</span><span class="p">:</span> <span class="mf">0.1964294</span><span class="p">,</span>
-    <span class="s2">"KMTA41"</span><span class="p">:</span> <span class="mf">0.12068191</span><span class="p">,</span>
-    <span class="s2">"KMTS01"</span><span class="p">:</span> <span class="mf">0.22724801</span><span class="p">,</span>
-    <span class="s2">"KMTS41"</span><span class="p">:</span> <span class="mf">0.16661919</span><span class="p">,</span>
-<span class="p">}</span>
-<span class="n">fb_dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"OGLE"</span><span class="p">:</span> <span class="mf">0.07354933</span><span class="p">,</span>
-    <span class="s2">"KMTC01"</span><span class="p">:</span> <span class="mf">0.10144077</span><span class="p">,</span>
-    <span class="s2">"KMTC41"</span><span class="p">:</span> <span class="mf">0.10602545</span><span class="p">,</span>
-    <span class="s2">"KMTA01"</span><span class="p">:</span> <span class="mf">0.04612094</span><span class="p">,</span>
-    <span class="s2">"KMTA41"</span><span class="p">:</span> <span class="mf">0.144712</span><span class="p">,</span>
-    <span class="s2">"KMTS01"</span><span class="p">:</span> <span class="mf">0.00623068</span><span class="p">,</span>
-    <span class="s2">"KMTS41"</span><span class="p">:</span> <span class="mf">0.09311172</span><span class="p">,</span>
-<span class="p">}</span>
-<span class="n">data</span><span class="p">[</span><span class="s2">"mag_aligned"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span>
-    <span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">align_function</span><span class="p">(</span>
-            <span class="n">x</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">],</span>
-            <span class="n">x</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">],</span>
-            <span class="n">fs_dict</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]],</span>
-            <span class="n">fb_dict</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]],</span>
-            <span class="n">fs_dict</span><span class="p">[</span><span class="s2">"OGLE"</span><span class="p">],</span>
-            <span class="n">fb_dict</span><span class="p">[</span><span class="s2">"OGLE"</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-
-<span class="n">data</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">8500</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="mf">0.003</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">error_frac</span><span class="p">))</span>
 </code></pre></div>
 <h2 id="close-binary-lens-solution">Close binary-lens solution<a class="headerlink" href="#close-binary-lens-solution" title="Permanent link">¤</a></h2>
-<p>Binary-lens events can exhibit degenerate solutions with similar light
-curves. For this example, we use the close solution as the starting point.
-The inset shows the source trajectory and the corresponding caustic
-structure.</p>
+<p>Start from the close solution and fit the source and blend fluxes for each
+data set. Use the fitted OGLE fluxes to align the light-curve plot.</p>
 <div class="highlight"><pre><span></span><code><span class="n">parms_close</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"t0"</span><span class="p">:</span> <span class="mf">8592.388619</span><span class="p">,</span>
     <span class="s2">"u0"</span><span class="p">:</span> <span class="mf">0.140631</span><span class="p">,</span>
@@ -900,13 +891,43 @@ structure.</p>
 <span class="p">}</span>
 <span class="c1"># parms_wide = {'t0': 8592.391925, 'u0': 0.144696, 'tE': 6.640740, 'logrho': -2.187052, 'alpha': 271.325666, 'logs': 0.188680, 'logq': -0.957499}</span>
 
-<span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span> <span class="o">=</span> <span class="n">mag_to_flux</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"mag_aligned"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-<span class="n">HJD</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">fs</span><span class="p">,</span> <span class="n">fb</span> <span class="o">=</span> <span class="mf">0.18893952</span><span class="p">,</span> <span class="mf">0.07114746</span>
+<span class="n">observation_times</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"HJD"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">optimization_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">parms_close</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">PARAMETER_NAMES</span><span class="p">])</span>
+<span class="n">group_ids</span><span class="p">,</span> <span class="n">telescope_names</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"Tel"</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fit_times</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">observation_times</span><span class="p">)</span>
+<span class="n">fit_flux</span><span class="p">,</span> <span class="n">fit_error</span> <span class="o">=</span> <span class="n">mag_to_flux</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">fit_flux</span><span class="p">,</span> <span class="n">fit_error</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fit_flux</span><span class="p">),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fit_error</span><span class="p">)</span>
+<span class="n">group_ids</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">group_ids</span><span class="p">)</span>
 
-<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">8500</span><span class="p">,</span> <span class="mi">8800</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
-<span class="n">mag_close</span> <span class="o">=</span> <span class="n">light_curve_VBBL</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">parms_close</span><span class="p">)</span>
-<span class="n">flux_close</span> <span class="o">=</span> <span class="n">mag_close</span> <span class="o">*</span> <span class="n">fs</span> <span class="o">+</span> <span class="n">fb</span>
+
+<span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">grouped_flux_fit</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="n">magnification</span> <span class="o">=</span> <span class="n">light_curve_Jax</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">fit_times</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fit_grouped_fluxes</span><span class="p">(</span>
+        <span class="n">magnification</span><span class="p">,</span>
+        <span class="n">fit_flux</span><span class="p">,</span>
+        <span class="n">fit_error</span><span class="p">,</span>
+        <span class="n">group_ids</span><span class="p">,</span>
+        <span class="n">n_groups</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">telescope_names</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="n">initial_flux_fit</span> <span class="o">=</span> <span class="n">grouped_flux_fit</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimization_start</span><span class="p">))</span>
+<span class="n">fs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">initial_flux_fit</span><span class="o">.</span><span class="n">source_flux</span><span class="p">)</span>
+<span class="n">fb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">initial_flux_fit</span><span class="o">.</span><span class="n">blend_flux</span><span class="p">)</span>
+<span class="n">ogle_group</span> <span class="o">=</span> <span class="n">telescope_names</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">"OGLE"</span><span class="p">)</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">"mag_aligned"</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag_aligned"</span><span class="p">]</span> <span class="o">=</span> <span class="n">align_function</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">"mag"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">"e_mag"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">[</span><span class="n">group_ids</span><span class="p">],</span>
+    <span class="n">fb</span><span class="p">[</span><span class="n">group_ids</span><span class="p">],</span>
+    <span class="n">fs</span><span class="p">[</span><span class="n">ogle_group</span><span class="p">],</span>
+    <span class="n">fb</span><span class="p">[</span><span class="n">ogle_group</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">plot_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">8500</span><span class="p">,</span> <span class="mi">8800</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="n">mag_close</span> <span class="o">=</span> <span class="n">light_curve_VBBL</span><span class="p">(</span><span class="n">plot_times</span><span class="p">,</span> <span class="n">parms_close</span><span class="p">)</span>
+<span class="n">flux_close</span> <span class="o">=</span> <span class="n">mag_close</span> <span class="o">*</span> <span class="n">fs</span><span class="p">[</span><span class="n">ogle_group</span><span class="p">]</span> <span class="o">+</span> <span class="n">fb</span><span class="p">[</span><span class="n">ogle_group</span><span class="p">]</span>
 <span class="n">mag_close</span> <span class="o">=</span> <span class="n">flux_to_mag</span><span class="p">(</span><span class="n">flux_close</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
@@ -920,15 +941,15 @@ structure.</p>
         <span class="n">fmt</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
     <span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">mag_close</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Close solution"</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">plot_times</span><span class="p">,</span> <span class="n">mag_close</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Close solution"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">"upper right"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">8580</span><span class="p">,</span> <span class="mi">8600</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"HJD"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Magnitude"</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
 
 <span class="n">ax_traj</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">])</span>
-<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="n">times</span> <span class="o">-</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"t0"</span><span class="p">])</span> <span class="o">/</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"tE"</span><span class="p">]</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="n">plot_times</span> <span class="o">-</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"t0"</span><span class="p">])</span> <span class="o">/</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"tE"</span><span class="p">]</span>
 <span class="n">alpha</span> <span class="o">=</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"alpha"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">180</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 <span class="n">y1</span> <span class="o">=</span> <span class="o">-</span><span class="n">parms_close</span><span class="p">[</span><span class="s2">"u0"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
 <span class="n">y2</span> <span class="o">=</span> <span class="n">parms_close</span><span class="p">[</span><span class="s2">"u0"</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
@@ -946,139 +967,12 @@ structure.</p>
 <span class="n">display</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 </code></pre></div>
 <p><img alt="Close solution light curve and trajectory" src="../figures/KB0371_close_solution.png" /></p>
-<h2 id="initial-parameters-and-emcee-reference-chain">Initial parameters and emcee reference chain<a class="headerlink" href="#initial-parameters-and-emcee-reference-chain" title="Permanent link">¤</a></h2>
-<p>We start from a previously optimized close solution and evaluate its
-chi-squared value. The optional emcee run provides a reference posterior for
-comparison with the local Fisher approximation. It is not required when
-running only the HMC section.</p>
-<div class="highlight"><pre><span></span><code><span class="n">initial_guess</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="mf">8.59238794e03</span><span class="p">,</span>
-    <span class="mf">1.42915228e-01</span><span class="p">,</span>
-    <span class="mf">6.61567944e00</span><span class="p">,</span>
-    <span class="o">-</span><span class="mf">2.23131913e00</span><span class="p">,</span>
-    <span class="mf">2.71714918e02</span><span class="p">,</span>
-    <span class="o">-</span><span class="mf">7.73128397e-02</span><span class="p">,</span>
-    <span class="o">-</span><span class="mf">1.14229367e00</span><span class="p">,</span>
-<span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">objective_func</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">,</span> <span class="p">[</span><span class="n">HJD</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span><span class="p">],</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fb</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"tot dof = "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">HJD</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">parms_close</span><span class="p">))</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1"># import scipy.optimize as op</span>
-<span class="c1"># res = op.minimize(objective_func, x0=initial_guess, args=([HJD,flux,ferr], fs, fb), method='Nelder-Mead')</span>
-<span class="c1"># print(res.x)</span>
-<span class="c1"># print(res.fun)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="n">n_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">)</span>
-<span class="n">nwalkers</span> <span class="o">=</span> <span class="mi">20</span>
-<span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">)</span>
-<span class="n">chain</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">initial_guess</span> <span class="o">+</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nwalkers</span><span class="p">)]</span>
-    <span class="k">with</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">nwalkers</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-        <span class="n">sampler</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span>
-            <span class="n">nwalkers</span><span class="p">,</span>
-            <span class="n">n_dim</span><span class="p">,</span>
-            <span class="n">objective_func</span><span class="p">,</span>
-            <span class="n">args</span><span class="o">=</span><span class="p">([</span><span class="n">HJD</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span><span class="p">],</span> <span class="n">fs</span><span class="p">,</span> <span class="n">fb</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="n">pool</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">pos</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">sampler</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-        <span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping emcee; set RUN_EMCEE = True to run it."</span><span class="p">)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
-    <span class="n">sample_chain</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_chain</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">sample_chain</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
-    <span class="n">sample_chain_reshape</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">sample_chain</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">sample_chain_reshape</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-    <span class="n">print_summary</span><span class="p">(</span><span class="n">sample_chain_reshape</span><span class="p">)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="n">parm_name</span> <span class="o">=</span> <span class="n">PARAMETER_NAMES</span>
-<span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
-    <span class="n">chain</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_chain</span><span class="p">(</span><span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span>
-        <span class="n">chain</span><span class="p">,</span>
-        <span class="n">labels</span><span class="o">=</span><span class="n">parm_name</span><span class="p">,</span>
-        <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span>
-        <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">truths</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">chain</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_emcee_corner.png"</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parm_name</span><span class="p">)):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">parm_name</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">chain</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]))</span>
-</code></pre></div>
-<h2 id="local-fisher-approximation">Local Fisher approximation<a class="headerlink" href="#local-fisher-approximation" title="Permanent link">¤</a></h2>
-<p>HMC can become inefficient when the posterior is strongly correlated or has
-very different scales along different directions. Following the discussion
-in the NumPyro tutorial
-<a href="https://num.pyro.ai/en/stable/tutorials/bad_posterior_geometry.html">Bad posterior geometry and how to deal with it</a>,
-we change the coordinate system before running HMC.</p>
-<p>For Gaussian observational errors, the local Fisher matrix is approximated
-from the Jacobian of the normalized model flux:</p>
-<div class="arithmatex">\[
-F = J^\mathsf{T} J,
-\qquad
-C \approx F^{-1}.
-\]</div>
-<p>Here, <span class="arithmatex">\(C\)</span> is a local approximation to the covariance of the physical model
-parameters. When the emcee chain is available, the figure below compares its
-posterior contours with this local Gaussian approximation.</p>
-<div class="highlight"><pre><span></span><code><span class="n">initial_guess</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="mf">8.59238794e03</span><span class="p">,</span>
-    <span class="mf">1.42915228e-01</span><span class="p">,</span>
-    <span class="mf">6.61567944e00</span><span class="p">,</span>
-    <span class="o">-</span><span class="mf">2.23131913e00</span><span class="p">,</span>
-    <span class="mf">2.71714918e02</span><span class="p">,</span>
-    <span class="o">-</span><span class="mf">7.73128397e-02</span><span class="p">,</span>
-    <span class="o">-</span><span class="mf">1.14229367e00</span><span class="p">,</span>
-<span class="p">]</span>
-<span class="n">times</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span> <span class="o">=</span> <span class="n">HJD</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span>
-<span class="n">weight_light_curve</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">light_curve_Jax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span> <span class="o">*</span> <span class="n">fs</span> <span class="o">+</span> <span class="n">fb</span><span class="p">)</span> <span class="o">/</span> <span class="n">ferr</span>
-<span class="n">jacobian_fun</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">jacfwd</span><span class="p">(</span><span class="n">weight_light_curve</span><span class="p">)</span>
-<span class="n">jacobian</span> <span class="o">=</span> <span class="n">jacobian_fun</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">))</span>
-<span class="n">fisher_matrix</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">jacobian</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">jacobian</span><span class="p">)</span>
-<span class="n">fisher_cov</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">fisher_matrix</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">chain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_covariance</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">,</span> <span class="n">parm_name</span><span class="p">,</span> <span class="n">fisher_cov</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
-    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_fisher_covariance.png"</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping Fisher covariance plot because the emcee chain is unavailable."</span><span class="p">)</span>
-</code></pre></div>
-<p><img alt="Fisher covariance compared with the emcee chain" src="../figures/KB0371_fisher_covariance.png" /></p>
-<h2 id="fisher-reparameterization-for-hmc">Fisher reparameterization for HMC<a class="headerlink" href="#fisher-reparameterization-for-hmc" title="Permanent link">¤</a></h2>
-<p>We compute the Cholesky factor of the local covariance,</p>
-<div class="arithmatex">\[
-C = L L^\mathsf{T},
-\]</div>
-<p>and sample an unconstrained latent parameter <span class="arithmatex">\(\boldsymbol{z}\)</span> instead of
-sampling the physical parameters directly:</p>
-<div class="arithmatex">\[
-\boldsymbol{\theta}
-=
-\boldsymbol{\theta}_0 + L \boldsymbol{z}.
-\]</div>
-<p>The latent parameter <span class="arithmatex">\(\boldsymbol{z}\)</span> is sampled from <code>dist.ImproperUniform</code>,
-so this is only a linear change of coordinates. It does not introduce a
-Gaussian prior around the initial solution. Locally, the transformation
-reduces the scale differences and correlations seen by HMC. Soft penalties
-keep the resulting physical parameters inside their valid boundaries. We
-also use <code>dense_mass=True</code> so that NumPyro can adapt the remaining
-correlations during warmup.</p>
-<p>Pad the time array to a multiple of the number of parallel devices. Keep
-the observed fluxes and uncertainties at their original length, and trim
-the model predictions before evaluating the likelihood and chi2.</p>
-<div class="highlight"><pre><span></span><code><span class="n">padding</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">HJD</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">N_pmap</span>
-<span class="n">HJD_pad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">HJD</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"edge"</span><span class="p">)</span>
-</code></pre></div>
+<h2 id="gradient-optimization-with-scipy-and-jax">Gradient optimization with SciPy and JAX<a class="headerlink" href="#gradient-optimization-with-scipy-and-jax" title="Permanent link">¤</a></h2>
+<p>Optimize the seven lens parameters with <code>scipy.optimize.least_squares</code>,
+using the residual Jacobian supplied by JAX automatic differentiation.</p>
 <div class="highlight"><pre><span></span><code><span class="n">parameter_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
     <span class="p">[</span>
-        <span class="p">[</span><span class="n">initial_guess</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">50.0</span><span class="p">,</span> <span class="n">initial_guess</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">50.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">optimization_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">50.0</span><span class="p">,</span> <span class="n">optimization_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">50.0</span><span class="p">],</span>
         <span class="p">[</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span>
         <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">],</span>
         <span class="p">[</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">],</span>
@@ -1087,46 +981,142 @@ the model predictions before evaluating the likelihood and chi2.</p>
         <span class="p">[</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
     <span class="p">]</span>
 <span class="p">)</span>
-<span class="n">param_lowers</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parameter_bounds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">profiled_residuals</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">grouped_flux_fit</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">residuals</span>
+
+
+<span class="n">residual_jacobian</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">jacfwd</span><span class="p">(</span><span class="n">profiled_residuals</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">optimization</span> <span class="o">=</span> <span class="n">least_squares</span><span class="p">(</span>
+    <span class="n">profiled_residuals</span><span class="p">,</span>
+    <span class="n">optimization_start</span><span class="p">,</span>
+    <span class="n">jac</span><span class="o">=</span><span class="n">residual_jacobian</span><span class="p">,</span>
+    <span class="n">bounds</span><span class="o">=</span><span class="n">parameter_bounds</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="n">x_scale</span><span class="o">=</span><span class="s2">"jac"</span><span class="p">,</span>
+    <span class="n">max_nfev</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">optimized_params</span> <span class="o">=</span> <span class="n">optimization</span><span class="o">.</span><span class="n">x</span>
+<span class="n">optimized_flux_fit</span> <span class="o">=</span> <span class="n">grouped_flux_fit</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimized_params</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Optimizer:"</span><span class="p">,</span> <span class="n">optimization</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Initial chi2:"</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">initial_flux_fit</span><span class="o">.</span><span class="n">chi2_by_group</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Optimized chi2:"</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">optimized_flux_fit</span><span class="o">.</span><span class="n">chi2_by_group</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">"Degrees of freedom:"</span><span class="p">,</span>
+    <span class="nb">len</span><span class="p">(</span><span class="n">fit_times</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">optimization_start</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">telescope_names</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">display</span><span class="p">(</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">"initial"</span><span class="p">:</span> <span class="n">optimization_start</span><span class="p">,</span> <span class="s2">"optimized"</span><span class="p">:</span> <span class="n">optimized_params</span><span class="p">},</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">PARAMETER_NAMES</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">display</span><span class="p">(</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"source_flux"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimized_flux_fit</span><span class="o">.</span><span class="n">source_flux</span><span class="p">),</span>
+            <span class="s2">"blend_flux"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimized_flux_fit</span><span class="o">.</span><span class="n">blend_flux</span><span class="p">),</span>
+            <span class="s2">"chi2"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimized_flux_fit</span><span class="o">.</span><span class="n">chi2_by_group</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">telescope_names</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="local-fisher-approximation">Local Fisher approximation<a class="headerlink" href="#local-fisher-approximation" title="Permanent link">¤</a></h2>
+<p>HMC can become inefficient when the posterior is strongly correlated or has
+very different scales along different directions. Following the discussion
+in the NumPyro tutorial
+<a href="https://num.pyro.ai/en/stable/tutorials/bad_posterior_geometry.html">Bad posterior geometry and how to deal with it</a>,
+we change the coordinate system before running HMC.</p>
+<p>For Gaussian observational errors, we approximate the local Fisher matrix
+from the Jacobian of the normalized residuals at <code>optimized_params</code>:</p>
+<div class="arithmatex">\[
+r_i(\boldsymbol{\theta})
+= \frac{f_i - f_{\mathrm{model},i}(\boldsymbol{\theta})}{\sigma_i},
+\qquad
+J_{ij} = \frac{\partial r_i}{\partial \theta_j},
+\]</div>
+<div class="arithmatex">\[
+F = J^\mathsf{T} J,
+\qquad
+C \approx F^{-1}.
+\]</div>
+<p><code>profiled_residuals</code> refits the source and blend fluxes at each lens
+parameter vector, so their parameter dependence is included in the
+Jacobian. Here, <span class="arithmatex">\(C\)</span> approximates the local covariance of the seven lens
+parameters and supplies the scales and correlations for HMC below.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fisher_matrix</span> <span class="o">=</span> <span class="n">fisher_information</span><span class="p">(</span><span class="n">profiled_residuals</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimized_params</span><span class="p">))</span>
+<span class="n">fisher_cov</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">fisher_matrix</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fisher_cov</span><span class="p">))),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">PARAMETER_NAMES</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Local parameter uncertainty"</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="fisher-reparameterization-for-hmc">Fisher reparameterization for HMC<a class="headerlink" href="#fisher-reparameterization-for-hmc" title="Permanent link">¤</a></h2>
+<p>Set <span class="arithmatex">\(\boldsymbol{\theta}_0\)</span> to <code>optimized_params</code> and compute the lower
+triangular Cholesky factor <span class="arithmatex">\(L\)</span> of <code>fisher_cov</code>. NUTS samples the latent
+coordinates <span class="arithmatex">\(\boldsymbol{z}\)</span> and maps them to the lens parameters:</p>
+<div class="arithmatex">\[
+C = L L^\mathsf{T},
+\qquad
+\boldsymbol{\theta}
+=
+\boldsymbol{\theta}_0 + L \boldsymbol{z}.
+\]</div>
+<p>Under the local Gaussian approximation, the covariance of these new
+coordinates is</p>
+<div class="arithmatex">\[
+\operatorname{Cov}(\boldsymbol{z})
+\approx L^{-1} C L^{-\mathsf{T}} = I.
+\]</div>
+<p>This reduces scale differences and correlations near the fitted solution.
+We compute <span class="arithmatex">\(L\)</span> once and keep it fixed during sampling; <code>dense_mass=True</code>
+lets NumPyro adapt the remaining correlations during warmup.</p>
+<p>In the model, <code>param_base</code> stores <span class="arithmatex">\(\boldsymbol{z}\)</span> and <code>param</code> records
+<span class="arithmatex">\(\boldsymbol{\theta}\)</span>. Initializing <code>param_base</code> at zero starts the chain
+at <code>optimized_params</code>. Every likelihood evaluation uses the full light
+curve at the transformed parameters.</p>
+<p><code>dist.ImproperUniform</code> keeps the latent prior flat. Since <span class="arithmatex">\(L\)</span> is fixed,
+the change-of-variables Jacobian determinant is constant: this
+reparameterization does not add a Gaussian prior. The boundary penalties
+are still evaluated in the original lens coordinates.</p>
+<p>Pad only the times for parallel evaluation, then trim the predictions
+before evaluating the likelihood and chi2.</p>
+<div class="highlight"><pre><span></span><code><span class="n">padding</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">fit_times</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">%</span> <span class="n">N_PMAP</span>
+<span class="n">time_chunks</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">fit_times</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"edge"</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_PMAP</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">parallel_light_curve</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">pmap</span><span class="p">(</span><span class="n">light_curve_Jax</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">param_lowers</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parameter_bounds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
 <span class="n">param_uppers</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parameter_bounds</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
 
-<span class="n">initial_param</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">)</span>
+<span class="n">initial_param</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">optimized_params</span><span class="p">)</span>
 <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">initial_param</span> <span class="o">&lt;=</span> <span class="n">param_lowers</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span>
     <span class="n">jnp</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">initial_param</span> <span class="o">&gt;=</span> <span class="n">param_uppers</span><span class="p">)</span>
 <span class="p">):</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Initial parameters must be strictly inside soft boundaries."</span><span class="p">)</span>
 
 <span class="n">cholesky_transform</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">fisher_cov</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span>
-    <span class="s2">"physical covariance eigenvalues from inv(Fisher):"</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">fisher_cov</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Cholesky transform:"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cholesky_transform</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="hmc-model">HMC model<a class="headerlink" href="#hmc-model" title="Permanent link">¤</a></h3>
-<p>The model below exposes the full NumPyro target used by NUTS. The sampled
-variable <code>param_base</code> is the unconstrained latent coordinate
-<span class="arithmatex">\(\boldsymbol{z}\)</span>. The deterministic variable <code>param</code> applies the Fisher
-transformation and records the corresponding physical parameters
-<span class="arithmatex">\(\boldsymbol{\theta}\)</span>.</p>
-<p>The likelihood is evaluated after clipping the physical parameters to the
-valid numerical domain. A soft penalty suppresses samples outside the
-intended physical boundaries without introducing a Gaussian prior around
-the initial solution.</p>
+<p>Fit the source and blend fluxes at each likelihood evaluation. Clip lens
+parameters to the numerical domain and apply a soft boundary penalty.</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">model_HMC_reparameterized</span><span class="p">(</span>
     <span class="n">data</span><span class="p">,</span>
-    <span class="n">fs</span><span class="p">,</span>
-    <span class="n">fb</span><span class="p">,</span>
+    <span class="n">group_ids</span><span class="p">,</span>
+    <span class="n">n_groups</span><span class="p">,</span>
     <span class="n">init_val</span><span class="p">,</span>
     <span class="n">transform_matrix</span><span class="p">,</span>
     <span class="n">param_lowers</span><span class="p">,</span>
     <span class="n">param_uppers</span><span class="p">,</span>
-    <span class="n">boundary_steepness</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
-    <span class="n">penalty_strength</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
-    <span class="n">n_pmap</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">boundary_steepness</span><span class="p">,</span>
+    <span class="n">penalty_strength</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="n">times</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="n">time_chunks</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span> <span class="o">=</span> <span class="n">data</span>
     <span class="n">param_base</span> <span class="o">=</span> <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
         <span class="s2">"param_base"</span><span class="p">,</span>
         <span class="n">dist</span><span class="o">.</span><span class="n">ImproperUniform</span><span class="p">(</span><span class="n">constraints</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="p">(),</span> <span class="n">event_shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">init_val</span><span class="p">),)),</span>
@@ -1139,17 +1129,14 @@ the initial solution.</p>
     <span class="n">penalty</span> <span class="o">=</span> <span class="n">lower_penalty</span> <span class="o">+</span> <span class="n">upper_penalty</span>
     <span class="n">safe_params</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">parmsample</span><span class="p">,</span> <span class="n">param_lowers</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">param_uppers</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">)</span>
 
-    <span class="n">pmap_light_curve</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">curve_times</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">light_curve_Jax_pmap</span><span class="p">(</span>
-        <span class="n">curve_times</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">n_pmap</span>
-    <span class="p">)</span>
-    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">pmap</span><span class="p">(</span><span class="n">pmap_light_curve</span><span class="p">,</span> <span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))(</span>
-        <span class="n">times</span><span class="p">,</span> <span class="n">safe_params</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_pmap</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mag_mod</span><span class="p">,</span> <span class="n">times</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">"F"</span><span class="p">)[:</span> <span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-    <span class="n">flux_mod</span> <span class="o">=</span> <span class="n">mag_mod</span> <span class="o">*</span> <span class="n">fs</span> <span class="o">+</span> <span class="n">fb</span>
-    <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">"obs"</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">flux_mod</span><span class="p">,</span> <span class="n">ferr</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">flux</span><span class="p">)</span>
+    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">parallel_light_curve</span><span class="p">(</span><span class="n">safe_params</span><span class="p">,</span> <span class="n">time_chunks</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">mag_mod</span> <span class="o">=</span> <span class="n">mag_mod</span><span class="p">[:</span> <span class="n">flux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">flux_fit</span> <span class="o">=</span> <span class="n">fit_grouped_fluxes</span><span class="p">(</span><span class="n">mag_mod</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span><span class="p">,</span> <span class="n">group_ids</span><span class="p">,</span> <span class="n">n_groups</span><span class="o">=</span><span class="n">n_groups</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">"obs"</span><span class="p">,</span> <span class="n">dist</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">flux_fit</span><span class="o">.</span><span class="n">model_flux</span><span class="p">,</span> <span class="n">ferr</span><span class="p">),</span> <span class="n">obs</span><span class="o">=</span><span class="n">flux</span><span class="p">)</span>
     <span class="n">numpyro</span><span class="o">.</span><span class="n">factor</span><span class="p">(</span><span class="s2">"boundary_penalty"</span><span class="p">,</span> <span class="o">-</span><span class="n">penalty_strength</span> <span class="o">*</span> <span class="n">penalty</span><span class="p">)</span>
-    <span class="n">chi2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(((</span><span class="n">flux_mod</span> <span class="o">-</span> <span class="n">flux</span><span class="p">)</span> <span class="o">/</span> <span class="n">ferr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">chi2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">flux_fit</span><span class="o">.</span><span class="n">chi2_by_group</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">"source_flux"</span><span class="p">,</span> <span class="n">flux_fit</span><span class="o">.</span><span class="n">source_flux</span><span class="p">)</span>
+    <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">"blend_flux"</span><span class="p">,</span> <span class="n">flux_fit</span><span class="o">.</span><span class="n">blend_flux</span><span class="p">)</span>
     <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">"chi2"</span><span class="p">,</span> <span class="n">chi2</span><span class="p">)</span>
     <span class="n">numpyro</span><span class="o">.</span><span class="n">deterministic</span><span class="p">(</span><span class="s2">"penalty"</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
 </code></pre></div>
@@ -1170,40 +1157,105 @@ the initial solution.</p>
         <span class="n">nuts_kernel</span><span class="p">,</span>
         <span class="n">num_warmup</span><span class="o">=</span><span class="n">HMC_NUM_WARMUP</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="o">=</span><span class="n">HMC_NUM_SAMPLES</span><span class="p">,</span>
-        <span class="n">num_chains</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">num_chains</span><span class="o">=</span><span class="n">HMC_NUM_CHAINS</span><span class="p">,</span>
         <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">mcmc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
-        <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">HJD_pad</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">ferr</span><span class="p">],</span>
-        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-        <span class="n">fb</span><span class="o">=</span><span class="n">fb</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">time_chunks</span><span class="p">,</span> <span class="n">fit_flux</span><span class="p">,</span> <span class="n">fit_error</span><span class="p">],</span>
+        <span class="n">group_ids</span><span class="o">=</span><span class="n">group_ids</span><span class="p">,</span>
+        <span class="n">n_groups</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">telescope_names</span><span class="p">),</span>
         <span class="n">init_val</span><span class="o">=</span><span class="n">initial_param</span><span class="p">,</span>
         <span class="n">transform_matrix</span><span class="o">=</span><span class="n">cholesky_transform</span><span class="p">,</span>
         <span class="n">param_lowers</span><span class="o">=</span><span class="n">param_lowers</span><span class="p">,</span>
         <span class="n">param_uppers</span><span class="o">=</span><span class="n">param_uppers</span><span class="p">,</span>
         <span class="n">boundary_steepness</span><span class="o">=</span><span class="n">BOUNDARY_STEEPNESS</span><span class="p">,</span>
         <span class="n">penalty_strength</span><span class="o">=</span><span class="n">PENALTY_STRENGTH</span><span class="p">,</span>
-        <span class="n">n_pmap</span><span class="o">=</span><span class="n">N_pmap</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">mcmc</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">exclude_deterministic</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping HMC; set RUN_HMC = True to run it."</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="hmc-posterior">HMC posterior<a class="headerlink" href="#hmc-posterior" title="Permanent link">¤</a></h2>
-<p>NumPyro runs NUTS in the reparameterized latent space. The deterministic
-parameter <code>param</code> maps the samples back to the original physical parameter
-space shown in the corner plot below.</p>
 <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_HMC</span><span class="p">:</span>
-    <span class="n">hmc_sample</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s2">"param"</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">hmc_sample</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">hmc_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mcmc</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s2">"param"</span><span class="p">])</span>
     <span class="n">fig</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hmc_sample</span><span class="p">),</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span> <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">hmc_samples</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="n">PARAMETER_NAMES</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span>
+        <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_hmc_corner.png"</span><span class="p">)</span>
 </code></pre></div>
-<p><img alt="HMC posterior after Fisher reparameterization" src="../figures/KB0371_hmc_corner.png" /></p>
+<p><img alt="HMC posterior" src="../figures/KB0371_hmc_corner.png" /></p>
+<h2 id="emcee-reference-chain">emcee reference chain<a class="headerlink" href="#emcee-reference-chain" title="Permanent link">¤</a></h2>
+<p>Start emcee from <code>optimized_params</code>, using VBM with the same grouped fit
+and boundary penalties as HMC.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">log_probability</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">parameter_bounds</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">penalty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logaddexp</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">BOUNDARY_STEEPNESS</span> <span class="o">*</span> <span class="p">(</span><span class="n">lower</span> <span class="o">-</span> <span class="n">params</span><span class="p">)))</span>
+    <span class="n">penalty</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logaddexp</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">BOUNDARY_STEEPNESS</span> <span class="o">*</span> <span class="p">(</span><span class="n">params</span> <span class="o">-</span> <span class="n">upper</span><span class="p">)))</span>
+    <span class="n">safe_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">lower</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">upper</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">)</span>
+    <span class="n">magnification</span> <span class="o">=</span> <span class="n">light_curve_VBBL</span><span class="p">(</span>
+        <span class="n">observation_times</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">PARAMETER_NAMES</span><span class="p">,</span> <span class="n">safe_params</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">flux_fit</span> <span class="o">=</span> <span class="n">fit_grouped_fluxes</span><span class="p">(</span>
+        <span class="n">magnification</span><span class="p">,</span>
+        <span class="n">fit_flux</span><span class="p">,</span>
+        <span class="n">fit_error</span><span class="p">,</span>
+        <span class="n">group_ids</span><span class="p">,</span>
+        <span class="n">n_groups</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">telescope_names</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">flux_fit</span><span class="o">.</span><span class="n">chi2_by_group</span><span class="p">))</span> <span class="o">-</span> <span class="n">PENALTY_STRENGTH</span> <span class="o">*</span> <span class="n">penalty</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">n_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">optimized_params</span><span class="p">)</span>
+<span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">optimized_params</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">optimized_params</span> <span class="o">+</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_dim</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">EMCEE_NWALKERS</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">with</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">EMCEE_NWALKERS</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="n">sampler</span> <span class="o">=</span> <span class="n">emcee</span><span class="o">.</span><span class="n">EnsembleSampler</span><span class="p">(</span>
+            <span class="n">EMCEE_NWALKERS</span><span class="p">,</span>
+            <span class="n">n_dim</span><span class="p">,</span>
+            <span class="n">log_probability</span><span class="p">,</span>
+            <span class="n">pool</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">pos</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">EMCEE_NUM_WARMUP</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">sampler</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">sampler</span><span class="o">.</span><span class="n">run_mcmc</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">EMCEE_NUM_SAMPLES</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping emcee; set RUN_EMCEE = True to run it."</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
+    <span class="n">emcee_samples</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_chain</span><span class="p">()</span>
+    <span class="n">print_summary</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">emcee_samples</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
+    <span class="n">emcee_chain</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_chain</span><span class="p">(</span><span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">corner</span><span class="p">(</span>
+        <span class="n">emcee_chain</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="n">PARAMETER_NAMES</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">],</span>
+        <span class="n">show_titles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">truths</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">emcee_chain</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_emcee_corner.png"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="emcee posterior" src="../figures/KB0371_emcee_corner.png" /></p>
+<p>Compare the local Fisher approximation (red) with the emcee posterior
+(blue).</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">RUN_EMCEE</span><span class="p">:</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_covariance</span><span class="p">(</span>
+        <span class="n">optimized_params</span><span class="p">,</span> <span class="n">PARAMETER_NAMES</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fisher_cov</span><span class="p">),</span> <span class="n">emcee_chain</span>
+    <span class="p">)</span>
+    <span class="n">save_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"KB0371_fisher_covariance.png"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="Fisher approximation and emcee posterior" src="../figures/KB0371_fisher_covariance.png" /></p>
 
 
 
