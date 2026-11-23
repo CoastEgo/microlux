@@ -73,6 +73,7 @@ plugins:
     - mkdocstrings:
         handlers:
             python:
+                paths: [src]
                 options:
                     docstring_style: google
                     docstring_section_style: list
