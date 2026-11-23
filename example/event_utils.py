@@ -1,6 +1,5 @@
 """Helpers for the KB-19-0371 event modeling example."""
 
-import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
@@ -242,9 +241,3 @@ def light_curve_Jax(parms, times):
     s = 10.0 ** parms[5]
     q = 10.0 ** parms[6]
     return binary_mag(t0, u0, tE, rho, q, s, alpha_deg, times)
-
-
-def light_curve_Jax_pmap(times, parms, i, n_pmap):
-    times = jnp.reshape(times, (-1, n_pmap), order="C")
-    times_i = times[:, i]
-    return light_curve_Jax(parms, times_i)
